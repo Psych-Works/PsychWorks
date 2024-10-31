@@ -103,7 +103,7 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
         <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin" asChild>
-              <Link href="/sign-in">signin</Link>
+              <Link href="/sign-in">Sign In</Link>
             </TabsTrigger>
             <TabsTrigger value="signup" asChild>
               <Link href="/sign-up">Sign Up</Link>
@@ -151,7 +151,7 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Loading..." : "signin"}
+                  {isLoading ? "Loading..." : "Sign In"}
                 </Button>
               </form>
             </Form>
