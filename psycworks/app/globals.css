@@ -91,4 +91,28 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+
+  .login{
+    height: 100%;
+    width: 100%;
+  }
+
+  .login-background {
+    height: 90%; /* Sets height to 80% of the viewport height */
+    width: 90%;  /* Sets width to 80% of the viewport width */
+    display: flex; /* Enables flexbox on this element */
+    align-items: center; /* Centers items vertically */
+    justify-content: center; /* Centers items horizontally */
+    background-color: #757195; /* Background color */
+    padding-top: 10%;
+    border-radius: 16px;
+}
+
+body {
+  display: flex;
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  height: 100vh; /* Full viewport height */
+  margin: 0; /* Remove default margin */
+}
 }
