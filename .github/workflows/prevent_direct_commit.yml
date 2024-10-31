@@ -1,0 +1,17 @@
+name: Prevent Direct Commits to Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  prevent-direct-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Direct Commit
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.event.head_commit.author.username }}" != "dependabot[bot]" ]; then
+            echo "Direct commits to the main branch are not allowed."
+            exit 1
+          fi
