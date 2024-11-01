@@ -3,13 +3,13 @@ import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/images/logo.png";
 
-const Logo = () => {
+const AuthLogo = () => {
   return (
     <Link href="/" className="inline-block">
       <Image
         src={logo}
         alt="Fort Worth Psycworks"
-        width={450}
+        width={900}
         height={60}
         priority
         className="object-contain"
@@ -18,4 +18,4 @@ const Logo = () => {
   );
 };
 
-export default Logo;
+export default AuthLogo; 

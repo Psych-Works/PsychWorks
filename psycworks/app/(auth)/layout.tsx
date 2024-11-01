@@ -1,4 +1,4 @@
-import Logo from "@/components/logo/logo";
+import AuthLogo from "@/components/logo/auth-logo";
 import React from "react";
 
 export default function AuthLayout({
@@ -9,7 +9,7 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen bg-primary">
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <Logo />
+        <AuthLogo />
         {children}
       </div>
     </div>
