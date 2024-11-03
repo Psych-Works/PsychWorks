@@ -59,7 +59,8 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
     setError(null);
 
     try {
-      const endpoint = type === "signin" ? "/auth/signin" : "/auth/signup";
+      const endpoint =
+        type === "signin" ? "/api/auth/sign-in" : "/api/auth/sign-up";
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
