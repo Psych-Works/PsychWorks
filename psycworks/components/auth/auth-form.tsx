@@ -69,19 +69,22 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
         body: JSON.stringify(values),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Authentication failed");
-      }
-
       const data = await response.json();
 
-      // Store the token if returned
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+      if (!response.ok) {
+        throw new Error(data.error || "Authentication failed");
       }
 
-      router.push("/dashboard");
+      // For sign-up, show success message if email confirmation is required
+      if (type === "signup" && data.message) {
+        setError(data.message); // Using error state to show success message
+        return;
+      }
+
+      // If we have a session, we can redirect
+      if (data.session) {
+        router.push("/");
+      }
     } catch (error) {
       console.error("Authentication error:", error);
       setError(error instanceof Error ? error.message : "An error occurred");
