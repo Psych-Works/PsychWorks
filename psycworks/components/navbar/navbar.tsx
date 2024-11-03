@@ -1,5 +1,6 @@
 import React from "react";
 import Logo from "@/components/logo/logo";
+import Link from "next/link";
 
 export default function Navbar() {
   return (
@@ -10,22 +11,22 @@ export default function Navbar() {
       {/* Navigation Links */}
       <ul className="flex space-x-8 mr-10">
         <li>
-          <a
+          <Link
             href="/assessments"
             className="text-white hover:text-black text-lg"
           >
             Assessments
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="/templates" className="text-white hover:text-black text-lg">
+          <Link href="/templates" className="text-white hover:text-black text-lg">
             Templates
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="/settings" className="text-white hover:text-black text-lg">
+          <Link href="/settings" className="text-white hover:text-black text-lg">
             Settings
-          </a>
+          </Link>
         </li>
       </ul>
     </nav>
