@@ -7,14 +7,15 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
+} from "@/components/ui/navigation-menu";
 import Link from "next/link";
+import UserAvatar from "../auth/user-avatar";
 
 export default function Navbar() {
   return (
     <nav className="bg-primary flex justify-between items-center py-1 px-2 w-full shadow-2xl">
       <Logo width={450} height={60} />
-      
+
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
@@ -34,7 +35,7 @@ export default function Navbar() {
           <NavigationMenuItem>
             <Link href="/settings" legacyBehavior passHref>
               <NavigationMenuLink className="text-white hover:text-black text-lg px-4 py-2">
-                Settings
+                <UserAvatar />
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
