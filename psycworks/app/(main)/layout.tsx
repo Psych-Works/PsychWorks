@@ -1,7 +1,7 @@
 import React from "react";
 import Logo from "@/components/logo/logo";
 
-export default function DashboardLayout({
+export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
