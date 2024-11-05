@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 // Add OPTIONS method to handle preflight requests
 export async function OPTIONS() {
@@ -26,10 +27,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // Create a Supabase client for the route handler
+    const supabase = createRouteHandlerClient({ cookies })
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
+    console.log('Supabase auth response:', { data, error });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 401 });
