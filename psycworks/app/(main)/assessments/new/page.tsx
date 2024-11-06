@@ -1,4 +1,4 @@
-import { CreationForm } from "@/components/main/creation-form";
+import { CreationForm } from "@/components/assessments/creation-form";
 
 export default function NewAssessmentPage() {
   return (
