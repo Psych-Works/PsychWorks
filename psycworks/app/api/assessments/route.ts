@@ -1,6 +1,20 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
+// Add OPTIONS method to handle preflight requests
+export async function OPTIONS() {
+  return NextResponse.json(
+    {},
+    {
+      headers: {
+        Allow: "GET",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    }
+  );
+}
+
 export async function GET(request: Request) {
   try {
     // Get the URL object to parse query parameters
