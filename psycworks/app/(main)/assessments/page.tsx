@@ -1,3 +1,4 @@
+import React from "react"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/searchbar/search-bar"
 
@@ -12,7 +13,7 @@ export default function AssessmentsPage() {
         <Button className="w-40 h-12">Create</Button>
       </div>
       <div className="absolute left-40 right-40 top-60">
-        <SearchBar placeholder="Search assessments..." className="w-full" />
+        <SearchBar />
       </div>
     </div>
   );
