@@ -5,12 +5,11 @@ import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
 
 interface SearchBarProps {
     placeholder?: string
-    className?: string
 }
 
-export function SearchBar({ placeholder = "Search assessments...", className }: SearchBarProps) {
+export function SearchBar({ placeholder = "Search assessments..." }: SearchBarProps) {
     return (
-        <div className={`flex gap-3 w-full px-3 bg-gray-300 rounded-md shadow-md ${className}`}>
+        <div className="flex gap-3 w-full px-3 bg-gray-300 rounded-md shadow-md">
             <MagnifyingGlassIcon className="h-4 w-4 text-black my-auto" />
             <Input
                 type="search"
