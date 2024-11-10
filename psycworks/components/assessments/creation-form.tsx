@@ -183,35 +183,38 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
                     </div>
                     {/* Add domain/subtest buttons that are populated under the last domain/subtest */}
                       <div className="flex gap-2 mt-2 mb-4 pl-14">
-                      {/* Only show the add domain/subtest buttons if the current field is the last field */}
-                      {index === fields.length - 1 && (
+                        {/* Show Add Domain button only if current field is last */}
+                        {index === fields.length - 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className={`w-[20%] ${fields[index].type === "subtest" ? "ml-[8%]" : ""}`}
+                            onClick={() => insert(index + 1, { 
+                              name: "", 
+                              type: "domain",
+                              scoreType: ""
+                            })}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Domain
+                          </Button>
+                        )}
+                        {/* Show Add Subtest button with proper indentation based on current field type */}
                         <Button
                           type="button"
                           variant="outline"
-                          className="w-[20%]"
+                          className={`w-[20%] ${
+                            fields[index].type === "subtest" && index !== fields.length - 1 ? "ml-[8%]" : ""
+                          }`}
                           onClick={() => insert(index + 1, { 
                             name: "", 
-                            type: "domain",
+                            type: "subtest",
                             scoreType: ""
                           })}
                         >
                           <Plus className="h-4 w-4 mr-2" />
-                          Add Domain
+                          Add Subtest
                         </Button>
-                      )}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className={`w-[20%] ${fields[index].type === "subtest" ? "ml-[8%]" : ""}`}
-                        onClick={() => insert(index + 1, { 
-                          name: "", 
-                          type: "subtest",
-                          scoreType: ""  // Default value
-                        })}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Subtest
-                      </Button>
                       </div>
                   </div>
                   ))}
