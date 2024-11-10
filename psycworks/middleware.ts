@@ -1,54 +1,54 @@
-// middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-// Initialize Supabase client
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
 
 export default async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
   try {
-    // Retrieve token from cookies
-    const token = req.cookies.get('sb-access-token')?.value;
+    // Get the token from the sb-access-token cookie
+    const token = req.cookies.get("sb-access-token")?.value;
 
-    // If token exists, get session
-    const { data: { user }, error } = token
-      ? await supabase.auth.getUser(token)
-      : { data: { user: null }, error: null };
+    // Add debug logging
+    console.log("Token in middleware:", token ? "exists" : "missing");
 
-    console.log('Middleware user:', user, error);
+    // If there's no token, treat as unauthenticated
+    if (!token) {
+      const publicRoutes = ["/sign-in", "/sign-up"];
+      const isPublicRoute = publicRoutes.some((route) =>
+        req.nextUrl.pathname.startsWith(route)
+      );
 
-    // Define protected and auth-only routes
-    const protectedRoutes = ['/assessments', '/templates', '/settings'];
-    const isProtectedRoute = protectedRoutes.some(route =>
-      req.nextUrl.pathname.startsWith(route)
-    );
-
-    const authRoutes = ['/sign-in', '/sign-up'];
-    const isAuthRoute = authRoutes.some(route =>
-      req.nextUrl.pathname.startsWith(route)
-    );
-
-    // Redirect to sign-in if not authenticated and accessing a protected route
-    if (!user && isProtectedRoute) {
-      return NextResponse.redirect(new URL('/sign-in', req.url));
+      if (!isPublicRoute) {
+        return NextResponse.redirect(new URL("/sign-in", req.url));
+      }
+      return res;
     }
 
-    // Redirect authenticated users away from auth routes
-    if (user && isAuthRoute) {
-      return NextResponse.redirect(new URL('/assessments', req.url));
+    // Verify the token with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    // Add debug logging
+    console.log("Middleware user verification:", { user, error });
+
+    // Define public routes
+    const publicRoutes = ["/sign-in", "/sign-up"];
+    const isPublicRoute = publicRoutes.some((route) =>
+      req.nextUrl.pathname.startsWith(route)
+    );
+
+    if (!user && !isPublicRoute) {
+      return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+
+    if (user && isPublicRoute) {
+      return NextResponse.redirect(new URL("/assessments", req.url));
     }
   } catch (error) {
-    console.error('Middleware error:', error);
+    console.error("Middleware error:", error);
   }
 
   return res;
-}
+} 
 
 export const config = {
   matcher: [
