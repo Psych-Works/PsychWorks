@@ -9,8 +9,8 @@ export default function NewAssessmentPage() {
      <div className="space-y-20">
             <div className="flex-col items-center justify-items-center">
                 <CreateAssessmentHeader/>
-                <CreateAssessmentField name='Name' type='text'/>
-                <CreateAssessmentField name='Measure' type='text'/>
+                <CreateAssessmentField name='Name'/>
+                <CreateAssessmentField name='Measure'/>
                 <div className='grid grid-cols-5 w-full'>
                     <CreationForm />
                 </div>
@@ -20,8 +20,6 @@ export default function NewAssessmentPage() {
             </div>
 
         </div>
-      
-     
     </div>
   );
 }
