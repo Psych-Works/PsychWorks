@@ -1,57 +1,57 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// Initialize Supabase client
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  
-  // Create a Supabase client for the middleware
-  const supabase = createMiddlewareClient({ req, res })
-  
+  const res = NextResponse.next();
+
   try {
-    // Refresh session if expired
-    const { data: { session }, error } = await supabase.auth.getSession()
-    console.log('Middleware session:', session, error);
+    // Retrieve token from cookies
+    const token = req.cookies.get('sb-access-token')?.value;
 
-    // Protected routes - add any routes that require authentication
-    const protectedRoutes = ['/assessments', '/templates', '/settings']
-    const isProtectedRoute = protectedRoutes.some(route => 
+    // If token exists, get session
+    const { data: { user }, error } = token
+      ? await supabase.auth.getUser(token)
+      : { data: { user: null }, error: null };
+
+    console.log('Middleware user:', user, error);
+
+    // Define protected and auth-only routes
+    const protectedRoutes = ['/assessments', '/templates', '/settings'];
+    const isProtectedRoute = protectedRoutes.some(route =>
       req.nextUrl.pathname.startsWith(route)
-    )
+    );
 
-    // Auth routes - routes for non-authenticated users
-    const authRoutes = ['/sign-in', '/sign-up']
-    const isAuthRoute = authRoutes.some(route => 
+    const authRoutes = ['/sign-in', '/sign-up'];
+    const isAuthRoute = authRoutes.some(route =>
       req.nextUrl.pathname.startsWith(route)
-    )
+    );
 
-    // If accessing a protected route without a session, redirect to sign-in
-    if (!session && isProtectedRoute) {
-      return NextResponse.redirect(new URL('/sign-in', req.url))
+    // Redirect to sign-in if not authenticated and accessing a protected route
+    if (!user && isProtectedRoute) {
+      return NextResponse.redirect(new URL('/sign-in', req.url));
     }
 
-    // If accessing auth routes with a session, redirect to assessments
-    if (session && isAuthRoute) {
-      return NextResponse.redirect(new URL('/assessments', req.url))
+    // Redirect authenticated users away from auth routes
+    if (user && isAuthRoute) {
+      return NextResponse.redirect(new URL('/assessments', req.url));
     }
-
   } catch (error) {
-    console.error('Middleware error:', error)
+    console.error('Middleware error:', error);
   }
 
-  return res
+  return res;
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public (public files)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
   ],
-}
+};

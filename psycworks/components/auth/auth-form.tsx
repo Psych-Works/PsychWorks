@@ -84,7 +84,7 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
 
       // If we have a session, we can redirect
       if (data.session) {
-        router.push("/assessments");
+        router.push("/");
       }
     } catch (error) {
       console.error("Authentication error:", error);
