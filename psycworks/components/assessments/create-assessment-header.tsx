@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/select";
 
 export default function CreateAssessmentHeader(){
-    const types = [ // will get this from server
-        {id: 1, value: 'Type 1'},
-        {id: 2, value: 'Type 2'},
-        {id: 3, value: 'Type 3'}
+    const types = [ // will get this from the DB
+        {id: 1, name: 'Type 1', description: 'Description 1', created_at: null, updated_at: null},
+        {id: 2, name: 'Type 2', description: 'Description 2', created_at: null, updated_at: null},
+        {id: 3, name: 'Type 3', description: 'Description 3', created_at: null, updated_at: null},
     ];
 
     return (
@@ -32,8 +32,8 @@ export default function CreateAssessmentHeader(){
                             <SelectGroup>
                                 <SelectLabel className='text-2xl'>Table types</SelectLabel>
                                 {types.map((item) => (
-                                    <SelectItem key={item.id} value={item.value}>
-                                        {item.value}
+                                    <SelectItem key={item.id} value={item.name}>
+                                        {item.name}
                                     </SelectItem>
                                 ))}
                             </SelectGroup>
