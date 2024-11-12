@@ -1,5 +1,10 @@
-import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+
 
 // Add OPTIONS method to handle preflight requests
 export async function OPTIONS() {
@@ -26,19 +31,38 @@ export async function POST(request: Request) {
       );
     }
 
+    // Initialize Supabase client
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+    // Attempt to sign in
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 401 });
+    console.log('Supabase auth response:', { data, error });
+
+    if (error || !data?.session) {
+      return NextResponse.json({ error: error?.message || 'Login failed' }, { status: 401 });
     }
 
-    return NextResponse.json({
-      user: data.user,
-      session: data.session,
+    // Get the access_token from the session
+    const { session } = data;
+
+    // Set session cookies
+    const response = NextResponse.json({
+      user: session.user,
+      session: session,
     });
+
+    // Set the sb-access-token cookie for auth in middleware
+    response.cookies.set('sb-access-token', session.access_token, {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    return response;
   } catch (error) {
     console.error("Sign in error:", error);
     return NextResponse.json(

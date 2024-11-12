@@ -70,6 +70,7 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
       });
 
       const data = await response.json();
+      console.log('Auth response:', data);
 
       if (!response.ok) {
         throw new Error(data.error || "Authentication failed");
@@ -83,7 +84,7 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
 
       // If we have a session, we can redirect
       if (data.session) {
-        router.push("/");
+        router.push("/assessments");
       }
     } catch (error) {
       console.error("Authentication error:", error);
