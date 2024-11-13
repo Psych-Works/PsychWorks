@@ -16,7 +16,7 @@ export default function NewAssessmentPage() {
               <CreateAssessmentField name='Name'/>
               <CreateAssessmentField name='Measure'/>
               <div className='grid grid-cols-5 w-full'>
-                  <CreationForm />
+                  <CreationForm isOpen={isOpen} onOpenChange={setIsOpen} />
               </div>
               <div className='grid grid-cols-5 w-full fixed bottom-10 left-10'>
                   <Button className='col-start-1 col-span-1'>Cancel</Button>
