@@ -37,14 +37,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// Update the schema to include the score type validation
+// Update the schema to track parent-child relationships
 const fieldSchema = z.object({
   name: z.string().min(1, "Name is required"),
   type: z.enum(["domain", "subtest"]),
-  scoreType: z.enum(["T", "Z", "ScS", "StS", ""])
+  scoreType: z.enum(["T", "Z", "ScS", "StS", ""]),
+  Id: z.string().optional(), // To track which domain a subtest belongs to
 }).refine((data) => data.scoreType !== "", {
   message: "Score type must be selected",
-  path: ["scoreType"]  // This will make the error appear on the scoreType field
 });
 
 // Schema for the entire form
@@ -56,6 +56,21 @@ const formSchema = z.object({
 interface CreationFormProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+// Add this interface above the onSubmit function
+interface HierarchicalData {
+  type: 'domain' | 'subtest';
+  domainData?: {
+    name: string;
+    score_type: string;
+  };
+  subtestData?: {
+    name: string;
+    score_type: string;
+  };
+  subtests?: any[];
+  id?: string;
 }
 
 export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
@@ -79,9 +94,41 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    // Handle your form submission here
+    const hierarchicalData = values.fields.reduce<HierarchicalData[]>((acc, field) => {
+      if (field.type === "domain") {
+        acc.push({
+          type: "domain",
+          domainData: {
+            name: field.name,
+            score_type: field.scoreType,
+          },
+          subtests: []
+        });
+      } else if (field.type === "subtest" && field.Id) {
+        // Find parent domain and add subtest
+        const parentDomain = acc.find(item => item.id === field.Id);
+        if (parentDomain) {
+          parentDomain.subtests = parentDomain.subtests || [];
+          parentDomain.subtests.push({
+            name: field.name,
+            score_type: field.scoreType,
+          });
+        }
+      } else {
+        // Standalone subtest
+        acc.push({
+          type: "subtest",
+          subtestData: {
+            name: field.name,
+            score_type: field.scoreType,
+          }
+        });
+      }
+      return acc;
+    }, []);
 
+    console.log(hierarchicalData);
+    // Handle submission...
   };
 
   const handleClose = () => {
@@ -91,6 +138,34 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
     } else {
       onOpenChange(false);
     }
+  };
+
+  // Update the helper function to distinguish between child and standalone subtests
+  const isChildSubtest = (index: number) => {
+    const currentField = fields[index];
+    // console.log(currentField);
+    return currentField.type === "subtest" && currentField.Id;
+  };
+
+  // Add this new function to handle domain deletion
+  const handleRemove = (index: number) => {
+    const currentField = fields[index];
+    if (currentField.type === "domain") {
+      // If it's a domain, find and remove all associated subtests
+      const subtestIndices: number[] = [];
+
+      // Find all subtests that belong to this domain
+      fields.forEach((field, idx) => {
+        if (field.Id === currentField.id) {
+          subtestIndices.push(idx);
+        }
+      });
+
+      // Remove subtests from highest index to lowest to avoid shifting issues
+      [...subtestIndices].reverse().forEach(idx => remove(idx));
+    }
+    // Remove the current field (domain or subtest)
+    remove(index);
   };
 
   return (
@@ -109,149 +184,129 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
           </DialogHeader>
 
           <Form {...form}>
-            <form 
-              onSubmit={form.handleSubmit(onSubmit)} 
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
               className="flex flex-col flex-1 overflow-hidden"
             >
               {/* Main scrollable container */}
               <div className="flex-1 overflow-auto">
                 <div className="pr-2 space-y-4">
                   {fields.map((field, index) => (
-                    <div key={field.id}>
+                    <div key={field.id} className={`${isChildSubtest(index) ? "ml-16" : ""}`}>
                       <div className="flex gap-4 items-center">
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
-                          onClick={() => remove(index)}
-                          className={`mt-8 ${fields[index].type === "subtest" ? "ml-[8%] mr-0" : ""}`}
+                          onClick={() => handleRemove(index)}
+                          className="mt-8"
                         >
-                          <CircleMinus 
+                          <CircleMinus
                             className="h-6 w-6"
                             style={{ color: "#757195" }}
                           />
                         </Button>
 
-                      <div className="flex-1 flex gap-4">
-                        {/* Form field for the name of the domain/subtest */}
-                        <FormField
-                          control={form.control}
-                          name={`fields.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem className="flex-1">
-                              <FormLabel >
-                                {fields[index].type === "domain" ? "Domain Name:" : "Subtest Name:"}
-                              </FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder={`Enter ${fields[index].type === "domain" ? "Domain" : "Subtest"} name`} 
-                                  {...field}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Form field for the score type of the domain/subtest that contains the dropdown for the score type*/}
-                        <FormField
-                          control={form.control}
-                          name={`fields.${index}.scoreType`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Score Type:</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
+                        <div className="flex-1 flex gap-4">
+                          {/* Form field for the name of the domain/subtest */}
+                          <FormField
+                            control={form.control}
+                            name={`fields.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormLabel >
+                                  {fields[index].type === "domain" ? "Domain Name:" : "Subtest Name:"}
+                                </FormLabel>
                                 <FormControl>
-                                  <SelectTrigger className="w-[100px]">
-                                    <SelectValue placeholder="Score" />
-                                  </SelectTrigger>
+                                  <Input
+                                    placeholder={`Enter ${fields[index].type === "domain" ? "Domain" : "Subtest"} name`}
+                                    {...field}
+                                  />
                                 </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="T">T</SelectItem>
-                                  <SelectItem value="Z">Z</SelectItem>
-                                  <SelectItem value="ScS">ScS</SelectItem>
-                                  <SelectItem value="StS">StS</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Form field for the score type of the domain/subtest that contains the dropdown for the score type*/}
+                          <FormField
+                            control={form.control}
+                            name={`fields.${index}.scoreType`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Score Type:</FormLabel>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="w-[100px]">
+                                      <SelectValue placeholder="Score" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="T">T</SelectItem>
+                                    <SelectItem value="Z">Z</SelectItem>
+                                    <SelectItem value="ScS">ScS</SelectItem>
+                                    <SelectItem value="StS">StS</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>
-                    {/* Add domain/subtest buttons that are populated under the last domain/subtest */}
+                      {/* Button for adding child subtests under domains */}
                       <div className="flex gap-2 mt-2 mb-4 pl-14">
-                        {/* Show Add Domain button only if current field is last */}
-                        {index === fields.length - 1 && (
+                        {field.type === "domain" && (
                           <Button
                             type="button"
                             variant="outline"
-                            className={`w-[20%] ${fields[index].type === "subtest" ? "ml-[8%]" : ""}`}
-                            onClick={() => insert(index + 1, { 
-                              name: "", 
-                              type: "domain",
-                              scoreType: ""
-                            })}
+                            onClick={() => {
+                              insert(index + 1, {
+                                name: "",
+                                type: "subtest",
+                                scoreType: "",
+                                Id: field.id
+                              });
+                            }}
                           >
                             <Plus className="h-4 w-4 mr-2" />
-                            Add Domain
+                            Add Child Subtest
                           </Button>
                         )}
-                        {/* Show Add Subtest button with proper indentation based on current field type */}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className={`w-[20%] ${
-                            fields[index].type === "subtest" && index !== fields.length - 1 ? "ml-[8%]" : ""
-                          }`}
-                          onClick={() => insert(index + 1, { 
-                            name: "", 
-                            type: "subtest",
-                            scoreType: ""
-                          })}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add Subtest
-                        </Button>
                       </div>
-                  </div>
+                    </div>
                   ))}
-                  
-                  {/* Add domain/subtest buttons that are only shown when the form is not dirty*/}
+
+                  {/* Add domain/subtest buttons that are always shown at the bottom */}
                   <div className="flex gap-2 mt-2 mb-4">
-                  {!form.formState.isDirty && (
-                  <>
                     <Button
                       type="button"
-                      variant="outline"
-                      className="w-[20%]"
-                      onClick={() => append({ 
-                        name: "", 
+                      className="w-[20%] bg-[#757195] text-white hover:bg-[#757195]/90"
+                      onClick={() => append({
+                        name: "",
                         type: "domain",
-                        scoreType: ""  // Default value
+                        scoreType: "",
+                        // parentId: ""
                       })}
                     >
-                    <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="h-4 w-4 mr-2" />
                       Add Domain
                     </Button>
 
                     <Button
                       type="button"
-                      variant="outline"
-                      className="w-[20%]"
-                      onClick={() => append({ 
-                        name: "", 
+                      className="w-[20%] bg-[#757195] text-white hover:bg-[#757195]/90"
+                      onClick={() => append({
+                        name: "",
                         type: "subtest",
-                        scoreType: ""  // Default value
+                        scoreType: ""
                       })}
                     >
-                    <Plus className="h-4 w-4 mr-2" />
-                        Add Subtest
-                      </Button>
-                    </>
-                  )}
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Standalone Subtest
+                    </Button>
                   </div>
                 </div>
               </div>
