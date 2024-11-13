@@ -38,14 +38,16 @@ import {
 } from "@/components/ui/alert-dialog";
 
 // Update the schema to track parent-child relationships
-const fieldSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  type: z.enum(["domain", "subtest"]),
-  scoreType: z.enum(["T", "Z", "ScS", "StS", ""]),
-  Id: z.string().optional(), // To track which domain a subtest belongs to
-}).refine((data) => data.scoreType !== "", {
-  message: "Score type must be selected",
-});
+const fieldSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    type: z.enum(["domain", "subtest"]),
+    scoreType: z.enum(["T", "Z", "ScS", "StS", ""]),
+    Id: z.string().optional(), // To track which domain a subtest belongs to
+  })
+  .refine((data) => data.scoreType !== "", {
+    message: "Score type must be selected",
+  });
 
 // Schema for the entire form
 const formSchema = z.object({
@@ -60,7 +62,7 @@ interface CreationFormProps {
 
 // Add this interface above the onSubmit function
 interface HierarchicalData {
-  type: 'domain' | 'subtest';
+  type: "domain" | "subtest";
   domainData?: {
     name: string;
     score_type: string;
@@ -75,6 +77,9 @@ interface HierarchicalData {
 
 export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [hierarchicalData, setHierarchicalData] = useState<HierarchicalData[]>(
+    []
+  );
 
   // Add this useEffect to ensure the dialog starts closed
   useEffect(() => {
@@ -94,41 +99,50 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const hierarchicalData = values.fields.reduce<HierarchicalData[]>((acc, field) => {
-      if (field.type === "domain") {
-        acc.push({
-          type: "domain",
-          domainData: {
-            name: field.name,
-            score_type: field.scoreType,
-          },
-          subtests: []
-        });
-      } else if (field.type === "subtest" && field.Id) {
-        // Find parent domain and add subtest
-        const parentDomain = acc.find(item => item.id === field.Id);
-        if (parentDomain) {
-          parentDomain.subtests = parentDomain.subtests || [];
-          parentDomain.subtests.push({
-            name: field.name,
-            score_type: field.scoreType,
+    // Merge the id from 'fields' into 'values.fields'
+    const fieldsWithIds = values.fields.map((fieldValue, index) => ({
+      ...fieldValue,
+      id: fields[index].id, // Get the id from 'fields'
+    }));
+
+    const newHierarchicalData = fieldsWithIds.reduce<HierarchicalData[]>(
+      (acc, field) => {
+        if (field.type === "domain") {
+          acc.push({
+            type: "domain",
+            domainData: {
+              name: field.name,
+              score_type: field.scoreType,
+            },
+            subtests: [],
+            id: field.id, // Use the merged id
+          });
+        } else if (field.type === "subtest" && field.Id) {
+          // Find parent domain and add subtest
+          const parentDomain = acc.find((item) => item.id === field.Id);
+          if (parentDomain) {
+            parentDomain.subtests = parentDomain.subtests || [];
+            parentDomain.subtests.push({
+              name: field.name,
+              score_type: field.scoreType,
+            });
+          }
+        } else {
+          // Standalone subtest
+          acc.push({
+            type: "subtest",
+            subtestData: {
+              name: field.name,
+              score_type: field.scoreType,
+            },
           });
         }
-      } else {
-        // Standalone subtest
-        acc.push({
-          type: "subtest",
-          subtestData: {
-            name: field.name,
-            score_type: field.scoreType,
-          }
-        });
-      }
-      return acc;
-    }, []);
+        return acc;
+      },
+      []
+    );
 
-    console.log(hierarchicalData);
-    // Handle submission...
+    setHierarchicalData(newHierarchicalData);
   };
 
   const handleClose = () => {
@@ -162,7 +176,7 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
       });
 
       // Remove subtests from highest index to lowest to avoid shifting issues
-      [...subtestIndices].reverse().forEach(idx => remove(idx));
+      [...subtestIndices].reverse().forEach((idx) => remove(idx));
     }
     // Remove the current field (domain or subtest)
     remove(index);
@@ -192,7 +206,10 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
               <div className="flex-1 overflow-auto">
                 <div className="pr-2 space-y-4">
                   {fields.map((field, index) => (
-                    <div key={field.id} className={`${isChildSubtest(index) ? "ml-16" : ""}`}>
+                    <div
+                      key={field.id}
+                      className={`${isChildSubtest(index) ? "ml-16" : ""}`}
+                    >
                       <div className="flex gap-4 items-center">
                         <Button
                           type="button"
@@ -214,12 +231,18 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
                             name={`fields.${index}.name`}
                             render={({ field }) => (
                               <FormItem className="flex-1">
-                                <FormLabel >
-                                  {fields[index].type === "domain" ? "Domain Name:" : "Subtest Name:"}
+                                <FormLabel>
+                                  {fields[index].type === "domain"
+                                    ? "Domain Name:"
+                                    : "Subtest Name:"}
                                 </FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder={`Enter ${fields[index].type === "domain" ? "Domain" : "Subtest"} name`}
+                                    placeholder={`Enter ${
+                                      fields[index].type === "domain"
+                                        ? "Domain"
+                                        : "Subtest"
+                                    } name`}
                                     {...field}
                                   />
                                 </FormControl>
@@ -267,7 +290,7 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
                                 name: "",
                                 type: "subtest",
                                 scoreType: "",
-                                Id: field.id
+                                Id: field.id,
                               });
                             }}
                           >
@@ -284,12 +307,14 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
                     <Button
                       type="button"
                       className="w-[20%] bg-[#757195] text-white hover:bg-[#757195]/90"
-                      onClick={() => append({
-                        name: "",
-                        type: "domain",
-                        scoreType: "",
-                        // parentId: ""
-                      })}
+                      onClick={() =>
+                        append({
+                          name: "",
+                          type: "domain",
+                          scoreType: "",
+                          // parentId: ""
+                        })
+                      }
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Domain
@@ -298,11 +323,13 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
                     <Button
                       type="button"
                       className="w-[20%] bg-[#757195] text-white hover:bg-[#757195]/90"
-                      onClick={() => append({
-                        name: "",
-                        type: "subtest",
-                        scoreType: ""
-                      })}
+                      onClick={() =>
+                        append({
+                          name: "",
+                          type: "subtest",
+                          scoreType: "",
+                        })
+                      }
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Standalone Subtest
@@ -349,4 +376,4 @@ export const CreationForm = ({ isOpen, onOpenChange }: CreationFormProps) => {
       </AlertDialog>
     </>
   );
-}
+};
