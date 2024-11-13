@@ -97,7 +97,7 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
   return (
     <Card className="w-[400px]">
       <CardHeader>
-        <CardTitle>Welcome to PsycWorks</CardTitle>
+        <CardTitle>Welcome to PsychWorks</CardTitle>
         <CardDescription>
           {defaultTab === "signin"
             ? "Sign In to your account"
