@@ -55,11 +55,14 @@ export async function POST(request: Request) {
       session: session,
     });
 
+    const expirationTime = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 Day
+
     // Set the sb-access-token cookie for auth in middleware
     response.cookies.set('sb-access-token', session.access_token, {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      expires: expirationTime, // Set expiration time
     });
 
     return response;

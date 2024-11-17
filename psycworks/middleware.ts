@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 export default async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
+  const res = NextResponse.next();  
 
+  
   try {
     // Get the token from the sb-access-token cookie
     const token = req.cookies.get("sb-access-token")?.value;

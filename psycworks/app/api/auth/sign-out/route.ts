@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from '@supabase/supabase-js';
 
-// Handle preflight requests
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
 export async function OPTIONS() {
   return NextResponse.json(
     {},
@@ -17,19 +19,21 @@ export async function OPTIONS() {
 
 export async function POST() {
   try {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
+    // Clear the session cookies
+    const response = NextResponse.json(
       { message: "Successfully signed out" },
       { status: 200 }
     );
+
+    // Remove the sb-access-token cookie
+    response.cookies.set('sb-access-token', '', {
+      path: '/',
+      httpOnly: true,
+      //secure: process.env.NODE_ENV === 'production',
+      expires: new Date(0), // Expire immediately
+    });
+
+    return response;
   } catch (error) {
     console.error("Sign out error:", error);
     return NextResponse.json(
@@ -37,4 +41,4 @@ export async function POST() {
       { status: 500 }
     );
   }
-} 
+}
