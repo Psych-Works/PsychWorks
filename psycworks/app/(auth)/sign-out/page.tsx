@@ -1,11 +1,38 @@
-import React from "react";
-import SignOutPage from "@/components/auth/sign-out-page";
-import { Loader } from "lucide-react";
+"use client";
 
-const Page = () => {
+import React, { useEffect } from "react";
+import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+const SignOutPage = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    const signOut = async () => {
+      try {
+        const res = await fetch("/api/auth/sign-out", {
+          method: "POST",
+        });
+
+        if (!res.ok) {
+          const { error } = await res.json();
+          console.error("Sign out failed:", error);
+          return;
+        }
+
+        console.log("Successfully signed out");
+        // Redirect to sign-in page after sign out
+        router.push("/sign-in");
+      } catch (error) {
+        console.error("An error occurred during sign out:", error);
+      }
+    };
+
+    signOut();
+  }, [router]);
+
   return (
     <>
-      <SignOutPage /> {/* Triggers the sign-out logic */}
       <div className="justify-center items-center">
         <div className="flex space-x-5 justify-center items-center">
           <Loader className="animate-spin w-10 h-10 text-white" />
@@ -16,4 +43,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default SignOutPage;
