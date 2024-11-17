@@ -29,7 +29,7 @@ const SignOutPage = () => {
     };
 
     signOut();
-  }, [router]);
+  }, []);
 
   return (
     <>
