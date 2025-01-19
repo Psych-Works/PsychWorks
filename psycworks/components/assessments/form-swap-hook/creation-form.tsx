@@ -1,5 +1,4 @@
-import { forwardRef, useImperativeHandle, useState } from "react";
-import { useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -14,61 +13,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Plus, CircleMinus } from "lucide-react"; // You'll need to install lucide-react
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { HierarchicalData } from "./index";
-
-// Update the schema to track parent-child relationships
-const fieldSchema = z
-  .object({
-    name: z.string().min(1, "Name is required"),
-    type: z.enum(["domain", "subtest"]),
-    scoreType: z.enum(["T", "Z", "ScS", "StS", ""]),
-    Id: z.string().optional(), // To track which domain a subtest belongs to
-  })
-  .refine((data) => data.scoreType !== "", {
-    message: "Score type must be selected",
-  });
-
-// Schema for the entire form
-const formSchema = z.object({
-  fields: z.array(fieldSchema),
-});
+import { HierarchicalData, InputData , tableDataSchema, fieldSchema} from "@/types/table-input-data";
+import { useTableFormContext } from "./assessments-form-context";
 
 export const CreationForm = () => {
 
-  const {
-    control,
-    watch,
-    register,
-    formState: { errors },
-  } = useFormContext<HierarchicalData[]>();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      fields: [],
-    },
+  const { formData, updateFormData} = useTableFormContext();
+  const form = useForm<z.infer<typeof tableDataSchema>>({
+    resolver: zodResolver(tableDataSchema.pick({fields: true})),
+    defaultValues: { fields : formData.fields || [] },
   });
 
   const { fields, append, remove, insert } = useFieldArray({
@@ -76,7 +35,7 @@ export const CreationForm = () => {
     name: "fields",
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof tableDataSchema>) => {
     // Merge the id from 'fields' into 'values.fields'
     const fieldsWithIds = values.fields.map((fieldValue, index) => ({
       ...fieldValue,
@@ -115,12 +74,14 @@ export const CreationForm = () => {
             },
           });
         }
-        console.log(newHierarchicalData)
+        // updateFormData(acc);
         return acc;
       },
       []
     );
+    console.log(newHierarchicalData)
   };
+  
 
   // Update the helper function to distinguish between child and standalone subtests
   const isChildSubtest = (index: number) => {
@@ -289,6 +250,14 @@ export const CreationForm = () => {
               </Button>
             </div>
           </div>
+        </div>
+        <div className="sticky bottom-0 mt-auto h-14 border-t bg-white flex items-center px-4">
+          <Button
+            className="w-[32%] h-9 ml-auto"
+            onClick={() => {}}
+            >
+            Next
+            </Button>
         </div>
       </form>
     </Form>
