@@ -1,1 +1,2 @@
 # PsychWorks
+Senior Design Project
