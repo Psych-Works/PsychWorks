@@ -10,10 +10,21 @@ import { Button } from '@/components/ui/button'
 
 export const FinalizeForm = () => {
 
-  const { formData, updateFormData} = useTableFormContext();
+  const { setCurrentStep ,formData, updateFormData} = useTableFormContext();
   const form = useForm<z.infer<typeof tableDataSchema>>({
-    resolver: zodResolver(tableDataSchema.pick({fields: true})),
-    defaultValues: { fields : formData.fields },
+    resolver: zodResolver(tableDataSchema.pick({associatedText: true})),
+    defaultValues: { associatedText : formData.associatedText },
+  });
+
+  const { register, handleSubmit } = form;
+
+  const handleBack = handleSubmit((data) => {
+    updateFormData({ ...formData, associatedText: data.associatedText });
+    setCurrentStep(1);
+  });
+
+  const handleFinalize = handleSubmit ((data) => {
+
   });
 
   return (
@@ -29,6 +40,7 @@ export const FinalizeForm = () => {
               <Textarea 
                 placeholder='Assessment Description' 
                 className="min-h-[200px]"
+                {...register('associatedText')}
               />
             </form>
           </Form>
@@ -42,13 +54,13 @@ export const FinalizeForm = () => {
       <div className="flex w-full justify-between">
         <Button
           className="w-[32%] h-9"
-          onClick={() => {}}
+          onClick = {handleBack}
         >
           Back
         </Button>
         <Button
           className="w-[32%] h-9"
-          onClick={() => {}}
+          onClick={handleFinalize}
         >
           Finalize
         </Button>

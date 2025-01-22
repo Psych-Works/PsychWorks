@@ -1,6 +1,4 @@
-import { useState, createContext, ReactNode, useContext} from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
-
+import { useState} from 'react'
 import { CreationForm } from './creation-form'
 import { FinalizeForm } from './finalize-form'
 import { Button } from '@/components/ui/button';
@@ -21,51 +19,32 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { DialogDescription } from '@radix-ui/react-dialog';
-import { InputData } from '@/types/table-input-data';
-import TableFormContextProvider from './assessments-form-context';
+import TableFormContextProvider, { useTableFormContext } from './assessments-form-context';
 
+// function getForm({currentStep} = useTableFormContext) {
+//   switch(currentStep) {
 
-function getForm(step : Number) {
-    switch (step) {
-        case 1:
-            return <CreationForm />;
-        case 2:
-            return <FinalizeForm />;
-        default:
-            return "Unknown Form";
-    }
-}
+//   }
+// }
+
+const FormContainer = () => {
+  const { currentStep } = useTableFormContext();
+
+  return (
+    <>
+      {currentStep === 1 && <CreationForm/>}
+      {currentStep === 2 && <FinalizeForm/>}
+      {currentStep === null && <div/>}
+    </>
+  );
+};
 
 export const CreateTableDialog = ({}) => {
 
   const [openDialog, onOpenChange] = useState(false);
-  const [activeForm, setActiveForm] = useState(1);
-
-  const methods = useForm<InputData>();
-  const { trigger } = methods;
-
+  
   // const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   // const [erroredInputName, setErrorredInputName] = useState("");
-
-    // This handles the swapping of the forms and saves the state of the current form
-    const handleNext = async () => {
-      const isFormValid = await trigger();
-      if (isFormValid) {
-        // Switch to the next form
-        setActiveForm((prev) => prev + 1);
-      }
-      console.log("Next Button Pressed");
-    };
-  
-    const handleBack = async () => {
-      // Save the current form state
-      const isFormValid = await trigger();
-      if (isFormValid){
-        // Switch to the previous form
-        setActiveForm((prev) => prev - 1);
-      }
-      console.log("Back Button Pressed");
-    };
 
   return (
     <>
@@ -96,9 +75,11 @@ export const CreateTableDialog = ({}) => {
       )} */}
 
       <Dialog open={openDialog} onOpenChange={onOpenChange}>
+
         <DialogTrigger asChild>
-          <Button onClick={() => { setActiveForm(1); onOpenChange(true); }}>Add Domain/Subtest</Button>
+          <Button onClick={() => { onOpenChange(true); }}>Add Domain/Subtest</Button>
         </DialogTrigger>
+        
         <DialogContent className="sm:max-w-[80%] h-[80vh] w-[80%] flex flex-col overflow-hidden">
           <DialogTitle>
             Assessment Creation
@@ -108,10 +89,11 @@ export const CreateTableDialog = ({}) => {
           </DialogDescription>
             
           <TableFormContextProvider>
-            {getForm(activeForm)}
+            <FormContainer />
           </TableFormContextProvider>
 
         </DialogContent>
+        
       </Dialog>
     </>
   )

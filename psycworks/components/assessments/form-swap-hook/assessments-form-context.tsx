@@ -43,15 +43,13 @@ interface TableFormContextType {
       localStorage.removeItem(CACHING_KEY);
     };
 
-    
-    
     return(
       <TableFormContext.Provider 
         value={ {currentStep, setCurrentStep, formData, updateFormData, clearFormData} }>
           {children}
       </TableFormContext.Provider>
     );
-  }
+  };
 
   export function useTableFormContext() {
     const context = useContext(TableFormContext);

@@ -1,35 +1,24 @@
 import { z } from "zod";
 
-export interface HierarchicalData {
-    type: "domain" | "subtest";
-    domainData?: {
-      name: string;
-      score_type: string;
-    };
-    subtestData?: {
-      name: string;
-      score_type: string;
-    };
-    subtests?: any[];
-    id?: string;
-    associatedText?: string;
-  }
-
-// Update the schema to track parent-child relationships
-export const fieldSchema = z
-.object({
-  name: z.string().min(1, "Name is required"),
-  type: z.enum(["domain", "subtest"]),
-  scoreType: z.enum(["T", "Z", "ScS", "StS", ""]),
-  Id: z.string().optional(), // To track which domain a subtest belongs to
-})
-.refine((data) => data.scoreType !== "", {
-  message: "Score type must be selected",
-});
+  // Define the schema for domain/subtests
+  const fieldSchema = z.object ({
+    name: z.string().min(1, "Subtest name is required"),
+    score_type: z.enum(["T", "Z", "ScS", "StS", ""]), // Add validation for specific score types 
+    id: z.string().optional(), 
+  }).refine((data) => data.score_type !== "", {
+    message: "Score type must be selected",
+  });
+  
+  // Define the schema for HierarchicalData
+  export const hierarchicalDataSchema = z.object({
+    type: z.enum(["domain", "subtest"]),
+    fieldData: fieldSchema,
+    subtests: z.array(fieldSchema).optional(), // You can refine this further if needed
+  });
 
 // Schema for the entire form
 export const tableDataSchema = z.object({
-fields: z.array(fieldSchema),
+fields: z.array(hierarchicalDataSchema),
 associatedText: z.string(),
 });
 
