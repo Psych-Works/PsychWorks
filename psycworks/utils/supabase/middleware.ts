@@ -3,9 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
-    request: {
-      headers: new Headers(request.headers),
-    },
+    request: { headers: request.headers },
   });
 
   const supabase = createServerClient(
@@ -17,36 +15,18 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: any) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
+          request.cookies.set({ name, value, ...options });
+          response = NextResponse.next({
+            request: { headers: request.headers },
           });
-          response = NextResponse.next({ request });
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
-          });
+          response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: any) {
-          request.cookies.set({
-            name,
-            value: "",
-            ...options,
-            maxAge: 0,
+          request.cookies.set({ name, value: "", ...options });
+          response = NextResponse.next({
+            request: { headers: request.headers },
           });
-          response = NextResponse.next({ request });
-          response.cookies.set({
-            name,
-            value: "",
-            ...options,
-            maxAge: 0,
-          });
+          response.cookies.set({ name, value: "", ...options });
         },
       },
     }
@@ -55,9 +35,7 @@ export async function updateSession(request: NextRequest) {
   try {
     const {
       data: { user },
-      error,
     } = await supabase.auth.getUser();
-
     const publicRoutes = ["/sign-in", "/sign-up"];
     const isPublicRoute = publicRoutes.some((route) =>
       request.nextUrl.pathname.startsWith(route)
