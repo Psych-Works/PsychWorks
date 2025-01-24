@@ -1,4 +1,4 @@
-import { useFieldArray, useForm } from "react-hook-form";
+import { FieldArrayWithId, useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { hierarchicalDataSchema, InputData , tableDataSchema} from "@/types/table-input-data";
+import { InputData , tableDataSchema} from "@/types/table-input-data";
 import { useTableFormContext } from "./assessments-form-context";
 
 export const CreationForm = () => {
@@ -121,16 +121,136 @@ export const CreationForm = () => {
     remove(index);
   };
 
-  const handleNext = () => {
-    // updateFormData();
-    setCurrentStep(2);
+  // This translates the array from the form to the InputData type shared between the forms
+  function transformToInputData(
+    data: FieldArrayWithId<
+      {
+        fields: {
+          type: "domain" | "subtest";
+          fieldData: {
+            name: string;
+            score_type: "" | "T" | "Z" | "ScS" | "StS";
+            id?: string;
+          };
+          subtests?: {
+            name: string;
+            score_type: "" | "T" | "Z" | "ScS" | "StS";
+            id?: string;
+          }[];
+        }[];
+        associatedText: string;
+      },
+      "fields",
+      "id"
+    >[]
+  ): InputData {
+    return {
+      fields: data.map((field) => ({
+        type: field.type,
+        fieldData: {
+          name: field.fieldData.name,
+          score_type: field.fieldData.score_type,
+          id: field.fieldData.id,
+        },
+        subtests: field.subtests?.map((subtest) => ({
+          name: subtest.name,
+          score_type: subtest.score_type,
+          id: subtest.id,
+        })),
+      })),
+      associatedText: formData.associatedText || "",
+    };
+  }
+
+  function transformToFieldArrayWithId(
+    inputData: InputData
+  ): FieldArrayWithId<
+    {
+      fields: {
+        type: "domain" | "subtest";
+        fieldData: {
+          name: string;
+          score_type: "" | "T" | "Z" | "ScS" | "StS";
+          id?: string;
+        };
+        subtests?: {
+          name: string;
+          score_type: "" | "T" | "Z" | "ScS" | "StS";
+          id?: string;
+        }[];
+      }[];
+      associatedText: string;
+    },
+    "fields",
+    "id"
+  >[] {
+    return inputData.fields.map((field, index) => ({
+      type: field.type,
+      fieldData: {
+        name: field.fieldData.name,
+        score_type: field.fieldData.score_type,
+        id: field.fieldData.id ?? `generated-id-${index}`,
+      },
+      subtests: field.subtests?.map((subtest, subIndex) => ({
+        name: subtest.name,
+        score_type: subtest.score_type,
+        id: subtest.id ?? `generated-subtest-id-${index}-${subIndex}`,
+      })),
+      id: field.fieldData.id ?? `generated-field-id-${index}`,
+    })) as FieldArrayWithId<
+      {
+        fields: {
+          type: "domain" | "subtest";
+          fieldData: {
+            name: string;
+            score_type: "" | "T" | "Z" | "ScS" | "StS";
+            id?: string;
+          };
+          subtests?: {
+            name: string;
+            score_type: "" | "T" | "Z" | "ScS" | "StS";
+            id?: string;
+          }[];
+        }[];
+        associatedText: string;
+      },
+      "fields",
+      "id"
+    >[];
+  }
+
+  const handleNext = (
+    values: FieldArrayWithId<
+      {
+        fields: {
+          type: "domain" | "subtest";
+          fieldData: {
+            name: string;
+            score_type: "" | "T" | "Z" | "ScS" | "StS";
+            id?: string;
+          };
+          subtests?: {
+            name: string;
+            score_type: "" | "T" | "Z" | "ScS" | "StS";
+            id?: string;
+          }[];
+        }[];
+        associatedText: string;
+      },
+      "fields",
+      "id"
+    >[]
+  ) => {
+    updateFormData(transformToInputData(values));
+    setCurrentStep(2); // Navigate to the next step
+    console.log(formData);
   };
 
   return (
     <>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          // onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-hidden"
         >
         {/* Main scrollable container */}
@@ -283,7 +403,10 @@ export const CreationForm = () => {
         <div className="sticky bottom-0 mt-auto h-14 border-t bg-white flex items-center px-4">
           <Button
             className="w-[32%] h-9 ml-auto"
-            onClick= {handleNext}
+            onClick= {() => {
+              handleNext(fields)
+              }
+            }
             >
             Next
             </Button>

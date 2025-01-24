@@ -21,12 +21,6 @@ import {
 import { DialogDescription } from '@radix-ui/react-dialog';
 import TableFormContextProvider, { useTableFormContext } from './assessments-form-context';
 
-// function getForm({currentStep} = useTableFormContext) {
-//   switch(currentStep) {
-
-//   }
-// }
-
 const FormContainer = () => {
   const { currentStep } = useTableFormContext();
 
@@ -39,40 +33,58 @@ const FormContainer = () => {
   );
 };
 
-export const CreateTableDialog = ({}) => {
+const CreateAlertDialog = ({}) => {
 
-  const [openDialog, onOpenChange] = useState(false);
-  
-  // const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  // const [erroredInputName, setErrorredInputName] = useState("");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const { formData, clearFormData } = useTableFormContext();
+  const isFormDirty = formData.fields.length > 0 || formData.associatedText !== "";
+  console.log(isFormDirty);
 
   return (
     <>
+    <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            {isFormDirty
+              ? "Are you sure you want to close?"
+              : "Close the form?"}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {isFormDirty
+              ? "Any unsaved changes will be lost."
+              : "You have no unsaved changes."}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (isFormDirty) {
+                clearFormData(); // Clear the form data
+              }
+              setShowConfirmDialog(false); // Close the dialog
+            }}
+          >
+            Close
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
+  )
+}
 
-      {/* {errors.root?.formError && (
-        <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to close?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Any unsaved changes will be lost.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setShowConfirmDialog(false);
-                onOpenChange(false);
-                reset(); // Reset form state
-              }}
-            >
-              Close
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      )} */}
+export const CreateTableDialog = ({}) => {
+
+  const [openDialog, onOpenChange] = useState(false);
+
+  return (
+    <>      
+      {/* <TableFormContextProvider>
+        <CreateAlertDialog/>
+      </TableFormContextProvider> */}
+
 
       <Dialog open={openDialog} onOpenChange={onOpenChange}>
 
