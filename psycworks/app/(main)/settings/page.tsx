@@ -1,4 +1,5 @@
-import React from "react";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -11,9 +12,19 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
+import { ChangePasswordForm } from "@/components/settings/change-password-form";
 
-const SettingsPage = () => {
+export default async function SettingsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/sign-in");
+  }
+
   return (
     <div className="container mx-auto py-10">
       <div className="mb-8">
@@ -26,7 +37,6 @@ const SettingsPage = () => {
       <Tabs defaultValue="personal" className="space-y-4">
         <TabsList>
           <TabsTrigger value="personal">Personal</TabsTrigger>
-          <TabsTrigger value="admin">Admin</TabsTrigger>
         </TabsList>
 
         <TabsContent value="personal" className="space-y-4">
@@ -41,19 +51,26 @@ const SettingsPage = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" placeholder="Enter your name" />
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter your email"
+                    defaultValue={user.email}
+                    disabled
                   />
                 </div>
               </div>
-              <Button>Save Changes</Button>
+            </CardContent>
+          </Card>
+
+          {/* Password Change */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Change Password</CardTitle>
+              <CardDescription>Update your account password.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChangePasswordForm />
             </CardContent>
           </Card>
 
@@ -73,28 +90,7 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
         </TabsContent>
-
-        <TabsContent value="admin" className="space-y-4">
-          {/* User Management */}
-          <Card>
-            <CardHeader>
-              <CardTitle>User Management</CardTitle>
-              <CardDescription>
-                Manage user accounts and permissions.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="user-search">Search Users</Label>
-                <Input id="user-search" placeholder="Search by name or email" />
-              </div>
-              {/* User list will be added later with data */}
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );
-};
-
-export default SettingsPage;
+}
