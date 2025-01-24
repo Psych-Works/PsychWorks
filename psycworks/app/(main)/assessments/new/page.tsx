@@ -22,7 +22,6 @@ export default function NewAssessmentPage() {
                   <Button className='col-start-1 col-span-1'>Cancel</Button>
               </div>
           </div>
-          
       </div>
     </div>
   );

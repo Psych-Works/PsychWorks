@@ -70,22 +70,19 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
       });
 
       const data = await response.json();
-      console.log('Auth response:', data);
 
       if (!response.ok) {
         throw new Error(data.error || "Authentication failed");
       }
 
-      // For sign-up, show success message if email confirmation is required
+      // Handle email confirmation message
       if (type === "signup" && data.message) {
-        setError(data.message); // Using error state to show success message
+        setError(data.message);
         return;
       }
 
-      // If we have a session, we can redirect
-      if (data.session) {
-        router.push("/assessments");
-      }
+      // Force a full page reload to trigger middleware
+      window.location.href = "/assessments";
     } catch (error) {
       console.error("Authentication error:", error);
       setError(error instanceof Error ? error.message : "An error occurred");
@@ -97,7 +94,7 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
   return (
     <Card className="w-[400px]">
       <CardHeader>
-        <CardTitle>Welcome to PsycWorks</CardTitle>
+        <CardTitle>Welcome to PsychWorks</CardTitle>
         <CardDescription>
           {defaultTab === "signin"
             ? "Sign In to your account"

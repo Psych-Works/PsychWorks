@@ -1,34 +1,48 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
-
-// Add OPTIONS method to handle preflight requests
-export async function OPTIONS() {
-  return NextResponse.json(
-    {},
-    {
-      headers: {
-        Allow: "GET",
-        "Access-Control-Allow-Methods": "GET",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    }
-  );
-}
+import { createClient } from "@/utils/supabase/server";
 
 export async function GET(request: Request) {
   try {
-    // Get the URL object to parse query parameters
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
+
+    // Validate user session
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Parse and validate query parameters
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const sortBy = searchParams.get("sortBy") || "created_at";
     const order = searchParams.get("order") || "desc";
 
-    const { data: assessments, error } = await supabase
+    if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1) {
+      return NextResponse.json(
+        { error: "Invalid pagination parameters" },
+        { status: 400 }
+      );
+    }
+
+    // Calculate range for pagination
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    // Fetch data with count
+    const {
+      data: assessments,
+      error,
+      count,
+    } = await supabase
       .from("Assessment")
-      .select("*")
+      .select("*", { count: "exact" })
       .order(sortBy, { ascending: order === "asc" })
-      .range((page - 1) * limit, page * limit - 1);
+      .range(from, to);
 
     if (error) {
       return NextResponse.json(
@@ -37,7 +51,12 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json(assessments, { status: 200 });
+    return NextResponse.json({
+      data: assessments,
+      totalCount: count,
+      page,
+      totalPages: Math.ceil((count || 0) / limit),
+    });
   } catch (error) {
     return NextResponse.json(
       { error: "Internal server error" },

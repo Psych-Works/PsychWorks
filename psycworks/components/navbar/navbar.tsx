@@ -26,9 +26,9 @@ export default function Navbar() {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/templates" legacyBehavior passHref>
+            <Link href="/reports" legacyBehavior passHref>
               <NavigationMenuLink className="text-white hover:text-black text-lg px-4 py-2">
-                Templates
+                Reports
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>

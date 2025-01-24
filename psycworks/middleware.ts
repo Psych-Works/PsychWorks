@@ -1,57 +1,32 @@
-import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { NextResponse, type NextRequest } from "next/server";
+import { updateSession } from "@/utils/supabase/middleware";
+import { createServerClient } from "@supabase/ssr";
 
-export default async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
+export async function middleware(request: NextRequest) {
+  const response = await updateSession(request);
 
-  try {
-    // Get the token from the sb-access-token cookie
-    const token = req.cookies.get("sb-access-token")?.value;
-
-    // Add debug logging
-    console.log("Token in middleware:", token ? "exists" : "missing");
-
-    // If there's no token, treat as unauthenticated
-    if (!token) {
-      const publicRoutes = ["/sign-in", "/sign-up"];
-      const isPublicRoute = publicRoutes.some((route) =>
-        req.nextUrl.pathname.startsWith(route)
-      );
-
-      if (!isPublicRoute) {
-        return NextResponse.redirect(new URL("/sign-in", req.url));
-      }
-      return res;
-    }
-
-    // Verify the token with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-
-    // Add debug logging
-    console.log("Middleware user verification:", { user, error });
-
-    // Define public routes
-    const publicRoutes = ["/sign-in", "/sign-up"];
-    const isPublicRoute = publicRoutes.some((route) =>
-      req.nextUrl.pathname.startsWith(route)
+  // Add this protection for settings routes
+  if (request.nextUrl.pathname.startsWith("/api/settings")) {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { get: (name) => request.cookies.get(name)?.value } }
     );
 
-    if (!user && !isPublicRoute) {
-      return NextResponse.redirect(new URL("/sign-in", req.url));
-    }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (user && isPublicRoute) {
-      return NextResponse.redirect(new URL("/assessments", req.url));
+    if (!user) {
+      return NextResponse.redirect(new URL("/sign-in", request.url));
     }
-  } catch (error) {
-    console.error("Middleware error:", error);
   }
 
-  return res;
-} 
+  return response;
+}
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
