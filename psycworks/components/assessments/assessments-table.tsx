@@ -28,13 +28,21 @@ interface Assessment {
   created_at: string;
   updated_at: string | null;
   score_conversion: bigint | null;
-  score_type: 'raw' | 'standard' | 'percentile' | null;
+  score_type: "raw" | "standard" | "percentile" | null;
   measure: string;
+}
+
+interface ApiResponse {
+  data: Assessment[];
+  totalCount: number;
+  page: number;
+  totalPages: number;
 }
 
 export function AssessmentsTable() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({
     sortBy: "created_at",
@@ -53,12 +61,18 @@ export function AssessmentsTable() {
         order: sortConfig.order,
       });
 
-      const response = await fetch(`/api/assessments?${queryParams}`);
-      const data = await response.json();
+      const response = await fetch(`/api/assessments?${queryParams}`, {
+        credentials: "include",
+      });
 
-      if (!response.ok) throw new Error(data.error);
+      if (!response.ok) throw new Error("Failed to fetch assessments");
+
+      const { data, totalCount, page, totalPages }: ApiResponse =
+        await response.json();
 
       setAssessments(data);
+      setCurrentPage(page);
+      setTotalPages(totalPages);
     } catch (error) {
       console.error("Failed to fetch assessments:", error);
     } finally {
@@ -68,13 +82,14 @@ export function AssessmentsTable() {
 
   useEffect(() => {
     fetchAssessments();
-  }, [currentPage, sortConfig]);
+  }, [currentPage, sortConfig.sortBy, sortConfig.order]);
 
   const handleSort = (column: string) => {
     setSortConfig((prev) => ({
       sortBy: column,
       order: prev.sortBy === column && prev.order === "asc" ? "desc" : "asc",
     }));
+    setCurrentPage(1); // Reset to first page when sorting changes
   };
 
   const SortButton = ({
@@ -97,7 +112,9 @@ export function AssessmentsTable() {
   );
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center p-8">Loading assessments...</div>
+    );
   }
 
   return (
@@ -121,88 +138,104 @@ export function AssessmentsTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {assessments.map((assessment) => (
-            <TableRow
-              key={assessment.id}
-              className="border-b border-primary/10 hover:bg-primary/5"
-            >
-              <TableCell className="font-medium text-center">{assessment.name}</TableCell>
-              <TableCell className="text-center">{assessment.measure}</TableCell>
-              <TableCell className="text-center">
-                {format(new Date(assessment.created_at), "PPP")}
-              </TableCell>
-              <TableCell className="text-center">
-                {assessment.updated_at 
-                  ? format(new Date(assessment.updated_at), "PPP")
-                  : "—"}
-              </TableCell>
-              <TableCell className="text-center">
-                <div className="flex justify-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 hover:bg-primary/10"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 hover:bg-primary/10"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 hover:bg-primary/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+          {assessments.length > 0 ? (
+            assessments.map((assessment) => (
+              <TableRow
+                key={assessment.id.toString()}
+                className="border-b border-primary/10 hover:bg-primary/5"
+              >
+                <TableCell className="font-medium text-center">
+                  {assessment.name}
+                </TableCell>
+                <TableCell className="text-center">
+                  {assessment.measure}
+                </TableCell>
+                <TableCell className="text-center">
+                  {format(new Date(assessment.created_at), "PPP")}
+                </TableCell>
+                <TableCell className="text-center">
+                  {assessment.updated_at
+                    ? format(new Date(assessment.updated_at), "PPP")
+                    : "—"}
+                </TableCell>
+                <TableCell className="text-center">
+                  <div className="flex justify-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-primary/10"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-primary/10"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-primary/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-8">
+                No assessments found
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
 
-      <Pagination className="border-t border-primary/10 py-4">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                setCurrentPage((prev) => Math.max(prev - 1, 1));
-              }}
-              className={`${
-                currentPage === 1
-                  ? "pointer-events-none opacity-50"
-                  : "hover:bg-primary/10"
-              }`}
-            />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink className="bg-primary/5">
-              {currentPage}
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                setCurrentPage((prev) => prev + 1);
-              }}
-              className={`${
-                assessments.length < limit
-                  ? "pointer-events-none opacity-50"
-                  : "hover:bg-primary/10"
-              }`}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      {totalPages > 1 && (
+        <Pagination className="border-t border-primary/10 py-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((prev) => Math.max(prev - 1, 1));
+                }}
+                className={`${
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "hover:bg-primary/10"
+                }`}
+              />
+            </PaginationItem>
+
+            <PaginationItem>
+              <PaginationLink className="bg-primary/5">
+                Page {currentPage} of {totalPages}
+              </PaginationLink>
+            </PaginationItem>
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                }}
+                className={`${
+                  currentPage >= totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "hover:bg-primary/10"
+                }`}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }
