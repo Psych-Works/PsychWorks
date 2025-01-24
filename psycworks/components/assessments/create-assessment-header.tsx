@@ -18,11 +18,11 @@ export default function CreateAssessmentHeader(){
     return (
         <>
             <div className="grid grid-cols-5 w-full">
-                <div className="col-span-full my-10 text-black text-3xl font-extrabold justify-self-center">
+                <div className="col-span-full my-10 text-black text-4xl font-bold justify-self-center">
                     Create Assessment Table
                 </div>
 
-                <p className="col-start-2 col-end-3 mx-10 text-black font-extrabold text-xl justify-self-center">Table type:</p>
+                <p className="col-start-2 col-end-3 mx-10 text-black font-bold text-xl justify-self-center">Table type:</p>
                 <p className='col-start-3 col-end-5 w-full'>
                     <Select>
                         <SelectTrigger>
