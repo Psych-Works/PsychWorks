@@ -14,38 +14,30 @@ type AssessmentType = {
   name: string;
 };
 
-export default function CreateAssessmentHeader() {
+export default function CreateAssessmentHeader({
+  onTableTypeChange,
+}: {
+  onTableTypeChange: (value: string) => void;
+}) {
   const [types, setTypes] = useState<AssessmentType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchTypes() {
       try {
         const response = await fetch("/api/assessments/types");
-        if (!response.ok) {
-          throw new Error("Failed to fetch assessment types");
-        }
+        if (!response.ok) throw new Error("Failed to fetch assessment types");
         const data = await response.json();
         setTypes(data);
-        setError(null);
-      } catch (error) {
-        console.error("Error fetching types:", error);
-        setError("Failed to load assessment types");
+      } catch (err) {
+        setError("Failed to load table types");
       } finally {
         setLoading(false);
       }
     }
     fetchTypes();
   }, []);
-
-  if (loading) {
-    return <div>Loading table types...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
 
   return (
     <>
@@ -58,13 +50,15 @@ export default function CreateAssessmentHeader() {
           Table type:
         </p>
         <div className="col-start-3 col-end-5 w-full">
-          <Select>
+          <Select onValueChange={onTableTypeChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Select a type" />
+              <SelectValue placeholder="Select table type" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Table types</SelectLabel>
+                {loading && <SelectItem value="loading">Loading...</SelectItem>}
+                {error && <SelectItem value="error">{error}</SelectItem>}
                 {types.map((item) => (
                   <SelectItem key={item.id} value={item.id.toString()}>
                     {item.name}
