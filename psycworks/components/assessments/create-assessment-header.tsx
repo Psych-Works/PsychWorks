@@ -16,19 +16,36 @@ type AssessmentType = {
 
 export default function CreateAssessmentHeader() {
   const [types, setTypes] = useState<AssessmentType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchTypes() {
       try {
         const response = await fetch("/api/assessments/types");
+        if (!response.ok) {
+          throw new Error("Failed to fetch assessment types");
+        }
         const data = await response.json();
         setTypes(data);
+        setError(null);
       } catch (error) {
         console.error("Error fetching types:", error);
+        setError("Failed to load assessment types");
+      } finally {
+        setLoading(false);
       }
     }
     fetchTypes();
   }, []);
+
+  if (loading) {
+    return <div>Loading table types...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
     <>
@@ -40,26 +57,23 @@ export default function CreateAssessmentHeader() {
         <p className="col-start-2 col-end-3 mx-10 text-black font-bold text-xl justify-self-center">
           Table type:
         </p>
-        <p className="col-start-3 col-end-5 w-full">
+        <div className="col-start-3 col-end-5 w-full">
           <Select>
             <SelectTrigger>
-              <SelectValue
-                placeholder="Select a type"
-                className="w-full !text-3xl"
-              ></SelectValue>
+              <SelectValue placeholder="Select a type" />
             </SelectTrigger>
-            <SelectContent className="w-full">
+            <SelectContent>
               <SelectGroup>
-                <SelectLabel className="text-2xl">Table types</SelectLabel>
+                <SelectLabel>Table types</SelectLabel>
                 {types.map((item) => (
-                  <SelectItem key={item.id} value={item.name}>
+                  <SelectItem key={item.id} value={item.id.toString()}>
                     {item.name}
                   </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
           </Select>
-        </p>
+        </div>
       </div>
     </>
   );
