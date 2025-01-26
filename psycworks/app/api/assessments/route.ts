@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     // Validate request body
     const body = await request.json();
     const { name, measure, table_type_id, score_type, fields } = body;
-    if (!name || !measure || !table_type_id || !score_type || !fields) {
+    if (!name || !measure || !table_type_id || !fields) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
