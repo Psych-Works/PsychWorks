@@ -31,6 +31,16 @@ function NewAssessmentContent() {
     setError("");
 
     try {
+      // Transform fields to include top-level 'id'
+      const transformedFields = formData.fields.map((field) => ({
+        type: field.type,
+        id: field.fieldData.id, // Move id to top level
+        fieldData: {
+          name: field.fieldData.name,
+          score_type: field.fieldData.score_type,
+        },
+      }));
+
       const response = await fetch("/api/assessments", {
         method: "POST",
         headers: {
@@ -41,7 +51,7 @@ function NewAssessmentContent() {
           measure,
           table_type_id: Number(tableTypeId),
           score_type: null,
-          fields: formData.fields,
+          fields: transformedFields, // Use transformed fields
         }),
         credentials: "include",
       });
