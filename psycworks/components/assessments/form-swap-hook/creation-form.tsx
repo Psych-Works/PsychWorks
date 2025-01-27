@@ -83,8 +83,6 @@ export const CreationForm = () => {
       },
       { fields: [], associatedText: values.associatedText } // Initialize acc to match InputData
     );
-  
-    console.log(newInputData);
   };
   
   // Update the helper function to distinguish between child and standalone subtests
@@ -112,7 +110,6 @@ export const CreationForm = () => {
           subtestIndices.push(idx);
         }
       });
-      console.log(subtestIndices);
 
       // Remove subtests from highest index to lowest to avoid shifting issues
       [...subtestIndices].reverse().forEach((idx) => remove(idx));
@@ -243,14 +240,12 @@ export const CreationForm = () => {
   ) => {
     updateFormData(transformToInputData(values));
     setCurrentStep(2); // Navigate to the next step
-    console.log(formData);
   };
 
   return (
     <>
       <Form {...form}>
         <form
-          // onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-hidden"
         >
         {/* Main scrollable container */}

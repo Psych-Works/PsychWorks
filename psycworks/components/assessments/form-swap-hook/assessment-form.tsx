@@ -33,59 +33,12 @@ const FormContainer = () => {
   );
 };
 
-const CreateAlertDialog = ({}) => {
-
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const { formData, clearFormData } = useTableFormContext();
-  const isFormDirty = formData.fields.length > 0 || formData.associatedText !== "";
-  console.log(isFormDirty);
-
-  return (
-    <>
-    <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            {isFormDirty
-              ? "Are you sure you want to close?"
-              : "Close the form?"}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {isFormDirty
-              ? "Any unsaved changes will be lost."
-              : "You have no unsaved changes."}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => {
-              if (isFormDirty) {
-                clearFormData(); // Clear the form data
-              }
-              setShowConfirmDialog(false); // Close the dialog
-            }}
-          >
-            Close
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-    </>
-  )
-}
-
 export const CreateTableDialog = ({}) => {
 
   const [openDialog, onOpenChange] = useState(false);
 
   return (
     <>      
-      {/* <TableFormContextProvider>
-        <CreateAlertDialog/>
-      </TableFormContextProvider> */}
-
-
       <Dialog open={openDialog} onOpenChange={onOpenChange}>
 
         <DialogTrigger asChild>

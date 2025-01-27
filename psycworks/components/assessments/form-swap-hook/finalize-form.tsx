@@ -23,9 +23,9 @@ export const FinalizeForm = () => {
     setCurrentStep(1);
   });
 
-  const handleFinalize = handleSubmit ((data) => {
-
-  });
+  const handleFinalize = (data: z.infer<typeof tableDataSchema>) => {
+    // Add your finalization logic here
+  };
 
   return (
     <>
@@ -35,15 +35,13 @@ export const FinalizeForm = () => {
           Use double square brackets like this, [[]], to denote a portion of the text that you want to be auto populated from the
           table.
           </h1>
-          <Form {...form}>
-            <form >
-              <Textarea 
-                placeholder='Assessment Description' 
-                className="min-h-[200px]"
-                {...register('associatedText')}
-              />
-            </form>
-          </Form>
+          <form onSubmit={handleSubmit(handleFinalize)}>
+            <Textarea 
+              placeholder='Assessment Description' 
+              className="min-h-[200px]"
+              {...register('associatedText')}
+            />
+          </form>
             
         </div>
         <div className='flex-1 overflow-y-auto p-4'>
@@ -60,7 +58,7 @@ export const FinalizeForm = () => {
         </Button>
         <Button
           className="w-[32%] h-9"
-          onClick={handleFinalize}
+          type="submit"
         >
           Finalize
         </Button>
