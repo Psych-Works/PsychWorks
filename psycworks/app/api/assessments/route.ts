@@ -178,3 +178,270 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  const supabase = await createClient();
+  try {
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await request.json();
+    if (!id || isNaN(Number(id))) {
+      return NextResponse.json(
+        { error: "Invalid assessment ID" },
+        { status: 400 }
+      );
+    }
+
+    const { data: assessment, error: findError } = await supabase
+      .from("Assessment")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (findError) {
+      return NextResponse.json(
+        { error: "Assessment not found" },
+        { status: 404 }
+      );
+    }
+
+    const { error: subtestError } = await supabase
+      .from("SubTest")
+      .delete()
+      .eq("assessment_id", id);
+
+    if (subtestError) throw subtestError;
+
+    const { error: domainError } = await supabase
+      .from("Domain")
+      .delete()
+      .eq("assessment_id", id);
+
+    if (domainError) throw domainError;
+
+    const { error: deleteError } = await supabase
+      .from("Assessment")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
+
+    return NextResponse.json(
+      { success: true, message: "Assessment deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting assessment:", error);
+    return NextResponse.json(
+      { error: "Failed to delete assessment" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  const supabase = await createClient();
+  try {
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, name, measure, table_type_id, description, domains, subtests } =
+      body;
+
+    if (!id || isNaN(Number(id))) {
+      return NextResponse.json(
+        { error: "Invalid assessment ID" },
+        { status: 400 }
+      );
+    }
+
+    const { data: assessment, error: assessmentError } = await supabase
+      .from("Assessment")
+      .update({
+        name,
+        measure,
+        table_type_id,
+        description,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (assessmentError) throw assessmentError;
+
+    let currentDomainIds: number[] = [];
+
+    if (domains) {
+      const { data: existingDomains, error: existingError } = await supabase
+        .from("Domain")
+        .select("id")
+        .eq("assessment_id", id);
+
+      if (existingError) throw existingError;
+      const existingDomainIds = existingDomains.map((d) => d.id);
+      const domainsToKeep: number[] = [];
+
+      for (const domain of domains) {
+        if (domain.id) {
+          if (!existingDomainIds.includes(domain.id)) {
+            return NextResponse.json(
+              { error: `Domain ${domain.id} not found` },
+              { status: 404 }
+            );
+          }
+
+          const { error: updateError } = await supabase
+            .from("Domain")
+            .update({
+              name: domain.name,
+              score_type: domain.score_type,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", domain.id)
+            .eq("assessment_id", id);
+
+          if (updateError) throw updateError;
+          domainsToKeep.push(domain.id);
+        } else {
+          const { data: newDomain, error: createError } = await supabase
+            .from("Domain")
+            .insert({
+              assessment_id: id,
+              name: domain.name,
+              score_type: domain.score_type,
+              created_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+
+          if (createError) throw createError;
+          domainsToKeep.push(newDomain.id);
+        }
+      }
+
+      if (domainsToKeep.length > 0) {
+        await supabase
+          .from("Domain")
+          .delete()
+          .eq("assessment_id", id)
+          .not("id", "in", `(${domainsToKeep.join(",")})`);
+      } else {
+        await supabase.from("Domain").delete().eq("assessment_id", id);
+      }
+
+      currentDomainIds = domainsToKeep;
+    } else {
+      const { data: currentDomains, error } = await supabase
+        .from("Domain")
+        .select("id")
+        .eq("assessment_id", id);
+
+      if (error) throw error;
+      currentDomainIds = currentDomains.map((d) => d.id);
+    }
+
+    if (subtests) {
+      const { data: existingSubtests, error: existingError } = await supabase
+        .from("SubTest")
+        .select("id")
+        .eq("assessment_id", id);
+
+      if (existingError) throw existingError;
+      const existingSubtestIds = existingSubtests.map((st) => st.id);
+      const subtestsToKeep: number[] = [];
+
+      for (const subtest of subtests) {
+        if (subtest.id) {
+          if (!existingSubtestIds.includes(subtest.id)) {
+            return NextResponse.json(
+              { error: `Subtest ${subtest.id} not found` },
+              { status: 404 }
+            );
+          }
+
+          if (
+            subtest.domain_id &&
+            !currentDomainIds.includes(subtest.domain_id)
+          ) {
+            return NextResponse.json(
+              { error: "Invalid domain reference" },
+              { status: 400 }
+            );
+          }
+
+          const { error: updateError } = await supabase
+            .from("SubTest")
+            .update({
+              name: subtest.name,
+              score_type: subtest.score_type,
+              domain_id: subtest.domain_id || null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", subtest.id)
+            .eq("assessment_id", id);
+
+          if (updateError) throw updateError;
+          subtestsToKeep.push(subtest.id);
+        } else {
+          if (
+            subtest.domain_id &&
+            !currentDomainIds.includes(subtest.domain_id)
+          ) {
+            return NextResponse.json(
+              { error: "Invalid domain reference" },
+              { status: 400 }
+            );
+          }
+
+          const { data: newSubtest, error: createError } = await supabase
+            .from("SubTest")
+            .insert({
+              assessment_id: id,
+              domain_id: subtest.domain_id || null,
+              name: subtest.name,
+              score_type: subtest.score_type,
+              created_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+
+          if (createError) throw createError;
+          subtestsToKeep.push(newSubtest.id);
+        }
+      }
+
+      if (subtestsToKeep.length > 0) {
+        await supabase
+          .from("SubTest")
+          .delete()
+          .eq("assessment_id", id)
+          .not("id", "in", `(${subtestsToKeep.join(",")})`);
+      } else {
+        await supabase.from("SubTest").delete().eq("assessment_id", id);
+      }
+    }
+
+    return NextResponse.json(assessment, { status: 200 });
+  } catch (error) {
+    console.error("Error updating assessment:", error);
+    return NextResponse.json(
+      { error: "Failed to update assessment" },
+      { status: 500 }
+    );
+  }
+}
