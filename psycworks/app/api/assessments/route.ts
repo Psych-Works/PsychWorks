@@ -178,3 +178,71 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  const supabase = await createClient();
+  try {
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await request.json();
+    if (!id || isNaN(Number(id))) {
+      return NextResponse.json(
+        { error: "Invalid assessment ID" },
+        { status: 400 }
+      );
+    }
+
+    const { data: assessment, error: findError } = await supabase
+      .from("Assessment")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (findError) {
+      return NextResponse.json(
+        { error: "Assessment not found" },
+        { status: 404 }
+      );
+    }
+
+    const { error: subtestError } = await supabase
+      .from("SubTest")
+      .delete()
+      .eq("assessment_id", id);
+
+    if (subtestError) throw subtestError;
+
+    const { error: domainError } = await supabase
+      .from("Domain")
+      .delete()
+      .eq("assessment_id", id);
+
+    if (domainError) throw domainError;
+
+    const { error: deleteError } = await supabase
+      .from("Assessment")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
+
+    return NextResponse.json(
+      { success: true, message: "Assessment deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting assessment:", error);
+    return NextResponse.json(
+      { error: "Failed to delete assessment" },
+      { status: 500 }
+    );
+  }
+}
+
