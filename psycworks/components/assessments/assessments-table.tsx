@@ -20,7 +20,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Eye, Pencil, Trash2 } from "lucide-react";
-import { AlertDialogAction, AlertDialogFooter, AlertDialogHeader, AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialogAction,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Assessment {
   id: bigint;
@@ -84,6 +94,27 @@ export function AssessmentsTable() {
   useEffect(() => {
     fetchAssessments();
   }, [currentPage, sortConfig.sortBy, sortConfig.order]);
+
+  const handleDeleteAssessment = async (assessmentId: bigint) => {
+    try {
+      const response = await fetch(`/api/assessments`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ id: Number(assessmentId) }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete assessment");
+      }
+
+      await fetchAssessments();
+    } catch (error) {
+      console.error("Error deleting assessment:", error);
+    }
+  };
 
   const handleSort = (column: string) => {
     setSortConfig((prev) => ({
@@ -185,19 +216,26 @@ export function AssessmentsTable() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
-                      
+
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Do you really want to delete this?</AlertDialogTitle>
-                          <AlertDialogDescription>Data of <span className="font-bold">{assessment.name}</span> will be permanently removed!</AlertDialogDescription>
+                          <AlertDialogTitle>
+                            Do you really want to delete this?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Data of{" "}
+                            <span className="font-bold">{assessment.name}</span>{" "}
+                            will be permanently removed!
+                          </AlertDialogDescription>
                         </AlertDialogHeader>
 
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => {
-                              // to be implemented
-                            }
-                          }>
+                          <AlertDialogAction
+                            onClick={() => {
+                              handleDeleteAssessment(assessment.id);
+                            }}
+                          >
                             Continue
                           </AlertDialogAction>
                         </AlertDialogFooter>
