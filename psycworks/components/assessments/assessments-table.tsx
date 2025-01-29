@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import { AlertDialogAction, AlertDialogFooter, AlertDialogHeader, AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Assessment {
   id: bigint;
@@ -174,13 +175,34 @@ export function AssessmentsTable() {
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 hover:bg-primary/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-primary/10"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Do you really want to delete this?</AlertDialogTitle>
+                          <AlertDialogDescription>Data of <span className="font-bold">{assessment.name}</span> will be permanently removed!</AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => {
+                              // to be implemented
+                            }
+                          }>
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </TableCell>
               </TableRow>
