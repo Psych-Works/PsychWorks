@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Eye, Pencil, Trash2 } from "lucide-react";
-import { AlertDialogAction, AlertDialogFooter, AlertDialogHeader, AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import { AlertDialogAction, AlertDialogFooter, AlertDialogHeader, AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Assessment {
   id: bigint;
