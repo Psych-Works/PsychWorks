@@ -16,10 +16,10 @@ import { z } from "zod";
     subtests: z.array(fieldSchema).optional(), // You can refine this further if needed
   });
 
-// Schema for the entire form
-export const tableDataSchema = z.object({
-fields: z.array(hierarchicalDataSchema),
-associatedText: z.string(),
-});
+  // Schema for the entire form
+  export const tableDataSchema = z.object({
+  fields: z.array(hierarchicalDataSchema),
+  associatedText: z.string(),
+  });
 
 export type InputData = z.infer<typeof tableDataSchema>;
