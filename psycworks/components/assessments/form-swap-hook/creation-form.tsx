@@ -98,7 +98,7 @@ export const CreationForm = () => {
         score_type: ""
       },
     });
-    updateFormData(transformToInputData(fields));
+    updateFormData(transformToInputData());
   }
 
   const handleAddSubtest = () => {
@@ -109,18 +109,36 @@ export const CreationForm = () => {
         score_type: ""
       },
     });
-    updateFormData(transformToInputData(fields));
+    updateFormData(transformToInputData());
   }
 
   const handleAddChildSubtest = (index: number) => {
-    insert(index + 1, {
-      type: "subtest",
-      fieldData: {
-        name: "",
-        score_type: ""
-      },
-    });
-    updateFormData(transformToInputData(fields));
+    const parentDomain = fields[index]; // Get the parent domain
+    if (parentDomain.type === "domain") {
+      // Insert the new subtest into the fields array
+      insert(index + 1, {
+        type: "subtest",
+        fieldData: {
+          name: "",
+          score_type: ""
+        },
+      });
+      
+      // Find the first previous domain to add the subtest to its subtests array
+      const previousDomainIndex = fields.slice(0, index).reverse().findIndex(field => field.type === "domain");
+      if (previousDomainIndex !== -1) {
+        const domain = fields[previousDomainIndex];
+        domain.subtests = domain.subtests || [];
+        domain.subtests.push({
+          name: "",
+          score_type: "",
+          id: "", // You may want to generate or assign an ID here
+        });
+      }
+      
+      updateFormData(transformToInputData());
+      console.log("Form data updated: ", formData);
+    }
   }
   
   // Update the helper function to distinguish between child and standalone subtests
@@ -128,10 +146,11 @@ export const CreationForm = () => {
     const currentField = fields[index];
     return (
       currentField.type === "subtest" && // Must be a subtest
-      currentField.fieldData.id && // Must have an ID
       fields.some(
-        (field) => field.type === "domain" && field.id === currentField.fieldData.id
-      ) // Must have a matching domain ID
+        (field) =>
+          field.type === "domain" && // Must be a domain
+          field.subtests?.some((subtest) => subtest.id === currentField.fieldData.id) // Must have a matching subtest ID in the domain's subtests array
+      )
     );
   };
   
@@ -154,51 +173,35 @@ export const CreationForm = () => {
     }
     // Remove the current field (domain or subtest)
     remove(index);
+    updateFormData(transformToInputData());
   };
 
   // This translates the array from the form to the InputData type shared between the forms
-  function transformToInputData(
-    data: FieldArrayWithId<
-      {
-        fields: {
-          type: "domain" | "subtest";
-          fieldData: {
-            name: string;
-            score_type: "" | "T" | "Z" | "ScS" | "StS";
-            id?: string;
-          };
-          subtests?: {
-            name: string;
-            score_type: "" | "T" | "Z" | "ScS" | "StS";
-            id?: string;
-          }[];
-        }[];
-        associatedText: string;
+  // creation-form.tsx
+
+// Replace the existing transformToInputData function with:
+function transformToInputData(): InputData {
+  const formValues = form.getValues();
+  return {
+    fields: formValues.fields.map((field) => ({
+      type: field.type,
+      fieldData: {
+        name: field.fieldData.name,
+        score_type: field.fieldData.score_type,
+        id: field.fieldData.id,
       },
-      "fields",
-      "id"
-    >[]
-  ): InputData {
-    return {
-      fields: data.map((field) => ({
-        type: field.type,
-        fieldData: {
-          name: field.fieldData.name,
-          score_type: field.fieldData.score_type,
-          id: field.fieldData.id,
-        },
-        subtests: field.subtests?.map((subtest) => ({
-          name: subtest.name,
-          score_type: subtest.score_type,
-          id: subtest.id,
-        })),
+      subtests: field.subtests?.map((subtest) => ({
+        name: subtest.name,
+        score_type: subtest.score_type,
+        id: subtest.id,
       })),
-      associatedText: formData.associatedText || "",
-    };
-  }
+    })),
+    associatedText: formData.associatedText || "",
+  };
+}
 
   const handleNext = () => {
-    updateFormData(transformToInputData(fields));
+    updateFormData(transformToInputData());
     setCurrentStep(2);
   };
 
@@ -315,7 +318,7 @@ export const CreationForm = () => {
                 onClick={() => {
                   handleAddDomain();
                   // Update form data after appending
-                  updateFormData(transformToInputData(fields));
+                  updateFormData(transformToInputData());
                   console.log("Form data updated: ", formData);
                 }}
               >
@@ -329,7 +332,7 @@ export const CreationForm = () => {
                 onClick={() => {
                   handleAddSubtest();
                   // Update form data after appending
-                  updateFormData(transformToInputData(fields));
+                  updateFormData(transformToInputData());
                   console.log("Form data updated: ", formData);
                 }}
               >

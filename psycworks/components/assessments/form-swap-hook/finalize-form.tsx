@@ -20,6 +20,14 @@ export const FinalizeForm = ({ onClose }: FinalizeFormProps) => {
     defaultValues: { associatedText : formData.associatedText },
   });
 
+  // Add this useEffect to watch for changes in associatedText:
+  const { watch } = form;
+  const associatedText = watch('associatedText');
+
+  React.useEffect(() => {
+    updateFormData({ associatedText });
+  }, [associatedText]);
+
   const { register, handleSubmit } = form;
 
   const handleBack = handleSubmit((data) => {

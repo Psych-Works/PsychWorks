@@ -32,13 +32,18 @@ export const CreateTableDialog = ({}) => {
   const [isOpen, setIsOpen] = useState(false);
   const { formData, updateFormData } = useTableFormContext();
 
+  // Update handleSetIsOpen to force a save:
   const handleSetIsOpen = (open: boolean) => {
     if (!open) {
-      updateFormData(formData);
-      console.log("Form data updated: ", formData);
-    }
-    setIsOpen(open);
+      // Force save from both forms
+      updateFormData({
+        ...formData,
+        // Include any last-minute changes from FinalizeForm
+        associatedText: formData.associatedText 
+      });
   }
+  setIsOpen(open);
+};
   
   return (
     <>      
@@ -52,10 +57,11 @@ export const CreateTableDialog = ({}) => {
         </DialogTrigger>
         
         <DialogContent className="sm:max-w-[80%] h-[80vh] w-[80%] flex flex-col overflow-hidden"
-          onInteractOutside={(e) => {
-            // Prevent closing the dialog when clicking outside
-            e.preventDefault();
-          }}>
+          // onInteractOutside={(e) => {
+          //   // Prevent closing the dialog when clicking outside
+          //   e.preventDefault();
+          // }}
+          >
           <DialogTitle>
             Assessment Creation
           </DialogTitle>
