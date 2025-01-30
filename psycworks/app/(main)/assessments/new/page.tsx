@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import CreateAssessmentHeader from "@/components/assessments/create-assessment-header";
 import CreateAssessmentField from "@/components/assessments/create-assessment-field";
@@ -17,14 +17,13 @@ function NewAssessmentContent() {
   const [tableTypeId, setTableTypeId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { formData } = useTableFormContext();
+  const { formData, clearFormData } = useTableFormContext();
 
   const handleSubmit = async () => {
     if (!name || !measure || !tableTypeId || formData.fields.length === 0) {
       setError(
         "Please fill all required fields and add at least one domain/subtest"
-      );
-      return;
+      );      return;
     }
 
     setIsSubmitting(true);
@@ -70,6 +69,7 @@ function NewAssessmentContent() {
     } finally {
       setIsSubmitting(false);
     }
+    clearFormData();
   };
 
   return (

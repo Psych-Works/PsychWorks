@@ -1,4 +1,4 @@
-import { useState} from 'react'
+import { useEffect, useState} from 'react'
 import { CreationForm } from './creation-form'
 import { FinalizeForm } from './finalize-form'
 import { Button } from '@/components/ui/button';
@@ -8,26 +8,20 @@ import {
   DialogContent,
   DialogTrigger
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { DialogDescription } from '@radix-ui/react-dialog';
-import TableFormContextProvider, { useTableFormContext } from './assessments-form-context';
+import { useTableFormContext } from './assessments-form-context';
 
-const FormContainer = () => {
+interface CreateTableDialogProps {
+  onClose: () => void;
+}
+
+const FormContainer = ({ onClose }: CreateTableDialogProps) => {
   const { currentStep } = useTableFormContext();
 
   return (
     <>
-      {currentStep === 1 && <CreationForm/>}
-      {currentStep === 2 && <FinalizeForm/>}
+      {currentStep === 1 && <CreationForm />}
+      {currentStep === 2 && <FinalizeForm onClose={onClose}/>}
       {currentStep === null && <div/>}
     </>
   );
@@ -35,17 +29,33 @@ const FormContainer = () => {
 
 export const CreateTableDialog = ({}) => {
 
-  const [openDialog, onOpenChange] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const { formData, updateFormData } = useTableFormContext();
 
+  const handleSetIsOpen = (open: boolean) => {
+    if (!open) {
+      updateFormData(formData);
+      console.log("Form data updated: ", formData);
+    }
+    setIsOpen(open);
+  }
+  
   return (
     <>      
-      <Dialog open={openDialog} onOpenChange={onOpenChange}>
+        <Dialog 
+        open={isOpen} 
+        onOpenChange={handleSetIsOpen}
+        >
 
         <DialogTrigger asChild>
-          <Button onClick={() => { onOpenChange(true); }}>Add Domain/Subtest</Button>
+          <Button onClick={() => { handleSetIsOpen(true); }}>Add Domain/Subtest</Button>
         </DialogTrigger>
         
-        <DialogContent className="sm:max-w-[80%] h-[80vh] w-[80%] flex flex-col overflow-hidden">
+        <DialogContent className="sm:max-w-[80%] h-[80vh] w-[80%] flex flex-col overflow-hidden"
+          onInteractOutside={(e) => {
+            // Prevent closing the dialog when clicking outside
+            e.preventDefault();
+          }}>
           <DialogTitle>
             Assessment Creation
           </DialogTitle>
@@ -53,13 +63,13 @@ export const CreateTableDialog = ({}) => {
           <DialogDescription>
           </DialogDescription>
             
-          <TableFormContextProvider>
-            <FormContainer />
-          </TableFormContextProvider>
+          <FormContainer 
+          onClose={() => { handleSetIsOpen(false); }} 
+          />
 
         </DialogContent>
         
-      </Dialog>
+        </Dialog>
     </>
   )
 }

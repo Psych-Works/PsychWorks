@@ -25,6 +25,7 @@ import { useTableFormContext } from "./assessments-form-context";
 export const CreationForm = () => {
 
   const { setCurrentStep ,formData, updateFormData} = useTableFormContext();
+
   const form = useForm<z.infer<typeof tableDataSchema>>({
     resolver: zodResolver(tableDataSchema.pick({fields: true})),
     defaultValues: { fields : formData.fields || [] },
@@ -35,6 +36,10 @@ export const CreationForm = () => {
     name: "fields",
   });
 
+  const { handleSubmit } = form;
+
+  // This translates the array from the form to the InputData type shared between the forms
+  // use this to add child subtests to domains
   const onSubmit = (values: z.infer<typeof tableDataSchema>) => {
     // Merge the id from 'fields' into 'values.fields'
     const fieldsWithIds = values.fields.map((fieldValue, index) => ({
@@ -84,6 +89,39 @@ export const CreationForm = () => {
       { fields: [], associatedText: values.associatedText } // Initialize acc to match InputData
     );
   };
+// Add domain, subtest and child subtest as well as update the form data
+  const handleAddDomain = () => {
+    append({
+      type: "domain",
+      fieldData: {
+        name: "",
+        score_type: ""
+      },
+    });
+    updateFormData(transformToInputData(fields));
+  }
+
+  const handleAddSubtest = () => {
+    append({
+      type: "subtest",
+      fieldData: {
+        name: "",
+        score_type: ""
+      },
+    });
+    updateFormData(transformToInputData(fields));
+  }
+
+  const handleAddChildSubtest = (index: number) => {
+    insert(index + 1, {
+      type: "subtest",
+      fieldData: {
+        name: "",
+        score_type: ""
+      },
+    });
+    updateFormData(transformToInputData(fields));
+  }
   
   // Update the helper function to distinguish between child and standalone subtests
   const isChildSubtest = (index: number) => {
@@ -159,99 +197,19 @@ export const CreationForm = () => {
     };
   }
 
-  function transformToFieldArrayWithId(
-    inputData: InputData
-  ): FieldArrayWithId<
-    {
-      fields: {
-        type: "domain" | "subtest";
-        fieldData: {
-          name: string;
-          score_type: "" | "T" | "Z" | "ScS" | "StS";
-          id?: string;
-        };
-        subtests?: {
-          name: string;
-          score_type: "" | "T" | "Z" | "ScS" | "StS";
-          id?: string;
-        }[];
-      }[];
-      associatedText: string;
-    },
-    "fields",
-    "id"
-  >[] {
-    return inputData.fields.map((field, index) => ({
-      type: field.type,
-      fieldData: {
-        name: field.fieldData.name,
-        score_type: field.fieldData.score_type,
-        id: field.fieldData.id ?? `generated-id-${index}`,
-      },
-      subtests: field.subtests?.map((subtest, subIndex) => ({
-        name: subtest.name,
-        score_type: subtest.score_type,
-        id: subtest.id ?? `generated-subtest-id-${index}-${subIndex}`,
-      })),
-      id: field.fieldData.id ?? `generated-field-id-${index}`,
-    })) as FieldArrayWithId<
-      {
-        fields: {
-          type: "domain" | "subtest";
-          fieldData: {
-            name: string;
-            score_type: "" | "T" | "Z" | "ScS" | "StS";
-            id?: string;
-          };
-          subtests?: {
-            name: string;
-            score_type: "" | "T" | "Z" | "ScS" | "StS";
-            id?: string;
-          }[];
-        }[];
-        associatedText: string;
-      },
-      "fields",
-      "id"
-    >[];
-  }
-
-  const handleNext = (
-    values: FieldArrayWithId<
-      {
-        fields: {
-          type: "domain" | "subtest";
-          fieldData: {
-            name: string;
-            score_type: "" | "T" | "Z" | "ScS" | "StS";
-            id?: string;
-          };
-          subtests?: {
-            name: string;
-            score_type: "" | "T" | "Z" | "ScS" | "StS";
-            id?: string;
-          }[];
-        }[];
-        associatedText: string;
-      },
-      "fields",
-      "id"
-    >[]
-  ) => {
-    updateFormData(transformToInputData(values));
-    setCurrentStep(2); // Navigate to the next step
+  const handleNext = () => {
+    updateFormData(transformToInputData(fields));
+    setCurrentStep(2);
   };
 
   return (
-    <>
-      <Form {...form}>
-        <form
-          className="flex flex-col flex-1 overflow-hidden"
-        >
+    <Form {...form}>
+      <form onSubmit={handleSubmit(handleNext)} className="flex flex-col flex-1 overflow-hidden">
         {/* Main scrollable container */}
         <div className="flex-1 overflow-auto">
           <div className="pr-2 space-y-4">
-            {fields.map((field, index) => (
+            {fields.map((field, index) => {
+              return (
               <div
                 key={field.id}
                 className={`${isChildSubtest(index) ? "ml-16" : ""}`}
@@ -336,38 +294,30 @@ export const CreationForm = () => {
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    insert(index + 1, {
-                    type: "subtest",
-                    fieldData: {
-                      name: "",
-                      score_type: "",
-                      id: field.id,
-                    },
-                    });
+                    handleAddChildSubtest(index);
+                    // Update form data after insertion
                   }}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                     Add Subtest
-              </Button>
+                  </Button>
                 )}
               </div>
               </div>
-            ))}
+              );
+            })}
 
             {/* Add domain/subtest buttons that are always shown at the bottom */}
             <div className="flex gap-2 mt-2 mb-4">
               <Button
                 type="button"
                 className="w-[20%] bg-[#757195] text-white hover:bg-[#757195]/90"
-                onClick={() =>
-                  append({
-                  type: "domain",
-                  fieldData: {
-                    name: "",
-                    score_type: ""
-                  },
-                  })
-                }
+                onClick={() => {
+                  handleAddDomain();
+                  // Update form data after appending
+                  updateFormData(transformToInputData(fields));
+                  console.log("Form data updated: ", formData);
+                }}
               >
                 <Plus className="h-4 w-4 mr-2" />
                   Add Domain
@@ -376,15 +326,12 @@ export const CreationForm = () => {
               <Button
                 type="button"
                 className="w-[20%] bg-[#757195] text-white hover:bg-[#757195]/90"
-                onClick={() =>
-                  append({
-                  type: "subtest",
-                  fieldData: {
-                    name: "",
-                    score_type: ""
-                  },
-                  })
-                }
+                onClick={() => {
+                  handleAddSubtest();
+                  // Update form data after appending
+                  updateFormData(transformToInputData(fields));
+                  console.log("Form data updated: ", formData);
+                }}
               >
                 <Plus className="h-4 w-4 mr-2" />
                   Add Standalone Subtest
@@ -398,16 +345,12 @@ export const CreationForm = () => {
         <div className="sticky bottom-0 mt-auto h-14 border-t bg-white flex items-center px-4">
           <Button
             className="w-[32%] h-9 ml-auto"
-            onClick= {() => {
-              handleNext(fields)
-              }
-            }
-            >
+            type="submit"
+          >
             Next
-            </Button>
+          </Button>
         </div>
       </form>
     </Form>
-  </>
   );
 };

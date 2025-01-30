@@ -8,7 +8,11 @@ import { useTableFormContext } from './assessments-form-context'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 
-export const FinalizeForm = () => {
+interface FinalizeFormProps {
+  onClose: () => void;
+} 
+
+export const FinalizeForm = ({ onClose }: FinalizeFormProps) => {
 
   const { setCurrentStep ,formData, updateFormData} = useTableFormContext();
   const form = useForm<z.infer<typeof tableDataSchema>>({
@@ -23,8 +27,9 @@ export const FinalizeForm = () => {
     setCurrentStep(1);
   });
 
-  const handleFinalize = (data: z.infer<typeof tableDataSchema>) => {
-    // Add your finalization logic here
+  const handleFinalize = () => {
+    updateFormData({ ...formData, associatedText: form.getValues('associatedText') });
+    onClose();
   };
 
   return (
@@ -59,6 +64,7 @@ export const FinalizeForm = () => {
         <Button
           className="w-[32%] h-9"
           type="submit"
+          onClick={handleFinalize}
         >
           Finalize
         </Button>
@@ -67,4 +73,3 @@ export const FinalizeForm = () => {
   )
 }
 
-export default FinalizeForm
