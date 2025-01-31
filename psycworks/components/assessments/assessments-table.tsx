@@ -200,7 +200,7 @@ export function AssessmentsTable() {
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Link href="/tables" passHref>
+                    <Link href={`/assessments/edit/${assessment.id}`} passHref>
                       <Button
                         variant="ghost"
                         size="icon"

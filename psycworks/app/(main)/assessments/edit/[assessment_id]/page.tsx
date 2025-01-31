@@ -7,7 +7,7 @@ import CreateAssessmentHeader from '@/components/assessments/create-assessment-h
 import CreateAssessmentField from '@/components/assessments/create-assessment-field';
 import TableFormContextProvider, { useTableFormContext } from '@/components/assessments/form-swap-hook/assessments-form-context';
 
-const EditTablePage: React.FC = () => {
+const EditAssessmentPage: React.FC = () => {
     const router = useRouter();
     const [name, setName] = useState('Sample Name');
     const [measure, setMeasure] = useState('Sample Measure');
@@ -61,10 +61,10 @@ const EditTablePage: React.FC = () => {
     );
 };
 
-export default function EditTablePageWrapper() {
+export default function EditAssessmentPageWrapper() {
     return (
         <TableFormContextProvider>
-            <EditTablePage />
+            <EditAssessmentPage />
         </TableFormContextProvider>
     );
 }
