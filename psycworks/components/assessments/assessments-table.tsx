@@ -31,6 +31,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Link from "next/link";
 
 interface Assessment {
   id: bigint;
@@ -199,13 +200,15 @@ export function AssessmentsTable() {
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 hover:bg-primary/10"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                    <Link href={`/assessments/edit/${assessment.id}`} passHref>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-primary/10"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </Link>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
@@ -265,11 +268,10 @@ export function AssessmentsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.max(prev - 1, 1));
                 }}
-                className={`${
-                  currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
-                }`}
+                className={`${currentPage === 1
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
+                  }`}
               />
             </PaginationItem>
 
@@ -286,11 +288,10 @@ export function AssessmentsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages));
                 }}
-                className={`${
-                  currentPage >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
-                }`}
+                className={`${currentPage >= totalPages
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
+                  }`}
               />
             </PaginationItem>
           </PaginationContent>
