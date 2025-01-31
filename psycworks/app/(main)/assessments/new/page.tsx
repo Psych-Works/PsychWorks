@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import CreateAssessmentHeader from "@/components/assessments/create-assessment-header";
 import CreateAssessmentField from "@/components/assessments/create-assessment-field";
@@ -10,6 +10,16 @@ import TableFormContextProvider, {
 } from "@/components/assessments/form-swap-hook/assessments-form-context";
 import { useRouter } from "next/navigation";
 
+interface Field {
+  type: string;
+  fieldData: {
+    id?: string;
+    name: string;
+    score_type: string;
+    parentId?: string;
+  };
+}
+
 function NewAssessmentContent() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -17,13 +27,17 @@ function NewAssessmentContent() {
   const [tableTypeId, setTableTypeId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { formData } = useTableFormContext();
+  const { formData, clearFormData } = useTableFormContext();
 
   const handleSubmit = async () => {
-    if (!name || !measure || !tableTypeId || formData.fields.length === 0) {
-      setError(
-        "Please fill all required fields and add at least one domain/subtest"
-      );
+    if (
+      !name ||
+      !measure ||
+      !tableTypeId ||
+      formData.fields.length === 0 ||
+      !formData.associatedText
+    ) {
+      setError("Please fill all required fields including the description");
       return;
     }
 
@@ -32,28 +46,41 @@ function NewAssessmentContent() {
 
     try {
       // Transform fields to include top-level 'id'
-      const transformedFields = formData.fields.map((field) => ({
-        type: field.type,
-        id: field.fieldData.id, // Move id to top level
-        fieldData: {
-          name: field.fieldData.name,
-          score_type: field.fieldData.score_type,
-        },
-      }));
+      const transformedFields = formData.fields.flatMap((field) => {
+        const mainField = {
+          type: field.type,
+          id: field.fieldData.id,
+          fieldData: {
+            name: field.fieldData.name,
+            score_type: field.fieldData.score_type,
+          },
+        };
+
+        if (field.type === "domain" && field.subtests) {
+          const subtests = field.subtests.map((subtest) => ({
+            type: "subtest",
+            id: subtest.id,
+            fieldData: {
+              name: subtest.name,
+              score_type: subtest.score_type,
+              id: subtest.domain_id,
+            },
+          }));
+          return [mainField, ...subtests];
+        }
+        return [mainField];
+      });
 
       const response = await fetch("/api/assessments", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
           measure,
+          description: formData.associatedText, // ADD THIS
           table_type_id: Number(tableTypeId),
-          score_type: null,
-          fields: transformedFields, // Use transformed fields
+          fields: transformedFields,
         }),
-        credentials: "include",
       });
 
       if (!response.ok) {
@@ -70,6 +97,7 @@ function NewAssessmentContent() {
     } finally {
       setIsSubmitting(false);
     }
+    clearFormData();
   };
 
   return (

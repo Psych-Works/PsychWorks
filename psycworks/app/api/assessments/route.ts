@@ -7,6 +7,7 @@ interface Field {
     id?: string;
     name: string;
     score_type: string;
+    domain_id?: string;
   };
 }
 
@@ -104,6 +105,7 @@ export async function POST(request: Request) {
       .insert({
         name,
         measure,
+        description: body.description, // ADD THIS
         table_type_id,
         score_type,
         created_at: new Date().toISOString(),
@@ -136,11 +138,10 @@ export async function POST(request: Request) {
     const subtestInserts = fields
       .filter((f: Field) => f.type === "subtest")
       .map(async (field: Field) => {
+        const domainId = field.fieldData.domain_id || field.fieldData.id;
         const { error } = await supabase.from("SubTest").insert({
           assessment_id: assessment.id,
-          domain_id: field.fieldData.id
-            ? domainIdMap.get(field.fieldData.id)
-            : null,
+          domain_id: domainId ? domainIdMap.get(domainId) : null,
           name: field.fieldData.name,
           score_type: field.fieldData.score_type,
           created_at: new Date().toISOString(),
