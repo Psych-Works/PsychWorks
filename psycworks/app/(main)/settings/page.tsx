@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
+import UsersCard from "@/components/settings/users-card";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -37,6 +38,8 @@ export default async function SettingsPage() {
       <Tabs defaultValue="personal" className="space-y-4">
         <TabsList>
           <TabsTrigger value="personal">Personal</TabsTrigger>
+          <TabsTrigger value="user">Manage users</TabsTrigger>
+          <TabsTrigger value="log">Change log</TabsTrigger>
         </TabsList>
 
         <TabsContent value="personal" className="space-y-4">
@@ -89,6 +92,14 @@ export default async function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="user">
+          <UsersCard/>
+        </TabsContent>
+
+        <TabsContent value="log">
+          
         </TabsContent>
       </Tabs>
     </div>
