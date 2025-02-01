@@ -39,7 +39,6 @@ export default async function SettingsPage() {
         <TabsList>
           <TabsTrigger value="personal">Personal</TabsTrigger>
           <TabsTrigger value="user">Manage users</TabsTrigger>
-          <TabsTrigger value="log">Change log</TabsTrigger>
         </TabsList>
 
         <TabsContent value="personal" className="space-y-4">
@@ -96,10 +95,6 @@ export default async function SettingsPage() {
 
         <TabsContent value="user">
           <UsersCard/>
-        </TabsContent>
-
-        <TabsContent value="log">
-          
         </TabsContent>
       </Tabs>
     </div>
