@@ -1,6 +1,23 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+interface Domain {
+  id: number;
+  name: string;
+  score_type: string;
+  created_at: string;
+  updated_at: string | null;
+}
+
+interface SubTest {
+  id: number;
+  name: string;
+  score_type: string;
+  domain_id: number | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
@@ -33,12 +50,18 @@ export async function GET(
     if (assessmentError) throw assessmentError;
 
     // Organize subtests into domains and standalone
-    const domainsWithSubtests = assessment.Domain.map((domain) => ({
-      ...domain,
-      subtests: assessment.SubTest.filter((st) => st.domain_id === domain.id),
-    }));
+    const domainsWithSubtests = (assessment.Domain as Domain[]).map(
+      (domain: Domain) => ({
+        ...domain,
+        subtests: (assessment.SubTest as SubTest[]).filter(
+          (st: SubTest) => st.domain_id === domain.id
+        ),
+      })
+    );
 
-    const standaloneSubtests = assessment.SubTest.filter((st) => !st.domain_id);
+    const standaloneSubtests = (assessment.SubTest as SubTest[]).filter(
+      (st: SubTest) => !st.domain_id
+    );
 
     return NextResponse.json({
       ...assessment,
