@@ -193,13 +193,16 @@ export function AssessmentsTable() {
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex justify-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 hover:bg-primary/10"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <Link href={`/assessments/${assessment.id}`} passHref>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-primary/10"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </Link>
+
                     <Link href={`/assessments/edit/${assessment.id}`} passHref>
                       <Button
                         variant="ghost"
@@ -268,10 +271,11 @@ export function AssessmentsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.max(prev - 1, 1));
                 }}
-                className={`${currentPage === 1
-                  ? "pointer-events-none opacity-50"
-                  : "hover:bg-primary/10"
-                  }`}
+                className={`${
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "hover:bg-primary/10"
+                }`}
               />
             </PaginationItem>
 
@@ -288,10 +292,11 @@ export function AssessmentsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages));
                 }}
-                className={`${currentPage >= totalPages
-                  ? "pointer-events-none opacity-50"
-                  : "hover:bg-primary/10"
-                  }`}
+                className={`${
+                  currentPage >= totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "hover:bg-primary/10"
+                }`}
               />
             </PaginationItem>
           </PaginationContent>
