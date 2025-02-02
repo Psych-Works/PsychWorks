@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -39,9 +39,20 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmationMessage, setConfirmationMessage] = useState<string | null>(
+    null
+  );
+
+  // Check for the `confirmed` query parameter
+  useEffect(() => {
+    const confirmed = searchParams.get("confirmed");
+    if (confirmed === "true") {
+      setConfirmationMessage("Email confirmed successfully! Please log in.");
+    }
+  }, [searchParams]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -77,7 +88,7 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
 
       // Handle email confirmation message
       if (type === "signup" && data.message) {
-        setError(data.message);
+        setConfirmationMessage(data.message);
         return;
       }
 
@@ -112,6 +123,14 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
             </TabsTrigger>
           </TabsList>
 
+          {/* Confirmation Message */}
+          {confirmationMessage && (
+            <div className="mt-4 text-sm text-green-600">
+              {confirmationMessage}
+            </div>
+          )}
+
+          {/* Error Message */}
           {error && <div className="mt-4 text-sm text-red-500">{error}</div>}
 
           <TabsContent value="signin">

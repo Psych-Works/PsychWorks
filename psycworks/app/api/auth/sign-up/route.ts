@@ -1,23 +1,11 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
-
-// Handle preflight requests
-export async function OPTIONS() {
-  return NextResponse.json(
-    {},
-    {
-      headers: {
-        Allow: "POST",
-        "Access-Control-Allow-Methods": "POST",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    }
-  );
-}
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
+    const cookieStore = cookies();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -26,28 +14,39 @@ export async function POST(request: Request) {
       );
     }
 
-    // Sign up the user with Supabase
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+          set(name: string, value: string, options: any) {
+            cookieStore.set({ name, value, ...options });
+          },
+          remove(name: string, options: any) {
+            cookieStore.set({ name, value: "", ...options });
+          },
+        },
+      }
+    );
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      // options: {
-      //   emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      // }
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/sign-in?confirmed=true`,
+      },
     });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    // Check if the user needs to confirm their email
-    const isEmailConfirmationRequired = data.user?.identities?.length === 0;
-
     return NextResponse.json({
+      message: "Confirmation email sent. Please check your inbox.",
       user: data.user,
-      session: data.session,
-      message: isEmailConfirmationRequired
-        ? "Please check your email for confirmation link"
-        : "Registration successful",
     });
   } catch (error) {
     console.error("Sign up error:", error);
