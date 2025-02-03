@@ -1,20 +1,20 @@
 "use client"
 
 import { Eye, Pencil, Trash2 } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { 
     Card, 
     CardContent, 
     CardDescription, 
     CardHeader, 
-    CardTitle } from "../ui/card";
+    CardTitle } from "@/components/ui/card";
 import { 
     Table, 
     TableBody, 
     TableCell, 
     TableHead, 
     TableHeader, 
-    TableRow } from "../ui/table";
+    TableRow } from "@/components/ui/table";
 import { 
     AlertDialog, 
     AlertDialogAction, 
@@ -24,7 +24,7 @@ import {
     AlertDialogFooter, 
     AlertDialogHeader, 
     AlertDialogTitle, 
-    AlertDialogTrigger } from "../ui/alert-dialog";
+    AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 
 export default function AdminCard() {
