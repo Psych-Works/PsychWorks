@@ -38,7 +38,7 @@ export default async function SettingsPage() {
       <Tabs defaultValue="user" className="space-y-4">
         <TabsList>
           <TabsTrigger value="user">User</TabsTrigger>
-          <TabsTrigger value="admin">Manage users</TabsTrigger>
+          <TabsTrigger value="admin">Admin</TabsTrigger>
         </TabsList>
 
         <TabsContent value="user" className="space-y-4">
