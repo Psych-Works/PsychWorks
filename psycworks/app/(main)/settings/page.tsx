@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
+import AdminCard from "@/components/settings/admin-card";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -34,12 +35,13 @@ export default async function SettingsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="personal" className="space-y-4">
+      <Tabs defaultValue="user" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="personal">Personal</TabsTrigger>
+          <TabsTrigger value="user">User</TabsTrigger>
+          <TabsTrigger value="admin">Admin</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="personal" className="space-y-4">
+        <TabsContent value="user" className="space-y-4">
           {/* Profile Settings */}
           <Card>
             <CardHeader>
@@ -89,6 +91,10 @@ export default async function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="admin">
+          <AdminCard/>
         </TabsContent>
       </Tabs>
     </div>
