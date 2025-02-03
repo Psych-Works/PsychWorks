@@ -343,18 +343,6 @@ export const CreationForm = () => {
                         </div>
                       </div>
                     ))}
-
-                    {/* Add Child Subtest Button */}
-                    <div className="pl-14 mt-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleAddChildSubtest(index)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Child Subtest
-                      </Button>
-                    </div>
                   </div>
                 )}
               </div>
