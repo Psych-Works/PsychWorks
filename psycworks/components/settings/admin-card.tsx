@@ -2,18 +2,37 @@
 
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import Link from "next/link";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import { 
+    Card, 
+    CardContent, 
+    CardDescription, 
+    CardHeader, 
+    CardTitle } from "../ui/card";
+import { 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableHead, 
+    TableHeader, 
+    TableRow } from "../ui/table";
+import { 
+    AlertDialog, 
+    AlertDialogAction, 
+    AlertDialogCancel, 
+    AlertDialogContent, 
+    AlertDialogDescription, 
+    AlertDialogFooter, 
+    AlertDialogHeader, 
+    AlertDialogTitle, 
+    AlertDialogTrigger } from "../ui/alert-dialog";
 import { format } from "date-fns";
 
-export default function UsersCard() {
+export default function AdminCard() {
     // need to fetch all users from DB
-    const users = [
+    const users = [ // dummies
         {
             email: 'doe@email.com',
-            last_sign_in_at: '',
+            last_sign_in_at: '02-03-2025',
         },
         {
             email: 'smith@email.com',
@@ -22,7 +41,7 @@ export default function UsersCard() {
     ]
 
     // need to fetch changes from DB
-    const logs = [
+    const logs = [ // dummies
         {
             history: 'description 1',
             date: null,
@@ -59,7 +78,7 @@ export default function UsersCard() {
                                 className="border-b border-primary/10 hover:bg-primary/5"
                                 >
                                     <TableCell className="font-medium text-center">{user.email}</TableCell>
-                                    <TableCell className="font-medium text-center">{user.last_sign_in_at}</TableCell>
+                                    <TableCell className="font-medium text-center">{user.last_sign_in_at ? format((new Date(user.last_sign_in_at)), "PPP") : '-'}</TableCell>
                                     <TableCell>
                                         <div className="flex justify-center gap-2">
                                             <AlertDialog>
