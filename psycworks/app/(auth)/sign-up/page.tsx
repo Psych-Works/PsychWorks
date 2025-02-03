@@ -1,9 +1,12 @@
+import React, { Suspense } from "react";
 import { AuthForm } from "@/components/auth/auth-form";
 
 export default function SignUpPage() {
   return (
     <div className="flex items-center justify-center">
-      <AuthForm defaultTab="signup" />
+      <Suspense fallback={<div>Loading...</div>}>
+        <AuthForm defaultTab="signup" />
+      </Suspense>
     </div>
   );
 }
