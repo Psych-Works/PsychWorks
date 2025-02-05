@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/searchbar/search-bar";
-import ReportsTable from "@/components/reports/reports-table";
+import { ReportsTable } from "@/components/reports/reports-table";
 import Link from "next/link";
 
 export default function ReportsPage() {
