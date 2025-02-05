@@ -100,13 +100,12 @@ export function ReportsTable() {
 
   const handleDeleteReport = async (reportId: bigint) => {
     try {
-      const response = await fetch(`/api/reports`, {
+      const response = await fetch(`/api/reports/${reportId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ id: Number(reportId) }),
       });
 
       if (!response.ok) {

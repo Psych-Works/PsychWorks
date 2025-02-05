@@ -8,7 +8,7 @@ export default function NewReportPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-bold">Create New Report</h1>
         <Link href="/reports">
-            <Button className='col-start-1 col-span-1'>Cancel</Button>
+          <Button className="col-start-1 col-span-1">Cancel</Button>
         </Link>
       </div>
       <p className="text-gray-500 mt-2">
