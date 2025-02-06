@@ -62,38 +62,58 @@ export async function GET(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function POST(request: Request) {
   const supabase = await createClient();
   try {
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    if (authError || !user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const body = await request.json();
+    const { name, assessment_ids } = body;
+
+    if (!name || !assessment_ids || !Array.isArray(assessment_ids)) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
-    const { id } = await request.json();
-    if (!id || isNaN(Number(id))) {
-      return NextResponse.json({ error: "Invalid report ID" }, { status: 400 });
-    }
-
-    const { error: deleteError } = await supabase
+    // Create Report
+    const { data: reportData, error: reportError } = await supabase
       .from("Report")
-      .delete()
-      .eq("id", id);
+      .insert({ name })
+      .select()
+      .single();
 
-    if (deleteError) throw deleteError;
+    if (reportError) throw reportError;
 
-    return NextResponse.json(
-      { success: true, message: "Report deleted successfully" },
-      { status: 200 }
-    );
+    const reportId = reportData.id;
+
+    try {
+      // Create ReportAssessment links
+      await Promise.all(
+        assessment_ids.map(async (assessmentId: number) => {
+          await supabase.from("ReportAssessment").insert({
+            report_id: reportId,
+            assessment_id: assessmentId,
+          });
+        })
+      );
+    } catch (error) {
+      // Cleanup Report if any insertion fails
+      await supabase.from("Report").delete().eq("id", reportId);
+      throw error;
+    }
+
+    return NextResponse.json(reportData, { status: 201 });
   } catch (error) {
-    console.error("Error deleting report:", error);
+    console.error("Error creating report:", error);
     return NextResponse.json(
-      { error: "Failed to delete report" },
+      { error: "Failed to create report" },
       { status: 500 }
     );
   }
