@@ -158,9 +158,6 @@ export function ReportsTable() {
               <SortButton column="name">Name</SortButton>
             </TableHead>
             <TableHead className="bg-primary/5 text-center">
-              Assessments
-            </TableHead>
-            <TableHead className="bg-primary/5 text-center">
               <SortButton column="created_at">Created At</SortButton>
             </TableHead>
             <TableHead className="bg-primary/5 text-center">
@@ -178,20 +175,6 @@ export function ReportsTable() {
               >
                 <TableCell className="font-medium text-center">
                   {report.name}
-                </TableCell>
-                <TableCell className="text-center">
-                  <>
-                    <ul>
-                      {report.ReportAssessment.map((ra, index) => (
-                        <li key={index}>
-                          {ra.Assessment.map((assessment, i) => (
-                            <span key={i}>{assessment.name}</span>
-                          ))}
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                  {report.ReportAssessment.length === 0 && <span>—</span>}
                 </TableCell>
                 <TableCell className="text-center">
                   {format(new Date(report.created_at), "PPP")}
