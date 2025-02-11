@@ -1,0 +1,56 @@
+/* styles/table.css */
+    .table-header-gray th {
+      background-color: #969696; /* bg-gray-100 equivalent */
+      color: #000;
+      font-weight: 500;
+      font-size: 0.875rem; /* text-sm */
+      text-align: center;
+      border: 1px solid #000; /* border-gray-200 equivalent */
+      font-family: "Times New Roman", Times, serif;
+    }
+
+    .measured-area-column {
+      width: 15%; /* Adjust this value to your desired fixed width */
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .domsub-column {
+      width: 20%; /* Adjust this value to your desired fixed width */
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .scale-column {
+      width: 15%; /* Adjust this value to your desired fixed width */
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .percentile-column {
+      width: 5%; /* Adjust this value to your desired fixed width */
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .table-body-gray td {
+        border-top: 1px solid #000;
+        border-right: 1px solid #000;
+        border-bottom: 1px solid #000;
+        border-left: 1px solid #000;
+        font-family: "Times New Roman", Times, serif;
+    }
+
+    .table-input {
+        max-width: 60px;  /* Limits input width */
+        /* padding: 2px 4px; */
+        box-sizing: border-box;
+        text-align: center;
+        font-family: "Times New Roman", Times, serif;
+        font-size: inherit;
+        border: 1px solid #ccc;
+    }
+
+    
+
+    
