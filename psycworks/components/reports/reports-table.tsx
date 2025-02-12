@@ -106,6 +106,7 @@ export function ReportsTable() {
           "Content-Type": "application/json",
         },
         credentials: "include",
+        body: JSON.stringify({ id: Number(reportId) }),
       });
 
       if (!response.ok) {
@@ -201,6 +202,7 @@ export function ReportsTable() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 hover:bg-primary/10"
+                          aria-label="Delete report"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -215,9 +217,7 @@ export function ReportsTable() {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => {
-                              handleDeleteReport(report.id);
-                            }}
+                            onClick={() => handleDeleteReport(report.id)}
                           >
                             Delete
                           </AlertDialogAction>
