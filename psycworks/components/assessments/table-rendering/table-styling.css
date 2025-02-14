@@ -33,6 +33,34 @@
       word-wrap: break-word;
     }
 
+    .calculated-percentile-column {
+      width: 25%; /* Adjust this value to your desired fixed width */
+      /* padding: 0; */
+      margin: 0;
+      white-space: normal;
+      word-wrap: break-word;
+      text-align: center;
+      border: 1px solid #000;
+      border-top: 1px solid #969696;
+      border-bottom: 1px solid #969696;
+    }
+
+    .calculated-percentile-column:first-child {
+      border-left: 1px solid #000;
+    }
+
+    .calculated-percentile-column:last-child {
+      border-right: 1px solid #000;
+    }
+
+    .cognitive-percentile-column {
+      width: 33.33%;  /* Makes each column take up exactly one-third of the container */
+      text-align: center;
+      border: 1px solid #000;
+      border-top: 1px solid #969696;
+      border-bottom: 1px solid #969696;
+    }
+
     .table-body-gray td {
         border-top: 1px solid #000;
         border-right: 1px solid #000;
