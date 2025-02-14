@@ -31,7 +31,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, FilePlus } from "lucide-react";
 
 interface Report {
   id: bigint;
@@ -187,6 +187,16 @@ export function ReportsTable() {
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex justify-center gap-2">
+                    <Link href={`/reports/generate/${report.id}`} passHref>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-primary/10"
+                        aria-label="Generate report"
+                      >
+                        <FilePlus className="h-4 w-4" />
+                      </Button>
+                    </Link>
                     <Link href={`/reports/${report.id}`} passHref>
                       <Button
                         variant="ghost"
