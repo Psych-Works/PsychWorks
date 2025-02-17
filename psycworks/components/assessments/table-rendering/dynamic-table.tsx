@@ -3,7 +3,6 @@ import { useTableFormContext } from '../form-swap-hook/assessments-form-context'
 import { Table, TableHead, TableRow, TableHeader, TableCell, TableBody } from '@/components/ui/table';
 import { lookupTable as percentileLookupTable } from '@/types/percentile-lookup-table';
 import { Progress } from '@/components/ui/progress';
-import './table-styling.css';
 
 interface DynamicTableProps {
   assessmentName: string;
@@ -78,53 +77,44 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
   };
 
   const determineTableType = (tableTypeId: string) => {
-    if (tableTypeId === '2') {
+    if (tableTypeId === '3') {
       return (
         <>
-          <TableHead className="table-header-gray">
-            <TableRow>
-              <TableCell className="calculated-percentile-column"
-              colSpan={4}>
-                Behavioral Rating Scale
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="calculated-percentile-column">
-                Very Low
-                0-8
-              </TableCell>
-              <TableCell className="calculated-percentile-column">
-                Low Av.
-                9-24
-              </TableCell>
-              <TableCell className="calculated-percentile-column">
-                Average.
-                25-74
-              </TableCell>
-              <TableCell className="calculated-percentile-column">
-                High Av.
-                75-100
-              </TableCell>
-            </TableRow>
-          </TableHead>
-        </>
-      )
-    } else if (tableTypeId === '3') {
-      return (
-        <TableHead className="table-header-gray">
           <TableRow>
-            <TableCell className="cognitive-percentile-column"
-            colSpan={3}>
-              Percentile
-            </TableCell>
-            <TableCell className="cognitive-percentile-column">
-              Percentile
-            </TableCell>
-            <TableCell className="cognitive-percentile-column">
+            <TableCell 
+              className="w-[20%] m-0 whitespace-normal break-words text-center border border-black bg-gray-400 "
+              colSpan={4}
+            >
               Percentile
             </TableCell>
           </TableRow>
-        </TableHead>
+          <TableRow>
+            {['Very Low\n0-8', 'Low Av.\n9-24', 'Average.\n25-74', 'High Av.\n75-100'].map((text) => (
+              <TableCell 
+                key={text}
+                className="w-[5%] m-0 whitespace-pre-line break-words text-center border border-black bg-gray-400 "
+              >
+                {text}
+              </TableCell>
+            ))}
+          </TableRow>
+        </>
+      )
+    } else if (tableTypeId === '2') {
+      return (
+        <>
+          <TableRow >
+            {['Clinically Sgnif.', 'Elevated', 'Average'].map((text, index) => (
+              <TableCell 
+                key={index}
+                className="w-[6.66%] bg-gray-400 text-center border border-black "
+                rowSpan={2}
+              >
+                {text}
+              </TableCell>
+            ))}
+          </TableRow>
+        </> 
       )
     }
   };
@@ -163,17 +153,28 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
   const renderPercentileValue = (row: DataRow): JSX.Element => {
     const percentile = getPercentileFromScore(row.Percentile, row.Scale);
     return (
-      <TableCell className="percentile-column">
+      <TableCell className="w-[5%] whitespace-normal break-words">
         {percentile === 1 ? '<1' : percentile}
       </TableCell>
     );
   };
 
   const renderPercentileProgress = (row: DataRow): JSX.Element | null => {
-    if (tableTypeId === '2' || tableTypeId === '3') {
+    const percentile = getPercentileFromScore(row.Percentile, row.Scale);
+    if (tableTypeId === '3') {
       return (
-        <TableCell className="percentile-column">
-          <Progress value={row.Percentile} />
+        <TableCell className="percentile-column" colSpan={4}>
+          <Progress value={percentile} 
+          // className="[&>*]:h-[100%] [&>*]:w-[100%]"
+          />
+        </TableCell>
+      );
+    } else if (tableTypeId === '2') {
+      return (
+        <TableCell className="percentile-column" colSpan={3}>
+          <Progress value={percentile} 
+          // className="[&>*]:h-[100%] [&>*]:w-[100%]"
+          />
         </TableCell>
       );
     }
@@ -202,7 +203,7 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
                 onBlur={() => handleSave(row.id, "Percentile")}
                 onKeyDown={(e) => e.key === "Enter" && handleSave(row.id, "Percentile")}
                 onClick={(e) => e.stopPropagation()}
-                className="table-input"
+                className="max-w-[60px] text-center font-serif text-inherit border border-gray-300"
                 autoFocus
               />
             ) : (
@@ -221,18 +222,44 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
   return (
     <Table>
       <TableHeader>
-        <TableRow className="table-header-gray">
-          <TableHead className="measured-area-column" rowSpan={2}>Measured Area (Assessment)</TableHead>
-          <TableHead className="domsub-column" rowSpan={2}>Domain/Subtest</TableHead>
-          <TableHead className="scale-column" rowSpan={2}>Scale</TableHead>
-          <TableHead rowSpan={2}>%tile</TableHead>
-          {determineTableType(tableTypeId)}
+        <TableRow>
+          <TableHead 
+            className="w-[15%] whitespace-normal break-words bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman" 
+            rowSpan={3}
+          >
+            Measured Area (Assessment)
+          </TableHead>
+          <TableHead 
+            className="w-[15%] whitespace-normal break-words bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman" 
+            rowSpan={3}
+          >
+            Domain/Subtest
+          </TableHead>
+          <TableHead 
+            className="w-[8%] whitespace-normal break-words bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman" 
+            rowSpan={3}
+          >
+            Scale
+          </TableHead>
+          <TableHead 
+            className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman" 
+            rowSpan={3}
+          >
+            %tile
+          </TableHead>
+          {/* {determineTableType(tableTypeId)} */}
         </TableRow>
+        {determineTableType(tableTypeId)}
       </TableHeader>
 
-      <TableBody className="table-body-gray">
+      <TableBody>
         <TableRow>
-          <TableCell className="text-center" rowSpan={countDomSub + 1}> {assessmentName} ({measure})</TableCell>
+          <TableCell 
+            className="text-center border border-black font-times-new-roman" 
+            rowSpan={countDomSub + 1}
+          >
+            {assessmentName} ({measure})
+          </TableCell>
         </TableRow>
         {renderTableRows()}
       </TableBody>  
