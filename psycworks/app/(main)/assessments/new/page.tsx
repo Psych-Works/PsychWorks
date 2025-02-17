@@ -29,6 +29,23 @@ function NewAssessmentContent() {
   const [error, setError] = useState("");
   const { formData, clearFormData } = useTableFormContext();
 
+  const handleNameChange = (value: string) => {
+    setName(value);
+  };
+
+  const handleMeasureChange = (value: string) => {
+    setMeasure(value);
+  };
+
+  const handleTableTypeIdChange = (value: string) => {
+    setTableTypeId(value);
+  };
+
+  const handleCancel = () => {
+    clearFormData();
+    router.back();
+  };
+
   const handleSubmit = async () => {
     if (
       !name ||
@@ -104,27 +121,27 @@ function NewAssessmentContent() {
     <div className="space-y-20">
       <div className="flex-col items-center justify-items-center">
         <CreateAssessmentHeader
-          onTableTypeChange={(value) => setTableTypeId(value)}
+          onTableTypeChange={handleTableTypeIdChange}
         />
         <CreateAssessmentField
           name="Name"
           value={name}
-          onChange={(value) => setName(value)}
+          onChange={handleNameChange}
         />
         <CreateAssessmentField
           name="Measure"
           value={measure}
-          onChange={(value) => setMeasure(value)}
+          onChange={handleMeasureChange}
         />
 
-        <CreateTableDialog />
+        <CreateTableDialog assessmentName={name} onClose={() => {}} measure={measure} tableTypeId={tableTypeId} />
 
         {error && <div className="text-red-500 text-center mt-4">{error}</div>}
 
         <div className="grid grid-cols-5 w-full fixed bottom-10 left-10">
           <Button
             className="col-start-1 col-span-1"
-            onClick={() => router.back()}
+            onClick={handleCancel}
           >
             Cancel
           </Button>

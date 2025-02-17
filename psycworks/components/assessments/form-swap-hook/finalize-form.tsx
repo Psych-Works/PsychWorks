@@ -7,12 +7,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useTableFormContext } from './assessments-form-context'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
+import DynamicTable from '@/components/assessments/table-rendering/dynamic-table';
 
 interface FinalizeFormProps {
   onClose: () => void;
+  assessmentName: string;
+  measure: string;
+  tableTypeId: string;
 } 
 
-export const FinalizeForm = ({ onClose }: FinalizeFormProps) => {
+export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: FinalizeFormProps) => {
 
   const { setCurrentStep ,formData, updateFormData} = useTableFormContext();
   const form = useForm<z.infer<typeof tableDataSchema>>({
@@ -41,12 +45,12 @@ export const FinalizeForm = ({ onClose }: FinalizeFormProps) => {
   };
 
   return (
-    <>
-      <div className='flex flex-col flex-1'>
-        <div className='flex-1 overflow-y-auto p-4'>
+    <div className="flex flex-col h-full max-h-screen"> {/* Add max-h-screen to limit height */}
+      <div className="flex-1 overflow-y-auto min-h-0"> {/* Add min-h-0 to allow proper scrolling */}
+        <div className='p-4'>
           <h1 style={{ color: 'lightgrey', fontStyle: 'italic' }}>
-          Use double square brackets like this, [[]], to denote a portion of the text that you want to be auto populated from the
-          table.
+            Use double square brackets like this, [[]], to denote a portion of the text that you want to be auto populated from the
+            table.
           </h1>
           <form onSubmit={handleSubmit(handleFinalize)}>
             <Textarea 
@@ -55,29 +59,31 @@ export const FinalizeForm = ({ onClose }: FinalizeFormProps) => {
               {...register('associatedText')}
             />
           </form>
-            
         </div>
-        <div className='flex-1 overflow-y-auto p-4'>
-          <Table />
+        
+        <div className='p-4'>
+          <DynamicTable assessmentName={assessmentName} measure={measure} tableTypeId={tableTypeId}/>
         </div>
       </div>
 
-      <div className="flex w-full justify-between">
-        <Button
-          className="w-[32%] h-9"
-          onClick = {handleBack}
-        >
-          Back
-        </Button>
-        <Button
-          className="w-[32%] h-9"
-          type="submit"
-          onClick={handleFinalize}
-        >
-          Finalize
-        </Button>
+      <div className="w-full p-4 border-t bg-background">
+        <div className="flex justify-between gap-4">
+          <Button
+            className="flex-1 h-9"
+            onClick={handleBack}
+          >
+            Back
+          </Button>
+          <Button
+            className="flex-1 h-9"
+            type="submit"
+            onClick={handleFinalize}
+          >
+            Finalize
+          </Button>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
 

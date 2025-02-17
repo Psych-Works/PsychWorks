@@ -12,22 +12,25 @@ import { DialogDescription } from '@radix-ui/react-dialog';
 import { useTableFormContext } from './assessments-form-context';
 
 interface CreateTableDialogProps {
+  assessmentName: string;
   onClose: () => void;
+  measure: string;
+  tableTypeId: string;
 }
 
-const FormContainer = ({ onClose }: CreateTableDialogProps) => {
+const FormContainer = ({ onClose, assessmentName , measure, tableTypeId}: CreateTableDialogProps) => {
   const { currentStep } = useTableFormContext();
 
   return (
     <>
       {currentStep === 1 && <CreationForm />}
-      {currentStep === 2 && <FinalizeForm onClose={onClose}/>}
+      {currentStep === 2 && <FinalizeForm onClose={onClose} assessmentName={assessmentName} measure={measure} tableTypeId={tableTypeId}/>}
       {currentStep === null && <div/>}
     </>
   );
 };
 
-export const CreateTableDialog = ({}) => {
+export const CreateTableDialog = ({ assessmentName, onClose, measure, tableTypeId }: CreateTableDialogProps) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const { formData, updateFormData } = useTableFormContext();
@@ -57,10 +60,10 @@ export const CreateTableDialog = ({}) => {
         </DialogTrigger>
         
         <DialogContent className="sm:max-w-[80%] h-[80vh] w-[80%] flex flex-col overflow-hidden"
-          // onInteractOutside={(e) => {
-          //   // Prevent closing the dialog when clicking outside
-          //   e.preventDefault();
-          // }}
+          onInteractOutside={(e) => {
+            // Prevent closing the dialog when clicking outside
+            e.preventDefault();
+          }}
           >
           <DialogTitle>
             Assessment Creation
@@ -71,6 +74,9 @@ export const CreateTableDialog = ({}) => {
             
           <FormContainer 
           onClose={() => { handleSetIsOpen(false); }} 
+          assessmentName={assessmentName}
+          measure={measure}
+          tableTypeId={tableTypeId}
           />
 
         </DialogContent>
