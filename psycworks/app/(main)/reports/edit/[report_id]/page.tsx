@@ -1,6 +1,5 @@
 "use client"
 
-import { SearchBar } from "@/components/searchbar/search-bar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -27,16 +26,20 @@ export default async function ReportEditPage(){
         ],
     }
     return (
-        <div className="container mx-auto space-y-8 py-8">
-            <div className="text-3xl font-bold text-center my-8">Edit report template</div>
+        <div className="container mx-auto space-y-8">
+            <div className="my-8">
+                <h1 className="text-4xl font-bold">Edit report template</h1>
+                <p className="text-gray-500 mt-2">Edit your report template</p>
+            </div>
+            
 
             <div className="my-8">
-                <div className="grid grid-cols-4 my-8">
-                    <div className="flex col-start-1 col-end-3 font-bold text-2xl bg-gray-200 items-center justify-center">
+                <div className="flex justify-between">
+                    <div className="text-center font-bold text-2xl bg-gray-200 px-10">
                         {report.name}
                     </div>
-                    <div className="col-start-4 col-span-1">
-                        <Button className="w-full h-full text-xl" 
+                    <div className="">
+                        <Button className="h-full text-xl justify-end" 
                         onClick={() => {
                             // handle add
                         }}>Add assessment</Button>
@@ -106,17 +109,17 @@ export default async function ReportEditPage(){
                 </div>
             </div>
 
-            <div className="grid grid-cols-4">
-                <Button className="col-start-1 col-span-1 h-full text-xl" 
-                onClick={() => {
-                    // handle cancel
-                }}
+            <div className="flex justify-between">
+                <Button className=" h-full text-xl"
+                    onClick={() => {
+                        // handle cancel
+                    }}
                 >Cancel</Button>
 
-                <Button className="col-start-4 col-span-1 h-full text-xl"
+                <Button className="h-full text-xl"
                 onClick={() => {
                     // handle edit
-                }}>Edit Report</Button>
+                }}>Edit Report</Button>                
             </div>
         </div>
     )
