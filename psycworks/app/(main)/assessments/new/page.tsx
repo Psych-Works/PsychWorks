@@ -117,12 +117,14 @@ function NewAssessmentContent() {
     clearFormData();
   };
 
+  useEffect(() => {
+    clearFormData();
+  }, []);
+
   return (
     <div className="space-y-20">
       <div className="flex-col items-center justify-items-center">
-        <CreateAssessmentHeader
-          onTableTypeChange={handleTableTypeIdChange}
-        />
+        <CreateAssessmentHeader onTableTypeChange={handleTableTypeIdChange} />
         <CreateAssessmentField
           name="Name"
           value={name}
@@ -134,15 +136,17 @@ function NewAssessmentContent() {
           onChange={handleMeasureChange}
         />
 
-        <CreateTableDialog assessmentName={name} onClose={() => {}} measure={measure} tableTypeId={tableTypeId} />
+        <CreateTableDialog
+          assessmentName={name}
+          onClose={() => {}}
+          measure={measure}
+          tableTypeId={tableTypeId}
+        />
 
         {error && <div className="text-red-500 text-center mt-4">{error}</div>}
 
         <div className="grid grid-cols-5 w-full fixed bottom-10 left-10">
-          <Button
-            className="col-start-1 col-span-1"
-            onClick={handleCancel}
-          >
+          <Button className="col-start-1 col-span-1" onClick={handleCancel}>
             Cancel
           </Button>
           <Button
