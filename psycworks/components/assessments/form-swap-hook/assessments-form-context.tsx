@@ -1,5 +1,5 @@
 import { InputData } from "@/types/table-input-data";
-import { ReactNode, useContext, useState } from "react";
+import { ReactNode, useCallback, useContext, useState } from "react";
 import { createContext } from "react";
 
 interface TableFormContextType {
@@ -35,13 +35,15 @@ export default function TableFormContextProvider({
     return initialData;
   });
 
-  const updateFormData = (data: Partial<InputData>) => {
-    const updatedData = { ...formData, ...data };
-    if (typeof window !== "undefined") {
-      localStorage.setItem(CACHING_KEY, JSON.stringify(updatedData));
-    }
-    setFormData(updatedData);
-  };
+  const updateFormData = useCallback((data: Partial<InputData>) => {
+    setFormData((prevFormData) => {
+      const updatedData = { ...prevFormData, ...data };
+      if (typeof window !== "undefined") {
+        localStorage.setItem(CACHING_KEY, JSON.stringify(updatedData));
+      }
+      return updatedData;
+    });
+  }, []);
 
   const clearFormData = () => {
     setFormData(initialData);

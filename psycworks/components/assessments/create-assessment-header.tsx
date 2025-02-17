@@ -17,9 +17,11 @@ type AssessmentType = {
 export default function CreateAssessmentHeader({
   onTableTypeChange,
   mode = "create",
+  selectedTypeId,
 }: {
   onTableTypeChange: (value: string) => void;
   mode?: "create" | "modify";
+  selectedTypeId?: string;
 }) {
   const [types, setTypes] = useState<AssessmentType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,14 +47,16 @@ export default function CreateAssessmentHeader({
     <>
       <div className="grid grid-cols-5 w-full">
         <div className="col-span-full my-10 text-black text-4xl font-bold justify-self-center">
-          {mode === "create" ? "Create Assessment Table" : "Modify Assessment Table"}
+          {mode === "create"
+            ? "Create Assessment Table"
+            : "Modify Assessment Table"}
         </div>
 
         <p className="col-start-2 col-end-3 mx-10 text-black font-bold text-xl justify-self-center">
           Table type:
         </p>
         <div className="col-start-3 col-end-5 w-full">
-          <Select onValueChange={onTableTypeChange}>
+          <Select onValueChange={onTableTypeChange} value={selectedTypeId}>
             <SelectTrigger>
               <SelectValue placeholder="Select table type" />
             </SelectTrigger>
