@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useTableFormContext } from '../form-swap-hook/assessments-form-context';
+import React,{ useState } from 'react';
+import { ReactNode } from 'react';
+import { useTableFormContext } from '@/components/assessments/form-swap-hook/assessments-form-context';
 import { Table, TableHead, TableRow, TableHeader, TableCell, TableBody } from '@/components/ui/table';
 import { lookupTable as percentileLookupTable } from '@/types/percentile-lookup-table';
 import { Progress } from '@/components/ui/progress';
@@ -150,7 +151,7 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
     return percentileLookupTable.find(row => row.StS === numericStandardScore)?.percentile ?? null;
   };
 
-  const renderPercentileValue = (row: DataRow): JSX.Element => {
+  const renderPercentileValue = (row: DataRow): ReactNode => {
     const percentile = getPercentileFromScore(row.Percentile, row.Scale);
     return (
       <TableCell className="w-[5%] whitespace-normal break-words">
@@ -159,7 +160,7 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
     );
   };
 
-  const renderPercentileProgress = (row: DataRow): JSX.Element | null => {
+  const renderPercentileProgress = (row: DataRow): ReactNode | null => {
     const percentile = getPercentileFromScore(row.Percentile, row.Scale);
     if (tableTypeId === '3') {
       return (
@@ -181,8 +182,8 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
     return null;
   };
 
-  const renderTableRows = (): JSX.Element[] => {
-    const rows: JSX.Element[] = [];
+  const renderTableRows = (): ReactNode[] => {
+    const rows: ReactNode[] = [];
 
     data.forEach((row: DataRow) => {
       rows.push(

@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useTableFormContext } from './assessments-form-context'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import DynamicTable from '../table-rendering/dynamic-table';
+import DynamicTable from '@/components/assessments/table-rendering/dynamic-table';
 
 interface FinalizeFormProps {
   onClose: () => void;
