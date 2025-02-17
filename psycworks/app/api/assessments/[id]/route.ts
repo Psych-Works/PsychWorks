@@ -83,12 +83,12 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   const supabase = await createClient();
-  // Convert the id from string to number
+  // Convert the assessment id to a number
   const assessmentId = Number(params.id);
   const body = await request.json();
 
   try {
-    // Update Assessment
+    // Update the Assessment record
     const { data: assessment, error: assessmentError } = await supabase
       .from("Assessment")
       .update({
@@ -104,11 +104,77 @@ export async function PUT(
 
     if (assessmentError) throw assessmentError;
 
-    // Update Domains and Subtests
+    // Process domains: update existing or insert new ones
+    await Promise.all(
+      body.domains.map(async (domain: any) => {
+        let domainId: number;
+        if (domain.id && !isNaN(Number(domain.id))) {
+          // Update an existing domain
+          const { error: domainError } = await supabase
+            .from("Domain")
+            .update({
+              name: domain.name,
+              score_type: domain.score_type,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", domain.id);
+          if (domainError) throw domainError;
+          domainId = domain.id;
+        } else {
+          // Insert a new domain, linking it to the current assessment
+          const { data: insertedDomain, error: insertError } = await supabase
+            .from("Domain")
+            .insert({
+              assessment_id: assessmentId,
+              name: domain.name,
+              score_type: domain.score_type,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+          if (insertError) throw insertError;
+          domainId = insertedDomain.id;
+        }
+
+        // Process the subtests for this domain: update or insert
+        await Promise.all(
+          domain.subtests.map(async (subtest: any) => {
+            if (subtest.id && !isNaN(Number(subtest.id))) {
+              // Update an existing subtest for this domain
+              const { error: subtestError } = await supabase
+                .from("SubTest")
+                .update({
+                  name: subtest.name,
+                  score_type: subtest.score_type,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("id", subtest.id);
+              if (subtestError) throw subtestError;
+            } else {
+              // Insert a new subtest linked to the newly inserted/updated domain
+              const { error: insertError } = await supabase
+                .from("SubTest")
+                .insert({
+                  assessment_id: assessmentId,
+                  domain_id: domainId,
+                  name: subtest.name,
+                  score_type: subtest.score_type,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                });
+              if (insertError) throw insertError;
+            }
+          })
+        );
+      })
+    );
+
+    // Process standalone subtests: update existing or insert new ones
     await Promise.all(
       body.standalone_subtests.map(async (subtest: any) => {
-        if (subtest.id) {
-          // Existing subtest: update it
+        if (subtest.id && !isNaN(Number(subtest.id))) {
+          // Update an existing standalone subtest
           const { error: subtestError } = await supabase
             .from("SubTest")
             .update({
@@ -117,12 +183,12 @@ export async function PUT(
               updated_at: new Date().toISOString(),
             })
             .eq("id", subtest.id);
-
           if (subtestError) throw subtestError;
         } else {
-          // New subtest: insert it with the correct assessment_id
+          // Insert a new standalone subtest (domain_id remains null)
           const { error: insertError } = await supabase.from("SubTest").insert({
-            assessment_id: assessmentId, // ensure this links to the current assessment
+            assessment_id: assessmentId,
+            domain_id: null,
             name: subtest.name,
             score_type: subtest.score_type,
             created_at: new Date().toISOString(),
