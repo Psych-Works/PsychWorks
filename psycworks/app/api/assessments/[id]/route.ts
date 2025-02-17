@@ -77,3 +77,68 @@ export async function GET(
     );
   }
 }
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const supabase = await createClient();
+  // Convert the id from string to number
+  const assessmentId = Number(params.id);
+  const body = await request.json();
+
+  try {
+    // Update Assessment
+    const { data: assessment, error: assessmentError } = await supabase
+      .from("Assessment")
+      .update({
+        name: body.name,
+        measure: body.measure,
+        description: body.description,
+        table_type_id: body.table_type_id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", assessmentId)
+      .select()
+      .single();
+
+    if (assessmentError) throw assessmentError;
+
+    // Update Domains and Subtests
+    await Promise.all(
+      body.standalone_subtests.map(async (subtest: any) => {
+        if (subtest.id) {
+          // Existing subtest: update it
+          const { error: subtestError } = await supabase
+            .from("SubTest")
+            .update({
+              name: subtest.name,
+              score_type: subtest.score_type,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", subtest.id);
+
+          if (subtestError) throw subtestError;
+        } else {
+          // New subtest: insert it with the correct assessment_id
+          const { error: insertError } = await supabase.from("SubTest").insert({
+            assessment_id: assessmentId, // ensure this links to the current assessment
+            name: subtest.name,
+            score_type: subtest.score_type,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+          if (insertError) throw insertError;
+        }
+      })
+    );
+
+    return NextResponse.json({ success: true, data: assessment });
+  } catch (error) {
+    console.error("Update error:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Update failed" },
+      { status: 500 }
+    );
+  }
+}
