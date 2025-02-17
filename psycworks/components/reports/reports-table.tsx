@@ -31,7 +31,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, FilePlus } from "lucide-react";
 
 interface Report {
   id: bigint;
@@ -106,6 +106,7 @@ export function ReportsTable() {
           "Content-Type": "application/json",
         },
         credentials: "include",
+        body: JSON.stringify({ id: Number(reportId) }),
       });
 
       if (!response.ok) {
@@ -158,9 +159,6 @@ export function ReportsTable() {
               <SortButton column="name">Name</SortButton>
             </TableHead>
             <TableHead className="bg-primary/5 text-center">
-              Assessments
-            </TableHead>
-            <TableHead className="bg-primary/5 text-center">
               <SortButton column="created_at">Created At</SortButton>
             </TableHead>
             <TableHead className="bg-primary/5 text-center">
@@ -180,20 +178,6 @@ export function ReportsTable() {
                   {report.name}
                 </TableCell>
                 <TableCell className="text-center">
-                  <>
-                    <ul>
-                      {report.ReportAssessment.map((ra, index) => (
-                        <li key={index}>
-                          {ra.Assessment.map((assessment, i) => (
-                            <span key={i}>{assessment.name}</span>
-                          ))}
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                  {report.ReportAssessment.length === 0 && <span>—</span>}
-                </TableCell>
-                <TableCell className="text-center">
                   {format(new Date(report.created_at), "PPP")}
                 </TableCell>
                 <TableCell className="text-center">
@@ -203,6 +187,16 @@ export function ReportsTable() {
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex justify-center gap-2">
+                    <Link href={`/reports/generate/${report.id}`} passHref>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-primary/10"
+                        aria-label="Generate report"
+                      >
+                        <FilePlus className="h-4 w-4" />
+                      </Button>
+                    </Link>
                     <Link href={`/reports/${report.id}`} passHref>
                       <Button
                         variant="ghost"
@@ -218,6 +212,7 @@ export function ReportsTable() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 hover:bg-primary/10"
+                          aria-label="Delete report"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -232,9 +227,7 @@ export function ReportsTable() {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => {
-                              handleDeleteReport(report.id);
-                            }}
+                            onClick={() => handleDeleteReport(report.id)}
                           >
                             Delete
                           </AlertDialogAction>

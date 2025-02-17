@@ -38,3 +38,36 @@ export async function DELETE(request: Request) {
     );
   }
 }
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const supabase = await createClient();
+  const { id } = params;
+
+  try {
+    const { data: report, error } = await supabase
+      .from("Report")
+      .select(
+        `
+        *,
+        ReportAssessment:ReportAssessment (
+          Assessment:Assessment (*)
+        )
+      `
+      )
+      .eq("id", id)
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json(report);
+  } catch (error) {
+    console.error("Error fetching report:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch report" },
+      { status: 500 }
+    );
+  }
+}
