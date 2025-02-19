@@ -171,6 +171,14 @@ export function AuthForm({ defaultTab = "signin" }: AuthFormProps) {
                     </FormItem>
                   )}
                 />
+                <div className="text-right text-sm">
+                  <Link
+                    href="/forgot-password"
+                    className="hover:underline"
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Loading..." : "Sign In"}
                 </Button>
