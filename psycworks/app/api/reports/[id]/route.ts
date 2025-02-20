@@ -53,7 +53,16 @@ export async function GET(
         `
         *,
         ReportAssessment:ReportAssessment (
-          Assessment:Assessment (*)
+          Assessment:Assessment (
+            *,
+            Domains:Domain (
+              *,
+              SubTests:SubTest (*)
+            ),
+            SubTests:SubTest (
+              *
+            )
+          )
         )
       `
       )
