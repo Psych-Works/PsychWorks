@@ -10,29 +10,36 @@ interface TableFormContextType {
   clearFormData: () => void;
 }
 
+interface TableFormContextProviderProps {
+  children: ReactNode;
+  initialData?: InputData;
+}
+
 const TableFormContext = createContext<TableFormContextType | undefined>(
   undefined
 );
-
 const CACHING_KEY = "table_form_data";
 
 export default function TableFormContextProvider({
   children,
-}: {
-  children: ReactNode;
-}) {
-  const [currentStep, setCurrentStep] = useState(1);
-  const initialData: InputData = {
+  initialData,
+}: TableFormContextProviderProps) {
+  const defaultInitialData: InputData = {
     fields: [],
     associatedText: "",
   };
 
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<InputData>(() => {
+    // Priority: initialData > localStorage > default
+    if (initialData) return initialData;
+
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(CACHING_KEY);
-      return saved ? JSON.parse(saved) : initialData;
+      return saved ? JSON.parse(saved) : defaultInitialData;
     }
-    return initialData;
+
+    return defaultInitialData;
   });
 
   const updateFormData = useCallback((data: Partial<InputData>) => {
@@ -46,7 +53,7 @@ export default function TableFormContextProvider({
   }, []);
 
   const clearFormData = () => {
-    setFormData(initialData);
+    setFormData(initialData || defaultInitialData);
     if (typeof window !== "undefined") {
       localStorage.removeItem(CACHING_KEY);
     }
