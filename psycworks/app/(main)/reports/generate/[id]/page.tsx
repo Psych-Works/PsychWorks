@@ -9,12 +9,32 @@ import {
   CollapsibleContent,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
+import DynamicTable from "@/components/assessments/table-rendering/dynamic-table";
+import TableFormContextProvider from "@/components/assessments/form-swap-hook/assessments-form-context";
+import { InputData } from "@/types/table-input-data";
 
 interface ReportAssessment {
   Assessment: {
     id: string;
     name: string;
     measure: string;
+    table_type_id: number;
+    Domains: Array<{
+      id: string;
+      name: string;
+      score_type: string;
+      SubTests: Array<{
+        id: string;
+        name: string;
+        score_type: string;
+      }>;
+    }>;
+    SubTests: Array<{
+      id: string;
+      name: string;
+      score_type: string;
+      domain_id: string | null;
+    }>;
   };
 }
 
@@ -23,6 +43,42 @@ interface Report {
   name: string;
   ReportAssessment: ReportAssessment[];
 }
+
+const processAssessmentData = (assessment: any): InputData => {
+  const fields: any[] = [];
+
+  // Process domains and their subtests
+  assessment.Domains.forEach((domain: any) => {
+    fields.push({
+      fieldData: {
+        name: domain.name,
+        score_type: domain.score_type,
+      },
+      subtests: domain.SubTests.map((subtest: any) => ({
+        name: subtest.name,
+        score_type: subtest.score_type,
+      })),
+    });
+  });
+
+  // Process standalone subtests (without domain)
+  assessment.SubTests.forEach((subtest: any) => {
+    if (!subtest.domain_id) {
+      fields.push({
+        fieldData: {
+          name: subtest.name,
+          score_type: subtest.score_type,
+        },
+        subtests: [],
+      });
+    }
+  });
+
+  return {
+    fields,
+    associatedText: "",
+  };
+};
 
 export default function GenerateReportPage() {
   const { id } = useParams();
@@ -65,17 +121,12 @@ export default function GenerateReportPage() {
     );
   };
 
-  if (loading) {
+  if (loading)
     return <div className="container mx-auto py-8">Loading report...</div>;
-  }
-
-  if (error) {
+  if (error)
     return <div className="container mx-auto py-8 text-red-500">{error}</div>;
-  }
-
-  if (!report) {
+  if (!report)
     return <div className="container mx-auto py-8">Report not found</div>;
-  }
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -118,11 +169,15 @@ export default function GenerateReportPage() {
                     <p className="text-muted-foreground">
                       {Assessment.measure}
                     </p>
-                    <div className="h-32 flex items-center justify-center bg-background rounded-lg">
-                      <p className="text-sm text-muted-foreground">
-                        Content area for {Assessment.name}
-                      </p>
-                    </div>
+                    <TableFormContextProvider
+                      initialData={processAssessmentData(Assessment)}
+                    >
+                      <DynamicTable
+                        assessmentName={Assessment.name}
+                        measure={Assessment.measure}
+                        tableTypeId={Assessment.table_type_id.toString()}
+                      />
+                    </TableFormContextProvider>
                   </div>
                 </div>
               </CollapsibleContent>
