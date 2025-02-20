@@ -1,9 +1,16 @@
-import React,{ useState } from 'react';
-import { ReactNode } from 'react';
-import { useTableFormContext } from '@/components/assessments/form-swap-hook/assessments-form-context';
-import { Table, TableHead, TableRow, TableHeader, TableCell, TableBody } from '@/components/ui/table';
-import { lookupTable as percentileLookupTable } from '@/types/percentile-lookup-table';
-import { Progress } from '@/components/ui/progress';
+import React, { useState } from "react";
+import { ReactNode } from "react";
+import { useTableFormContext } from "@/components/assessments/form-swap-hook/assessments-form-context";
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableCell,
+  TableBody,
+} from "@/components/ui/table";
+import { lookupTable as percentileLookupTable } from "@/types/percentile-lookup-table";
+import { Progress } from "@/components/ui/progress";
 
 interface DynamicTableProps {
   assessmentName: string;
@@ -16,19 +23,23 @@ interface DataRow {
   DomSub: string;
   Scale: string;
   Percentile: number;
+  depth: number;
 }
 
 function populateData(formData: any) {
   let id = 0;
   const mappedData: DataRow[] = [];
-  
+
   formData.fields.forEach((field: any) => {
+    const isDomain = field.subtests && field.subtests.length > 0;
+
     // Add domain/standalone field
     mappedData.push({
       id: id++,
       DomSub: field.fieldData.name,
       Scale: field.fieldData.score_type,
       Percentile: 0,
+      depth: isDomain ? 0 : 0, // Domain or standalone subtest
     });
 
     // Add subtests if they exist
@@ -39,6 +50,7 @@ function populateData(formData: any) {
           DomSub: subtest.name,
           Scale: subtest.score_type,
           Percentile: 0,
+          depth: 1,
         });
       });
     }
@@ -47,7 +59,11 @@ function populateData(formData: any) {
   return mappedData;
 }
 
-function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProps) {
+function DynamicTable({
+  assessmentName,
+  measure,
+  tableTypeId,
+}: DynamicTableProps) {
   const { formData } = useTableFormContext();
   const [data, setData] = useState<DataRow[]>(() => populateData(formData));
 
@@ -71,18 +87,26 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
   };
 
   const handleSave = (rowId: number, columnKey: string) => {
-    setData(data.map(row => 
-      row.id === rowId ? { ...row, [columnKey]: columnKey === "Percentile" ? Number(tempValue) : tempValue } : row
-    ));
+    setData(
+      data.map((row) =>
+        row.id === rowId
+          ? {
+              ...row,
+              [columnKey]:
+                columnKey === "Percentile" ? Number(tempValue) : tempValue,
+            }
+          : row
+      )
+    );
     setEditing({ rowId: null, columnKey: null });
   };
 
   const determineTableType = (tableTypeId: string) => {
-    if (tableTypeId === '3') {
+    if (tableTypeId === "3") {
       return (
         <>
           <TableRow>
-            <TableCell 
+            <TableCell
               className="w-[20%] m-0 whitespace-normal break-words text-center border border-black bg-gray-400 "
               colSpan={4}
             >
@@ -90,8 +114,13 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
             </TableCell>
           </TableRow>
           <TableRow>
-            {['Very Low\n0-8', 'Low Av.\n9-24', 'Average.\n25-74', 'High Av.\n75-100'].map((text) => (
-              <TableCell 
+            {[
+              "Very Low\n0-8",
+              "Low Av.\n9-24",
+              "Average.\n25-74",
+              "High Av.\n75-100",
+            ].map((text) => (
+              <TableCell
                 key={text}
                 className="w-[5%] m-0 whitespace-pre-line break-words text-center border border-black bg-gray-400 "
               >
@@ -100,13 +129,13 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
             ))}
           </TableRow>
         </>
-      )
-    } else if (tableTypeId === '2') {
+      );
+    } else if (tableTypeId === "2") {
       return (
         <>
-          <TableRow >
-            {['Clinically Sgnif.', 'Elevated', 'Average'].map((text, index) => (
-              <TableCell 
+          <TableRow>
+            {["Clinically Sgnif.", "Elevated", "Average"].map((text, index) => (
+              <TableCell
                 key={index}
                 className="w-[6.66%] bg-gray-400 text-center border border-black "
                 rowSpan={2}
@@ -115,66 +144,74 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
               </TableCell>
             ))}
           </TableRow>
-        </> 
-      )
+        </>
+      );
     }
   };
 
-  const getPercentileFromScore = (score: number, scale: string): number | null => {
+  const getPercentileFromScore = (
+    score: number,
+    scale: string
+  ): number | null => {
     let mean = 0;
     let sd = 0;
     switch (scale) {
-      case 'T':
+      case "T":
         mean = 50;
         sd = 10;
         break;
-      case 'Z':
+      case "Z":
         mean = 0;
         sd = 1;
         break;
-      case 'ScS':
+      case "ScS":
         mean = 10;
         sd = 3;
         break;
-      case 'StS':
+      case "StS":
         mean = 100;
         sd = 15;
         break;
     }
-    
-    const standardScore = ((((score - mean) / sd) * 15) + 100).toFixed(2);
+
+    const standardScore = (((score - mean) / sd) * 15 + 100).toFixed(2);
     const numericStandardScore = Number(standardScore);
 
     if (numericStandardScore < 40) return 1;
     if (numericStandardScore > 133) return 99;
 
-    return percentileLookupTable.find(row => row.StS === numericStandardScore)?.percentile ?? null;
+    return (
+      percentileLookupTable.find((row) => row.StS === numericStandardScore)
+        ?.percentile ?? null
+    );
   };
 
   const renderPercentileValue = (row: DataRow): ReactNode => {
     const percentile = getPercentileFromScore(row.Percentile, row.Scale);
     return (
       <TableCell className="w-[5%] whitespace-normal break-words">
-        {percentile === 1 ? '<1' : percentile}
+        {percentile === 1 ? "<1" : percentile}
       </TableCell>
     );
   };
 
   const renderPercentileProgress = (row: DataRow): ReactNode | null => {
     const percentile = getPercentileFromScore(row.Percentile, row.Scale);
-    if (tableTypeId === '3') {
+    if (tableTypeId === "3") {
       return (
         <TableCell className="percentile-column" colSpan={4}>
-          <Progress value={percentile} 
-          // className="[&>*]:h-[100%] [&>*]:w-[100%]"
+          <Progress
+            value={percentile}
+            // className="[&>*]:h-[100%] [&>*]:w-[100%]"
           />
         </TableCell>
       );
-    } else if (tableTypeId === '2') {
+    } else if (tableTypeId === "2") {
       return (
         <TableCell className="percentile-column" colSpan={3}>
-          <Progress value={percentile} 
-          // className="[&>*]:h-[100%] [&>*]:w-[100%]"
+          <Progress
+            value={percentile}
+            // className="[&>*]:h-[100%] [&>*]:w-[100%]"
           />
         </TableCell>
       );
@@ -188,12 +225,18 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
     data.forEach((row: DataRow) => {
       rows.push(
         <TableRow key={`row-${row.id}`}>
-          <TableCell className={row.DomSub.includes('domain') ? 'font-bold' : 'font-italic'}>
+          <TableCell
+            className={`${row.depth === 1 ? "pl-8" : ""} ${
+              row.depth === 0 ? "font-bold" : "font-italic"
+            }`}
+          >
             {row.DomSub}
           </TableCell>
           <TableCell
             className="cursor-pointer"
-            onClick={() => handleEdit(row.id, "Percentile", row.Percentile.toString())}
+            onClick={() =>
+              handleEdit(row.id, "Percentile", row.Percentile.toString())
+            }
           >
             {row.Scale}:
             {editing.rowId === row.id && editing.columnKey === "Percentile" ? (
@@ -202,13 +245,15 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
                 value={tempValue}
                 onChange={(e) => setTempValue(e.target.value)}
                 onBlur={() => handleSave(row.id, "Percentile")}
-                onKeyDown={(e) => e.key === "Enter" && handleSave(row.id, "Percentile")}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && handleSave(row.id, "Percentile")
+                }
                 onClick={(e) => e.stopPropagation()}
                 className="max-w-[60px] text-center font-serif text-inherit border border-gray-300"
                 autoFocus
               />
             ) : (
-              row.Percentile || ''
+              row.Percentile || ""
             )}
           </TableCell>
           {renderPercentileValue(row)}
@@ -224,26 +269,26 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead 
-            className="w-[15%] whitespace-normal break-words bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman" 
+          <TableHead
+            className="w-[15%] whitespace-normal break-words bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             rowSpan={3}
           >
             Measured Area (Assessment)
           </TableHead>
-          <TableHead 
-            className="w-[15%] whitespace-normal break-words bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman" 
+          <TableHead
+            className="w-[15%] whitespace-normal break-words bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             rowSpan={3}
           >
             Domain/Subtest
           </TableHead>
-          <TableHead 
-            className="w-[8%] whitespace-normal break-words bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman" 
+          <TableHead
+            className="w-[8%] whitespace-normal break-words bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             rowSpan={3}
           >
             Scale
           </TableHead>
-          <TableHead 
-            className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman" 
+          <TableHead
+            className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             rowSpan={3}
           >
             %tile
@@ -255,15 +300,15 @@ function DynamicTable({ assessmentName, measure, tableTypeId }: DynamicTableProp
 
       <TableBody>
         <TableRow>
-          <TableCell 
-            className="text-center border border-black font-times-new-roman" 
+          <TableCell
+            className="text-center border border-black font-times-new-roman"
             rowSpan={countDomSub + 1}
           >
             {assessmentName} ({measure})
           </TableCell>
         </TableRow>
         {renderTableRows()}
-      </TableBody>  
+      </TableBody>
     </Table>
   );
 }
