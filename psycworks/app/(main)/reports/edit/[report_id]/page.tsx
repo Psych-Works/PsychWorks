@@ -33,15 +33,10 @@ export default function EditReportPage(){
         setIsSubmitting(true);
         try {
           const response = await fetch("/api/reports", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-            name,
-            assessment_ids: selectedAssessments.map((a) => a.id),
-            }),
+            // content of the request
           });
 
-          if (!response.ok) throw new Error("Failed to create template");
+          if (!response.ok) throw new Error("Failed to update template");
           router.push("/reports");
         }catch (err) {
           setError(err instanceof Error ? err.message : "Submission failed");
