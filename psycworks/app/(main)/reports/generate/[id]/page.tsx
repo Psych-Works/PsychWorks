@@ -13,6 +13,7 @@ import DynamicTable from "@/components/assessments/table-rendering/dynamic-table
 import TableFormContextProvider from "@/components/assessments/form-swap-hook/assessments-form-context";
 import { InputData } from "@/types/table-input-data";
 import { Textarea } from "@/components/ui/textarea";
+import ExportToDocxButton from "@/components/reports/export-to-docx-button";
 
 interface ReportAssessment {
   Assessment: {
@@ -194,6 +195,9 @@ export default function GenerateReportPage() {
             </div>
           </Collapsible>
         ))}
+      </div>
+      <div className="text-right">
+        <ExportToDocxButton />
       </div>
     </div>
   );
