@@ -80,3 +80,67 @@ export async function GET(
     );
   }
 }
+
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
+  const supabase = await createClient();
+  const reportId = params.id;
+  const body = await request.json();
+
+  try {
+    console.log("Updating report with ID:", reportId);
+    console.log("Request payload:", body);
+
+    // Validate the request payload
+    if (!body || typeof body !== 'object' || !body.name) {
+      console.error("Invalid request payload:", body);
+      return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
+    }
+
+    // Update the report name and updated_at field
+    const { data: reportData, error: reportError } = await supabase
+      .from("Report")
+      .update({
+        name: body.name,
+        updated_at: new Date().toISOString() // Update the updated_at field
+      })
+      .eq("id", reportId)
+      .select()
+      .single();
+
+    if (reportError) {
+      console.error("Error updating report name:", reportError);
+      return NextResponse.json({ error: "Failed to update report name" }, { status: 500 });
+    }
+
+    // Update ReportAssessment links
+    const { error: deleteError } = await supabase
+      .from("ReportAssessment")
+      .delete()
+      .eq("report_id", reportId);
+
+    if (deleteError) {
+      console.error("Error deleting old assessments:", deleteError);
+      return NextResponse.json({ error: "Failed to update assessments" }, { status: 500 });
+    }
+
+    const { error: insertError } = await supabase
+      .from("ReportAssessment")
+      .insert(
+        body.assessment_ids.map((assessmentId: number) => ({
+          report_id: reportId,
+          assessment_id: assessmentId,
+        }))
+      );
+
+    if (insertError) {
+      console.error("Error inserting new assessments:", insertError);
+      return NextResponse.json({ error: "Failed to update assessments" }, { status: 500 });
+    }
+
+    console.log("Report updated successfully:", reportData);
+    return NextResponse.json(reportData, { status: 200 });
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
