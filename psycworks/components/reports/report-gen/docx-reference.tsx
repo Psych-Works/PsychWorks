@@ -38,9 +38,13 @@ export default function ExportToWord() {
           },
           {
             children: [
-                    new Paragraph({
-                        children: [
-                            new TextRun({ text: "Name: Client LastName\nDate of Birth: XX/XX/XXXX\nAge: X years, X months\nInsurance: BCBS\nDate(s) of Evaluation: XX/XX/2024\nDate of Report: XX/XX/2024\nEvaluator: Justin Gaddis, PhD\nReferral: X", size: 24, font: "Times New Roman" }),
+              new Paragraph({
+                children: [
+                    new TextRun({
+                      text: "Name: Client LastName\tDate of Birth: XX/XX/XXXX\tAge: X years, X months\tInsurance: BCBS\tDate(s) of Evaluation: XX/XX/2024\tDate of Report: XX/XX/2024\tEvaluator: Justin Gaddis, PhD\tReferral: X",
+                      size: 24,
+                      font: "Times New Roman"
+                    }),
                         ],
                     }),
                     new Paragraph(

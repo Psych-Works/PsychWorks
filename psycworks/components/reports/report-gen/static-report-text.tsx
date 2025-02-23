@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Packer, Paragraph, TextRun, Header, ImageRun, ExternalHyperlink } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Header, ImageRun, ExternalHyperlink, Footer } from 'docx';
 
 export const ReportTitle = new Paragraph({
     alignment: 'center',
@@ -28,7 +28,7 @@ export const ClientInfo = new Paragraph({
         new TextRun({
             text: 'Name: ',
             bold: true,
-            size: 12,
+            size: 24,
             font: 'Times New Roman',
         }),
         new TextRun({
@@ -39,13 +39,13 @@ export const ClientInfo = new Paragraph({
             text: 'Date(s) of Evaluation: ',
             break: 1,
             bold: true,
-            size: 12,
+            size: 24,
             font: 'Times New Roman',
         }),
         new TextRun({
             text: 'Date of Birth: ',
             bold: true,
-            size: 12,
+            size: 24,
             font: 'Times New Roman',
         }),
         new TextRun({
@@ -55,13 +55,13 @@ export const ClientInfo = new Paragraph({
             text: 'Date of Report: ',
             break: 1,
             bold: true,
-            size: 12,
+            size: 24,
             font: 'Times New Roman',
         }),
         new TextRun({
             text: 'Age: ',
             bold: true,
-            size: 12,
+            size: 24,
             font: 'Times New Roman',
         }),
         new TextRun({
@@ -71,13 +71,13 @@ export const ClientInfo = new Paragraph({
             text: 'Evaluator: ',
             break: 1,
             bold: true,
-            size: 12,
+            size: 24,
             font: 'Times New Roman',
         }),
         new TextRun({
             text: 'Insurance: ',
             bold: true,
-            size: 12,
+            size: 24,
             font: 'Times New Roman',
         }),
         new TextRun({
@@ -86,7 +86,7 @@ export const ClientInfo = new Paragraph({
         new TextRun({
             text: 'Referral: ',
             bold: true,
-            size: 12,
+            size: 24,
             font: 'Times New Roman',
         }),
     ]
@@ -94,18 +94,18 @@ export const ClientInfo = new Paragraph({
 
 export const ReportHeader = new Header({
     children: [
-        // new Paragraph({
-        //     children: [
-        //         new ImageRun({
-        //             type: 'png',
-        //             data: 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png',
-        //             transformation: {
-        //                 width: 100,
-        //                 height: 100,
-        //             },
-        //         }),
-        //     ],
-        // }),
+        new Paragraph({
+            children: [
+                new ImageRun({
+                    type: 'png',
+                    data: 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png',
+                    transformation: {
+                        width: 100,
+                        height: 100,
+                    },
+                }),
+            ],
+        }),
         new Paragraph({
             alignment: 'left',
             children: [
@@ -141,6 +141,21 @@ export const ReportHeader = new Header({
                         }),
                     ],
                     link: 'https://www.fwpsychworks.com/',
+                }),
+            ],
+        }),
+    ]
+});
+
+export const ReportFooter = new Footer({
+    children: [
+        new Paragraph({
+            alignment: 'center',
+            children: [
+                new TextRun({
+                    text: 'Fort Worth Psycworks',
+                    size: 24,
+                    font: 'Times New Roman',
                 }),
             ],
         }),
