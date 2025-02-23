@@ -31,7 +31,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
-import { Eye, Trash2, FilePlus } from "lucide-react";
+import { Eye, Trash2, FilePlus, Pencil } from "lucide-react";
 
 interface Report {
   id: bigint;
@@ -206,6 +206,16 @@ export function ReportsTable() {
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
+                    <Link href={`/reports/edit/${report.id}`} passHref>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-primary/10"
+                        aria-label="Edit report"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </Link>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
@@ -258,11 +268,10 @@ export function ReportsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.max(prev - 1, 1));
                 }}
-                className={`${
-                  currentPage === 1
+                className={`${currentPage === 1
                     ? "pointer-events-none opacity-50"
                     : "hover:bg-primary/10"
-                }`}
+                  }`}
               />
             </PaginationItem>
 
@@ -279,11 +288,10 @@ export function ReportsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages));
                 }}
-                className={`${
-                  currentPage >= totalPages
+                className={`${currentPage >= totalPages
                     ? "pointer-events-none opacity-50"
                     : "hover:bg-primary/10"
-                }`}
+                  }`}
               />
             </PaginationItem>
           </PaginationContent>
