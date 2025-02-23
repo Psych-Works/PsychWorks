@@ -155,7 +155,7 @@ export default function EditReportPage() {
         <Button
           className="col-start-1 col-span-1"
           onClick={() => router.back()}
-          variant="outline"
+          variant="default"
         >
           Cancel
         </Button>
@@ -163,8 +163,9 @@ export default function EditReportPage() {
           className="col-start-4 col-span-1"
           onClick={handleSubmit}
           disabled={isSubmitting}
+          variant="default"
         >
-          {isSubmitting ? "Saving..." : "Save Template"}
+          {isSubmitting ? "Saving Template..." : "Save Template"}
         </Button>
       </div>
 
