@@ -31,7 +31,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
-import { Eye, Trash2, FilePlus, Pencil } from "lucide-react";
+import { Eye, Trash2, FilePlus } from "lucide-react";
 
 interface Report {
   id: bigint;
@@ -53,7 +53,11 @@ interface ApiResponse {
   totalPages: number;
 }
 
-export function ReportsTable() {
+interface ReportsTableProps {
+  searchTerm: string;
+}
+
+export function ReportsTable({ searchTerm }: ReportsTableProps) {
   const [reports, setReports] = useState<Report[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -73,6 +77,7 @@ export function ReportsTable() {
         limit: limit.toString(),
         sortBy: sortConfig.sortBy,
         order: sortConfig.order,
+        search: searchTerm,
       });
 
       const response = await fetch(`/api/reports?${queryParams}`, {
@@ -84,7 +89,12 @@ export function ReportsTable() {
       const { data, totalCount, page, totalPages }: ApiResponse =
         await response.json();
 
-      setReports(data);
+      // Filter reports based on searchTerm
+      const filteredData = data.filter(report =>
+        report.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      setReports(filteredData);
       setCurrentPage(page);
       setTotalPages(totalPages);
     } catch (error) {
@@ -96,7 +106,7 @@ export function ReportsTable() {
 
   useEffect(() => {
     fetchReports();
-  }, [currentPage, sortConfig.sortBy, sortConfig.order]);
+  }, [currentPage, sortConfig.sortBy, sortConfig.order, searchTerm]);
 
   const handleDeleteReport = async (reportId: bigint) => {
     try {
@@ -206,16 +216,6 @@ export function ReportsTable() {
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Link href={`/reports/edit/${report.id}`} passHref>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 hover:bg-primary/10"
-                        aria-label="Edit report"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </Link>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
@@ -269,8 +269,8 @@ export function ReportsTable() {
                   setCurrentPage((prev) => Math.max(prev - 1, 1));
                 }}
                 className={`${currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
                   }`}
               />
             </PaginationItem>
@@ -289,8 +289,8 @@ export function ReportsTable() {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages));
                 }}
                 className={`${currentPage >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
                   }`}
               />
             </PaginationItem>
