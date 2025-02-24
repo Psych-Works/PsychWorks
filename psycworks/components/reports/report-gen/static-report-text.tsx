@@ -1,5 +1,5 @@
-import React from 'react';
-import { Document, Packer, Paragraph, TextRun, Header, ImageRun, ExternalHyperlink, Footer } from 'docx';
+import { Paragraph, TextRun, Header, ImageRun, ExternalHyperlink, Footer, Table, TableCell, TableRow } from 'docx';
+import fs from 'fs';
 
 export const ReportTitle = new Paragraph({
     alignment: 'center',
@@ -98,7 +98,7 @@ export const ReportHeader = new Header({
             children: [
                 new ImageRun({
                     type: 'png',
-                    data: 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png',
+                    data: fs.readFileSync('@/public/images/logo.png'),
                     transformation: {
                         width: 100,
                         height: 100,
@@ -159,7 +159,314 @@ export const ReportFooter = new Footer({
                 }),
             ],
         }),
+        new Paragraph({
+            alignment: 'center',
+            children: [
+                new TextRun({
+                    text: 'Page {pageNumber} of {totalPages}',
+                    size: 24,
+                    font: 'Times New Roman',
+                }),
+            ],
+        }),
     ]
+});
+
+export const FirstHalfHeaders = new Paragraph({
+    alignment: 'left',
+    children: [
+        new TextRun({
+            text: 'Identifying and Referral Information:',
+        }),
+        new TextRun({
+            text: 'Informed Consent:',
+        }),
+        new TextRun({
+            text: 'Developmental and Health History:',
+        }),
+        new TextRun({
+            text: 'Psychiatric History:',
+        }),
+        new TextRun({
+            text: 'Psychosocial and Behavioral History:',
+        }),
+        new TextRun({
+            text: 'Educational and Occupational History:',
+        }),
+        new TextRun({
+            text: 'Current Mental Status Examination:',
+        }),
+        new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+            ],
+        }),
+        new TextRun({
+            text: 'Assessment Observation:',
+        }),
+    ],
+});
+
+export const ReportEvaluationMethods = new Paragraph({
+    alignment: 'left',
+    children: [
+        new TextRun({
+            text: 'Adverse Childhood Experiences Questionnaire (ACE-Q)\nAdult ADHD – Self-Report Scale (ASRS)\nAutism Diagnostic Observation Schedule – Second Edition (ADOS-2)\nBeck Depression Inventory – Second Edition (BDI-II)\nBurns Anxiety Inventory (BAI)\nCAGE Adapted to Include Drugs (CAGE-AID)\nCalifornia Verbal Learning Test – Third Edition (CVLT-3)\nColumbia Suicide Severity Rating Scales (C-SSRS)\nDelis-Kaplan Executive Function System (D-KEFS)\nDissociate Experiences Scale – Second Edition (DES-II)\nGeneralized Anxiety Disorder (GAD-7)\nMcLean Screening Instrument for Borderline Personality Disorder (MSI-BPD)\nMental Status Exam\nMonteiro Interview Guidelines for Diagnosing Autism Spectrum – Second Edition (MIGDAS-2)\nMood Disorder Questionnaire (MDQ)\nPatient Health Questionnaire – 9 (PHQ-9)\nPatient Interview\nAssessment Observation\nPenn State Worry Questionnaire (PSWQ)\nPTSD Checklist with Life Events Checklist (PCL-5 with LEC-5)\nRepeatable Battery for the Assessment of Neuropsychological Status (RBANS-Update)\nRey 15-Item Test (Rey-15)\nSocial Interaction Anxiety Scale (SIAS)\nSocial Responsiveness Scale – Second Edition (SRS-2)\nWechsler Adult Intelligence Scale – Fourth Edition (WAIS-IV)\nWechsler Memory Scale – Fourth Edition (WMS-IV), selected subtests\nWeiss Functional Impairment Scale – Self-Report (WFIRS-S)\nWHO Disability Assessment Schedule (WHODAS 2.0)\nYale-Brown Obsessive-Compulsive Scale (Y-BOCS)',
+            bold: true,
+            size: 24,
+            font: 'Times New Roman',
+        }),
+    ],
+});
+
+export const ReportAssessmentResults = new Paragraph({
+    alignment: 'left',
+    children: [
+        new TextRun({
+            text: 'Assessment Results:',
+        }),
+        new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: '',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+            ],
+        }),
+    ],
 });
 
 
