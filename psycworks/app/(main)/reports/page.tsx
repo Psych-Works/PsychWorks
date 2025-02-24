@@ -1,10 +1,14 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/searchbar/search-bar";
 import { ReportsTable } from "@/components/reports/reports-table";
 import Link from "next/link";
 
 export default function ReportsPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+
   return (
     <div className="container mx-auto space-y-8 py-8">
       <div className="flex justify-between items-center">
@@ -20,10 +24,14 @@ export default function ReportsPage() {
       </div>
 
       <div className="w-full">
-        <SearchBar />
+        <SearchBar
+          placeholder="Search Reports..."
+          value={searchTerm}
+          onChange={(val) => setSearchTerm(val)}
+        />
       </div>
 
-      <ReportsTable />
+      <ReportsTable searchTerm={searchTerm} />
     </div>
   );
 }

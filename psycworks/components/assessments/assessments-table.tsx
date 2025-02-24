@@ -51,7 +51,11 @@ interface ApiResponse {
   totalPages: number;
 }
 
-export function AssessmentsTable() {
+interface AssessmentsTableProps {
+  searchTerm: string;
+}
+
+export function AssessmentsTable({ searchTerm }: AssessmentsTableProps) {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -71,6 +75,7 @@ export function AssessmentsTable() {
         limit: limit.toString(),
         sortBy: sortConfig.sortBy,
         order: sortConfig.order,
+        search: searchTerm,
       });
 
       const response = await fetch(`/api/assessments?${queryParams}`, {
@@ -82,7 +87,11 @@ export function AssessmentsTable() {
       const { data, totalCount, page, totalPages }: ApiResponse =
         await response.json();
 
-      setAssessments(data);
+      const filteredData = data.filter(assessment =>
+        assessment.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      setAssessments(filteredData);
       setCurrentPage(page);
       setTotalPages(totalPages);
     } catch (error) {
@@ -94,7 +103,7 @@ export function AssessmentsTable() {
 
   useEffect(() => {
     fetchAssessments();
-  }, [currentPage, sortConfig.sortBy, sortConfig.order]);
+  }, [currentPage, sortConfig.sortBy, sortConfig.order, searchTerm]);
 
   const handleDeleteAssessment = async (assessmentId: bigint) => {
     try {
@@ -271,11 +280,10 @@ export function AssessmentsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.max(prev - 1, 1));
                 }}
-                className={`${
-                  currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
-                }`}
+                className={`${currentPage === 1
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
+                  }`}
               />
             </PaginationItem>
 
@@ -292,11 +300,10 @@ export function AssessmentsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages));
                 }}
-                className={`${
-                  currentPage >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
-                }`}
+                className={`${currentPage >= totalPages
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
+                  }`}
               />
             </PaginationItem>
           </PaginationContent>
