@@ -13,7 +13,7 @@ import DynamicTable from "@/components/assessments/table-rendering/dynamic-table
 import TableFormContextProvider from "@/components/assessments/form-swap-hook/assessments-form-context";
 import { InputData } from "@/types/table-input-data";
 import { Textarea } from "@/components/ui/textarea";
-import ExportToDocxButton from "@/components/reports/export-to-docx-button";
+import ExportToDocxButton from "@/components/reports/report-gen/report-export-button";
 
 interface ReportAssessment {
   Assessment: {
