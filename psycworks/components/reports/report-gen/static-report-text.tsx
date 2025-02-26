@@ -203,30 +203,14 @@ export const FirstHalfHeaders = new Paragraph({
                         new TableCell({
                             children: [
                                 new Paragraph({
-                                    text: '',
+                                    text: 'Thought Process:',
                                 }),
                             ],
                         }),
                         new TableCell({
                             children: [
                                 new Paragraph({
-                                    text: '',
-                                }),
-                            ],
-                        }),
-                    ],
-                }),
-                new TableRow({
-                    children: [
-                        new TableCell({
-                            children: [
-                                
-                            ],
-                        }),
-                        new TableCell({
-                            children: [
-                                new Paragraph({
-                                    text: '',
+                                    text: 'Behavior/Eye Contact:',
                                 }),
                             ],
                         }),
@@ -236,13 +220,15 @@ export const FirstHalfHeaders = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                
+                                new Paragraph({
+                                    text: 'Insight:',
+                                }),
                             ],
                         }),
                         new TableCell({
                             children: [
                                 new Paragraph({
-                                    text: '',
+                                    text: 'Psychomotor Activity:',
                                 }),
                             ],
                         }),
@@ -252,13 +238,15 @@ export const FirstHalfHeaders = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                
+                                new Paragraph({
+                                    text: 'Appearance:',
+                                }),
                             ],
                         }),
                         new TableCell({
                             children: [
                                 new Paragraph({
-                                    text: '',
+                                    text: 'Associations:',
                                 }),
                             ],
                         }),
@@ -268,13 +256,15 @@ export const FirstHalfHeaders = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                
+                                new Paragraph({
+                                    text: 'Thought Content:',
+                                }),
                             ],
                         }),
                         new TableCell({
                             children: [
                                 new Paragraph({
-                                    text: '',
+                                    text: 'Suicidality:',
                                 }),
                             ],
                         }),
@@ -284,13 +274,33 @@ export const FirstHalfHeaders = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                
+                                new Paragraph({
+                                    text: 'Orientation:',
+                                }),
                             ],
                         }),
                         new TableCell({
                             children: [
                                 new Paragraph({
-                                    text: '',
+                                    text: 'Memory:',
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: 'Affect:',
+                                }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({
+                                    text: 'Mood:',
                                 }),
                             ],
                         }),
@@ -328,23 +338,17 @@ export const ReportAssessmentResults = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: 'Standard Scores' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: 'Percentile Scores' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: 'Descriptive Terms' }),
                             ],
                         }),
                     ],
@@ -353,21 +357,17 @@ export const ReportAssessmentResults = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                
+                                new Paragraph({ text: '130 or higher' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: '98-99' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: 'Extremely High' }),
                             ],
                         }),
                     ],
@@ -376,21 +376,17 @@ export const ReportAssessmentResults = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                
+                                new Paragraph({ text: '120-129' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: '91-98' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: 'Very High' }),
                             ],
                         }),
                     ],
@@ -399,21 +395,17 @@ export const ReportAssessmentResults = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                
+                                new Paragraph({ text: '110-119' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: '75-90' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: 'High Average' }),
                             ],
                         }),
                     ],
@@ -422,21 +414,17 @@ export const ReportAssessmentResults = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                
+                                new Paragraph({ text: '90-109' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: '25-74' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: 'Average' }),
                             ],
                         }),
                     ],
@@ -445,21 +433,55 @@ export const ReportAssessmentResults = new Paragraph({
                     children: [
                         new TableCell({
                             children: [
-                                
+                                new Paragraph({ text: '80-89' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: '9-24' }),
                             ],
                         }),
                         new TableCell({
                             children: [
-                                new Paragraph({
-                                    text: '',
-                                }),
+                                new Paragraph({ text: 'Low Average' }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                new Paragraph({ text: '70-79' }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({ text: '3-8' }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({ text: 'Very Low' }),
+                            ],
+                        }),
+                    ],
+                }),
+                new TableRow({
+                    children: [
+                        new TableCell({
+                            children: [
+                                new Paragraph({ text: '69 and below' }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({ text: '1-2' }),
+                            ],
+                        }),
+                        new TableCell({
+                            children: [
+                                new Paragraph({ text: 'Extremely Low' }),
                             ],
                         }),
                     ],
