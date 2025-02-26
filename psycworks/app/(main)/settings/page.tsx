@@ -26,6 +26,19 @@ export default async function SettingsPage() {
     redirect("/sign-in");
   }
 
+  // Get user metadata to check admin status
+  const { data: userData, error: userDataError } = await supabase
+  .from('Profiles') // Ensure this table exists and contains is_admin field
+  .select('is_admin')
+  .eq('id', user.id) // Match the current logged-in user
+  .single();
+
+  // Logging to check if the correct data is fetched
+  console.log('User Data:', userData);
+  console.log('Error:', userDataError);
+
+  const isAdmin = userData?.is_admin || false;
+
   return (
     <div className="container mx-auto py-10">
       <div className="mb-8">
@@ -38,7 +51,7 @@ export default async function SettingsPage() {
       <Tabs defaultValue="user" className="space-y-4">
         <TabsList>
           <TabsTrigger value="user">User</TabsTrigger>
-          <TabsTrigger value="admin">Admin</TabsTrigger>
+          {isAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="user" className="space-y-4">
@@ -93,9 +106,11 @@ export default async function SettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="admin">
-          <AdminCard/>
-        </TabsContent>
+        {isAdmin && (
+          <TabsContent value="admin">
+            <AdminCard />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
