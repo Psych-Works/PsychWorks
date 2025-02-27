@@ -12,12 +12,15 @@ import { ChevronDown } from "lucide-react";
 import DynamicTable from "@/components/assessments/table-rendering/dynamic-table";
 import TableFormContextProvider from "@/components/assessments/form-swap-hook/assessments-form-context";
 import { InputData } from "@/types/table-input-data";
+import { Textarea } from "@/components/ui/textarea";
+import ExportToDocxButton from "@/components/reports/report-gen/report-export-button";
 
 interface ReportAssessment {
   Assessment: {
     id: string;
     name: string;
     measure: string;
+    description: string;
     table_type_id: number;
     Domains: Array<{
       id: string;
@@ -178,12 +181,23 @@ export default function GenerateReportPage() {
                         tableTypeId={Assessment.table_type_id.toString()}
                       />
                     </TableFormContextProvider>
+                    <div className="mt-4">
+                      <Textarea
+                        value={Assessment.description || ""}
+                        readOnly
+                        className="resize-none bg-white cursor-default"
+                        placeholder="No description available"
+                      />
+                    </div>
                   </div>
                 </div>
               </CollapsibleContent>
             </div>
           </Collapsible>
         ))}
+      </div>
+      <div className="text-right">
+        <ExportToDocxButton />
       </div>
     </div>
   );
