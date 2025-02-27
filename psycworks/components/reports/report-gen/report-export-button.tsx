@@ -26,8 +26,8 @@ const ExportToDocxButton = () => {
           children: [
             ReportTitle,
             ClientInfo,
-            FirstHalfHeaders,
-            ReportEvaluationMethods,
+            ...FirstHalfHeaders,
+            ...ReportEvaluationMethods,
             ReportAssessmentResults,
           ],
         },
