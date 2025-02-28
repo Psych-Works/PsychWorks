@@ -8,6 +8,7 @@ import {
   Table,
   TableCell,
   TableRow,
+  PageNumber,
 } from "docx";
 
 export const ReportTitle = new Paragraph({
@@ -145,6 +146,7 @@ export const ReportHeader = new Header({
           children: [
             new TextRun({
               text: "www.fwpsychworks.com",
+              break: 1,
               style: "hyperlink",
             }),
           ],
@@ -158,10 +160,12 @@ export const ReportHeader = new Header({
 export const ReportFooter = new Footer({
   children: [
     new Paragraph({
-      alignment: "center",
+      alignment: "right",
       children: [
         new TextRun({
-          text: "Fort Worth Psycworks",
+          children: [
+            "Page ", PageNumber.CURRENT, " of ", PageNumber.TOTAL_PAGES
+          ],
           size: 24,
           font: "Times New Roman",
         }),
@@ -171,7 +175,7 @@ export const ReportFooter = new Footer({
       alignment: "center",
       children: [
         new TextRun({
-          text: "Page {pageNumber} of {totalPages}",
+          text: "Fort Worth PsychWorks",
           size: 24,
           font: "Times New Roman",
         }),
@@ -186,6 +190,14 @@ export const FirstHalfHeaders = [
     children: [
       new TextRun({
         text: "Identifying and Referral Information:",
+        underline: {
+          color: "#000000",
+          type: "single",
+        },
+        break: 3,
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
       }),
     ],
   }),
@@ -194,6 +206,14 @@ export const FirstHalfHeaders = [
     children: [
       new TextRun({
         text: "Informed Consent:",
+        underline: {
+          color: "#000000",
+          type: "single",
+        },
+        break: 3,
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
       }),
     ],
   }),
@@ -202,6 +222,14 @@ export const FirstHalfHeaders = [
     children: [
       new TextRun({
         text: "Developmental and Health History:",
+        underline: {
+          color: "#000000",
+          type: "single",
+        },
+        break: 3,
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
       }),
     ],
   }),
@@ -210,6 +238,14 @@ export const FirstHalfHeaders = [
     children: [
       new TextRun({
         text: "Psychiatric History:",
+        underline: {
+          color: "#000000",
+          type: "single",
+        },
+        break: 3,
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
       }),
     ],
   }),
@@ -218,6 +254,14 @@ export const FirstHalfHeaders = [
     children: [
       new TextRun({
         text: "Psychosocial and Behavioral History:",
+        underline: {
+          color: "#000000",
+          type: "single",
+        },
+        break: 3,
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
       }),
     ],
   }),
@@ -226,6 +270,14 @@ export const FirstHalfHeaders = [
     children: [
       new TextRun({
         text: "Educational and Occupational History:",
+        underline: {
+          color: "#000000",
+          type: "single",
+        },
+        break: 3,
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
       }),
     ],
   }),
@@ -234,10 +286,23 @@ export const FirstHalfHeaders = [
     children: [
       new TextRun({
         text: "Current Mental Status Examination:",
+        underline: {
+          color: "#000000",
+          type: "single",
+        },
+        break: 1,
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
       }),
     ],
   }),
   new Table({
+    width: {
+      size: 100,
+      type: "pct",
+    },
+    columnWidths: [50, 50],
     rows: [
       new TableRow({
         children: [
@@ -256,6 +321,7 @@ export const FirstHalfHeaders = [
             ],
           }),
         ],
+        cantSplit: true,
       }),
       new TableRow({
         children: [
@@ -274,6 +340,7 @@ export const FirstHalfHeaders = [
             ],
           }),
         ],
+        cantSplit: true,
       }),
       new TableRow({
         children: [
@@ -292,6 +359,7 @@ export const FirstHalfHeaders = [
             ],
           }),
         ],
+        cantSplit: true,
       }),
       new TableRow({
         children: [
@@ -310,6 +378,7 @@ export const FirstHalfHeaders = [
             ],
           }),
         ],
+        cantSplit: true,
       }),
       new TableRow({
         children: [
@@ -328,6 +397,7 @@ export const FirstHalfHeaders = [
             ],
           }),
         ],
+        cantSplit: true,
       }),
       new TableRow({
         children: [
@@ -346,6 +416,7 @@ export const FirstHalfHeaders = [
             ],
           }),
         ],
+        cantSplit: true,
       }),
     ],
   }),
@@ -354,6 +425,14 @@ export const FirstHalfHeaders = [
     children: [
       new TextRun({
         text: "Assessment Observation:",
+        underline: {
+          color: "#000000",
+          type: "single",
+        },
+        break: 3,
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
       }),
     ],
   }),
@@ -396,7 +475,6 @@ export const ReportEvaluationMethods = evaluationMethodsText.split("\n").map(
       children: [
         new TextRun({
           text: line,
-          bold: true,
           size: 24,
           font: "Times New Roman",
         }),
@@ -404,203 +482,430 @@ export const ReportEvaluationMethods = evaluationMethodsText.split("\n").map(
     })
 );
 
-export const ReportAssessmentResults = new Paragraph({
-  alignment: "left",
-  children: [
-    new TextRun({
-      text: "Assessment Results:",
-    }),
-    new Table({
-      rows: [
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [new Paragraph({ text: "Standard Scores" })],
-            }),
-            new TableCell({
-              children: [new Paragraph({ text: "Percentile Scores" })],
-            }),
-            new TableCell({
-              children: [new Paragraph({ text: "Descriptive Terms" })],
-            }),
+export const ReportAssessmentResults = [
+  new Paragraph({
+    alignment: "left",
+    children: [
+      new TextRun({
+        text: "Assessment Results:",
+        underline: {
+          color: "#000000",
+          type: "single",
+        },
+        break: 1,
+        bold: true,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: "The results of most psychological tests are reported using either standard scores or percentile ranks. Standard scores and percentile ranks describe how a student performs on a test compared to a representative sample student of the same age from the general population.",
+        break: 2,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: "The following descriptive classifications can be applied to the data found below:",
+        break: 2,
+        size: 24,
+        font: "Times New Roman",
+      })
+    ],
+  }),
+  new Table({
+    width: {
+      size: 100,
+      type: "pct",
+    },
+    rows: [
+      new TableRow({
+        children: [
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Standard Scores",
+                    size: 24,
+                    bold: true,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({ 
+                children: [
+                  new TextRun({
+                    text: "Percentile Scores",
+                    size: 24,
+                    bold: true,
+                    font: "Times New Roman",
+                  }),
+                ],
+              })
           ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "130 or higher",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "98-99",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "Extremely High",
-                }),
-              ],
-            }),
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({ 
+                children: [
+                  new TextRun({
+                    text: "Descriptive Terms",
+                    size: 24,
+                    bold: true,
+                    font: "Times New Roman",
+                  }),
+                ],
+              })
           ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "120-129",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "91-98",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "Very High",
-                }),
-              ],
-            }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "110-119",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "75-90",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "High Average",
-                }),
-              ],
-            }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "90-109",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "25-74",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "Average",
-                }),
-              ],
-            }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "80-89",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "9-24",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "Low Average",
-                }),
-              ],
-            }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "70-79",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "3-8",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "Very Low",
-                }),
-              ],
-            }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "69 and below",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "1-2",
-                }),
-              ],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  text: "Extremely Low",
-                }),
-              ],
-            }),
-          ],
-        }),
-      ],
-    }),
-  ],
-});
+          }),
+        ],
+      }),
+      new TableRow({
+        children: [
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "130 or higher",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "98-99",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Extremely High",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+      new TableRow({
+        children: [
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "120-129",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "91-98",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Very High",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+      new TableRow({
+        children: [
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "110-119",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "75-90",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "High Average",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+      new TableRow({
+        children: [
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "90-109",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "25-74",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Average",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+      new TableRow({
+        children: [
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "80-89",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({ 
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "9-24",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Low Average",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+      new TableRow({
+        children: [
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "70-79",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "3-8",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Very Low",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+      new TableRow({
+        children: [
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "69 and below",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "1-2",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            verticalAlign: "center",
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Extremely Low",
+                    size: 24,
+                    font: "Times New Roman",
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  }),
+  new Paragraph({
+    alignment: "left",
+    children: [
+      new TextRun({
+        text: "In addition, scores reported to be in the Clinically Significant range suggest a high level of maladjustment. Scores in the “Elevated” range may identify a significant problem that may not be severe enough to require formal treatment or may identify the potential of developing a problem that needs careful monitoring.",
+        break: 2,
+        size: 24,
+        font: "Times New Roman",
+      }),
+      new TextRun({
+        text: "All assessments were administered in-person and in accordance with test publisher’s guidelines. Further, all scores (i.e. when applicable) were calculated utilizing age-based norms.",
+        break: 2,
+        size: 24,
+        font: "Times New Roman",
+      }),
+    ],
+  }),
+];
+
