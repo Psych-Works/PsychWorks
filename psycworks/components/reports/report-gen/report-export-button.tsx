@@ -17,8 +17,11 @@ const ExportToDocxButton = () => {
     const doc = new Document({
       sections: [
         {
+          properties: {
+            titlePage: true,
+          },
           headers: {
-            default: ReportHeader,
+            first: ReportHeader,
           },
           footers: {
             default: ReportFooter,
@@ -28,10 +31,15 @@ const ExportToDocxButton = () => {
             ClientInfo,
             ...FirstHalfHeaders,
             ...ReportEvaluationMethods,
-            ReportAssessmentResults,
+            ...ReportAssessmentResults,
           ],
         },
       ],
+      numbering: {
+        config: [
+
+        ],
+      },
     });
 
     // Generate the document and save it
