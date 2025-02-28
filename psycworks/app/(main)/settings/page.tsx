@@ -26,18 +26,18 @@ export default async function SettingsPage() {
     redirect("/sign-in");
   }
 
-  // Get user metadata to check admin status
-  const { data: userData, error: userDataError } = await supabase
-  .from('Profiles') // Ensure this table exists and contains is_admin field
-  .select('is_admin')
-  .eq('id', user.id) // Match the current logged-in user
-  .single();
+  // Check admin status using the API route
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/check-admin?userId=${user.id}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
-  // Logging to check if the correct data is fetched
-  console.log('User Data:', userData);
-  console.log('Error:', userDataError);
-
-  const isAdmin = userData?.is_admin || false;
+  const { isAdmin } = await response.json();
 
   return (
     <div className="container mx-auto py-10">
