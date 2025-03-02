@@ -14,6 +14,7 @@ import TableFormContextProvider from "@/components/assessments/form-swap-hook/as
 import { InputData } from "@/types/table-input-data";
 import { Textarea } from "@/components/ui/textarea";
 import ExportToDocxButton from "@/components/reports/report-gen/report-export-button";
+import ReportDynamicTable from "@/components/reports/report-gen/report-dynamic-table";
 
 interface ReportAssessment {
   Assessment: {
@@ -50,7 +51,6 @@ interface Report {
 const processAssessmentData = (assessment: any): InputData => {
   const fields: any[] = [];
 
-  // Process domains and their subtests
   assessment.Domains.forEach((domain: any) => {
     fields.push({
       fieldData: {
@@ -64,7 +64,6 @@ const processAssessmentData = (assessment: any): InputData => {
     });
   });
 
-  // Process standalone subtests (without domain)
   assessment.SubTests.forEach((subtest: any) => {
     if (!subtest.domain_id) {
       fields.push({
@@ -130,6 +129,15 @@ export default function GenerateReportPage() {
     return <div className="container mx-auto py-8 text-red-500">{error}</div>;
   if (!report)
     return <div className="container mx-auto py-8">Report not found</div>;
+
+  const dynamicTables = report.ReportAssessment.map(({ Assessment }) =>
+    ReportDynamicTable({
+      assessmentName: Assessment.name,
+      measure: Assessment.measure,
+      tableTypeId: Assessment.table_type_id.toString(),
+      inputData: processAssessmentData(Assessment),
+    })
+  );
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -197,7 +205,7 @@ export default function GenerateReportPage() {
         ))}
       </div>
       <div className="text-right">
-        <ExportToDocxButton />
+        <ExportToDocxButton dynamicTables={dynamicTables} />
       </div>
     </div>
   );
