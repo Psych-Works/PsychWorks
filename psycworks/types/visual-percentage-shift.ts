@@ -1,5 +1,3 @@
-import { Theater } from "lucide-react";
-
 interface VisualPercentageShift {
     Name: string;
     Start: number;
@@ -39,7 +37,7 @@ export function convertToVisualPercentage(actualPercentage: number): number {
     if (!threshold) {
         return 0;
     }
-    var result: number = 0;
+    let result: number = 0;
     if (threshold.Name === "First Threshold") {
         result = actualPercentage * threshold.ConversionFactor;
     } else if (threshold.Name === "Second Threshold") {
@@ -49,9 +47,6 @@ export function convertToVisualPercentage(actualPercentage: number): number {
     } else if (threshold.Name === "Fourth Threshold") {
         result = 80 + ((actualPercentage - threshold.Start) * threshold.ConversionFactor);
     }
-
-    // const result: number = threshold.Start + (actualPercentage - threshold.Start) * threshold.ConversionFactor;
-    console.log(threshold.Name, actualPercentage, result);
     return result;
 }
 
