@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { lookupTable as percentileLookupTable } from "@/types/percentile-lookup-table";
 import { Progress } from "@/components/ui/progress";
+import { convertToVisualPercentage } from "@/types/visual-percentage-shift";
 
 interface DynamicTableProps {
   assessmentName: string;
@@ -93,7 +94,9 @@ function DynamicTable({
           ? {
               ...row,
               [columnKey]:
-                columnKey === "Percentile" ? Number(tempValue) : tempValue,
+                columnKey === "Percentile"
+                  ? Number(Number(tempValue).toFixed(2))
+                  : tempValue,
             }
           : row
       )
@@ -175,7 +178,8 @@ function DynamicTable({
     }
 
     const standardScore = (((score - mean) / sd) * 15 + 100).toFixed(2);
-    const numericStandardScore = Number(standardScore);
+    let numericStandardScore = Number(standardScore);
+    numericStandardScore = Math.ceil(numericStandardScore);
 
     if (numericStandardScore < 40) return 1;
     if (numericStandardScore > 133) return 99;
@@ -197,12 +201,15 @@ function DynamicTable({
 
   const renderPercentileProgress = (row: DataRow): ReactNode | null => {
     const percentile = getPercentileFromScore(row.Percentile, row.Scale);
+
+    const visualPercentage = convertToVisualPercentage(percentile ?? 0);
+    console.log(visualPercentage);
+  
     if (tableTypeId === "3") {
       return (
         <TableCell className="percentile-column" colSpan={4}>
           <Progress
-            value={percentile}
-            // className="[&>*]:h-[100%] [&>*]:w-[100%]"
+            value={visualPercentage}
           />
         </TableCell>
       );
@@ -210,8 +217,7 @@ function DynamicTable({
       return (
         <TableCell className="percentile-column" colSpan={3}>
           <Progress
-            value={percentile}
-            // className="[&>*]:h-[100%] [&>*]:w-[100%]"
+            value={visualPercentage}
           />
         </TableCell>
       );
@@ -293,7 +299,6 @@ function DynamicTable({
           >
             %tile
           </TableHead>
-          {/* {determineTableType(tableTypeId)} */}
         </TableRow>
         {determineTableType(tableTypeId)}
       </TableHeader>
