@@ -51,7 +51,11 @@ interface ApiResponse {
   totalPages: number;
 }
 
-export function AssessmentsTable() {
+interface AssessmentsTableProps {
+  searchQuery?: string;
+}
+
+export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -71,6 +75,7 @@ export function AssessmentsTable() {
         limit: limit.toString(),
         sortBy: sortConfig.sortBy,
         order: sortConfig.order,
+        search: searchQuery,
       });
 
       const response = await fetch(`/api/assessments?${queryParams}`, {
@@ -93,8 +98,9 @@ export function AssessmentsTable() {
   };
 
   useEffect(() => {
+    setCurrentPage(1); // Reset to first page when search changes
     fetchAssessments();
-  }, [currentPage, sortConfig.sortBy, sortConfig.order]);
+  }, [currentPage, sortConfig.sortBy, sortConfig.order, searchQuery]);
 
   const handleDeleteAssessment = async (assessmentId: bigint) => {
     try {
@@ -271,11 +277,10 @@ export function AssessmentsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.max(prev - 1, 1));
                 }}
-                className={`${
-                  currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
-                }`}
+                className={`${currentPage === 1
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
+                  }`}
               />
             </PaginationItem>
 
@@ -292,11 +297,10 @@ export function AssessmentsTable() {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages));
                 }}
-                className={`${
-                  currentPage >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
-                }`}
+                className={`${currentPage >= totalPages
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
+                  }`}
               />
             </PaginationItem>
           </PaginationContent>

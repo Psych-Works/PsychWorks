@@ -53,7 +53,11 @@ interface ApiResponse {
   totalPages: number;
 }
 
-export function ReportsTable() {
+interface ReportsTableProps {
+  searchQuery?: string;
+}
+
+export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
   const [reports, setReports] = useState<Report[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -73,6 +77,7 @@ export function ReportsTable() {
         limit: limit.toString(),
         sortBy: sortConfig.sortBy,
         order: sortConfig.order,
+        search: searchQuery,
       });
 
       const response = await fetch(`/api/reports?${queryParams}`, {
@@ -95,8 +100,9 @@ export function ReportsTable() {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchReports();
-  }, [currentPage, sortConfig.sortBy, sortConfig.order]);
+  }, [currentPage, sortConfig.sortBy, sortConfig.order, searchQuery]);
 
   const handleDeleteReport = async (reportId: bigint) => {
     try {
@@ -269,8 +275,8 @@ export function ReportsTable() {
                   setCurrentPage((prev) => Math.max(prev - 1, 1));
                 }}
                 className={`${currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
                   }`}
               />
             </PaginationItem>
@@ -289,8 +295,8 @@ export function ReportsTable() {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages));
                 }}
                 className={`${currentPage >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10"
                   }`}
               />
             </PaginationItem>

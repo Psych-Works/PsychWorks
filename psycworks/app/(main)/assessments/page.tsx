@@ -1,10 +1,14 @@
-import React from "react";
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/searchbar/search-bar";
 import { AssessmentsTable } from "@/components/assessments/assessments-table";
 import Link from "next/link";
 
 export default function AssessmentsPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
     <div className="container mx-auto space-y-8 py-8">
       <div className="flex justify-between items-center">
@@ -20,10 +24,10 @@ export default function AssessmentsPage() {
       </div>
 
       <div className="w-full">
-        <SearchBar />
+        <SearchBar onSearch={setSearchQuery} />
       </div>
 
-      <AssessmentsTable />
+      <AssessmentsTable searchQuery={searchQuery} />
     </div>
   );
 }
