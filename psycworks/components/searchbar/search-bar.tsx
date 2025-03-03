@@ -13,7 +13,7 @@ interface SearchBarProps {
 export function SearchBar({
     placeholder = "Search Table...",
     onSearch,
-    debounceMs = 300
+    debounceMs = 1000
 }: SearchBarProps) {
     const [searchQuery, setSearchQuery] = useState("")
 
