@@ -178,7 +178,7 @@ function DynamicTable({
     }
 
     const standardScore = (((score - mean) / sd) * 15 + 100).toFixed(2);
-    var numericStandardScore = Number(standardScore);
+    let numericStandardScore = Number(standardScore);
     numericStandardScore = Math.ceil(numericStandardScore);
 
     if (numericStandardScore < 40) return 1;
