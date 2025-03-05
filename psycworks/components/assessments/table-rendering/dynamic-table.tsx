@@ -16,7 +16,7 @@ interface DynamicTableProps {
   assessmentName: string;
   measure: string;
   tableTypeId: string;
-  initialData: DataRow[];
+  initialData?: DataRow[];
   onDataChange?: (data: DataRow[]) => void;
 }
 
@@ -51,12 +51,12 @@ function DynamicTable({
   assessmentName,
   measure,
   tableTypeId,
-  initialData,
+  initialData = [],
   onDataChange,
 }: DynamicTableProps) {
   const { formData } = useTableFormContext();
   const [data, setData] = useState<DataRow[]>(
-    initialData?.length > 0 ? initialData : populateData(formData)
+    initialData && initialData.length > 0 ? initialData : populateData(formData)
   );
   const [editing, setEditing] = useState<{
     rowId: number | null;
