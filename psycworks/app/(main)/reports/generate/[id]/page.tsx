@@ -17,30 +17,32 @@ import ExportToDocxButton from "@/components/reports/report-gen/report-export-bu
 import ReportDynamicTable from "@/components/reports/report-gen/report-dynamic-table";
 import { DataRow } from "@/types/data-row";
 
-interface ReportAssessment {
-  Assessment: {
+interface Assessment {
+  id: string;
+  name: string;
+  measure: string;
+  description: string;
+  table_type_id: number;
+  Domains: Array<{
     id: string;
     name: string;
-    measure: string;
-    description: string;
-    table_type_id: number;
-    Domains: Array<{
-      id: string;
-      name: string;
-      score_type: string;
-      SubTests: Array<{
-        id: string;
-        name: string;
-        score_type: string;
-      }>;
-    }>;
+    score_type: string;
     SubTests: Array<{
       id: string;
       name: string;
       score_type: string;
-      domain_id: string | null;
     }>;
-  };
+  }>;
+  SubTests: Array<{
+    id: string;
+    name: string;
+    score_type: string;
+    domain_id: string | null;
+  }>;
+}
+
+interface ReportAssessment {
+  Assessment: Assessment;
 }
 
 interface Report {
@@ -49,18 +51,19 @@ interface Report {
   ReportAssessment: ReportAssessment[];
 }
 
-const processAssessmentData = (assessment: any): InputData => {
+// Process assessment data into InputData format
+const processAssessmentData = (assessment: Assessment): InputData => {
   const fields: any[] = [];
-  assessment.Domains.forEach((domain: any) => {
+  assessment.Domains.forEach((domain) => {
     fields.push({
       fieldData: { name: domain.name, score_type: domain.score_type },
-      subtests: domain.SubTests.map((subtest: any) => ({
+      subtests: domain.SubTests.map((subtest) => ({
         name: subtest.name,
         score_type: subtest.score_type,
       })),
     });
   });
-  assessment.SubTests.forEach((subtest: any) => {
+  assessment.SubTests.forEach((subtest) => {
     if (!subtest.domain_id) {
       fields.push({
         fieldData: { name: subtest.name, score_type: subtest.score_type },
@@ -113,18 +116,17 @@ export default function GenerateReportPage() {
       try {
         const response = await fetch(`/api/reports/${id}`);
         if (!response.ok) throw new Error("Failed to fetch report");
-        const data = await response.json();
+        const data: Report = await response.json(); // Explicitly type the API response
         setReport(data);
 
-        // Initialize assessmentsData with default data rows
-        const initialData = data.ReportAssessment.reduce(
-          (acc, { Assessment }) => {
-            const inputData = processAssessmentData(Assessment);
-            acc[Assessment.id] = generateInitialDataRows(inputData);
-            return acc;
-          },
-          {} as Record<string, DataRow[]>
-        );
+        // Initialize assessmentsData with typed reduce
+        const initialData = data.ReportAssessment.reduce<
+          Record<string, DataRow[]>
+        >((acc, { Assessment }) => {
+          const inputData = processAssessmentData(Assessment);
+          acc[Assessment.id] = generateInitialDataRows(inputData);
+          return acc;
+        }, {});
         setAssessmentsData(initialData);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load report");
