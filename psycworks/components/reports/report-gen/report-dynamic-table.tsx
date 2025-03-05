@@ -1,57 +1,22 @@
 import { Table, TableRow, TableCell, Paragraph, TextRun } from "docx";
-import { InputData } from "@/types/table-input-data";
+import { DataRow } from "@/types/data-row";
+import { getPercentileFromScore } from "@/utils/percentile";
 
 interface ReportDynamicTableProps {
   assessmentName: string;
   measure: string;
-  tableTypeId: string;
-  inputData: InputData;
+  dataRows: DataRow[];
 }
-const populateDataForDocx = (formData: InputData) => {
-  let id = 0;
-  const rows: {
-    id: number;
-    DomSub: string;
-    Scale: string;
-    Percentile: string;
-    depth: number;
-  }[] = [];
-
-  formData.fields.forEach((field) => {
-    rows.push({
-      id: id++,
-      DomSub: field.fieldData.name,
-      Scale: field.fieldData.score_type || "N/A",
-      Percentile: "",
-      depth: 0,
-    });
-    if (field.subtests && field.subtests.length > 0) {
-      field.subtests.forEach((subtest) => {
-        rows.push({
-          id: id++,
-          DomSub: subtest.name,
-          Scale: subtest.score_type || "N/A",
-          Percentile: "",
-          depth: 1,
-        });
-      });
-    }
-  });
-  return rows;
-};
 
 export const ReportDynamicTable = ({
   assessmentName,
   measure,
-  tableTypeId,
-  inputData,
+  dataRows,
 }: ReportDynamicTableProps) => {
-  const rowsData = populateDataForDocx(inputData);
-
   const titleRow = new TableRow({
     children: [
       new TableCell({
-        columnSpan: 3,
+        columnSpan: 4,
         children: [
           new Paragraph({
             children: [
@@ -77,57 +42,62 @@ export const ReportDynamicTable = ({
       }),
       new TableCell({
         children: [
-          new Paragraph({
-            children: [new TextRun({ text: "Scale" })],
-          }),
+          new Paragraph({ children: [new TextRun({ text: "Scale" })] }),
         ],
       }),
       new TableCell({
         children: [
-          new Paragraph({
-            children: [new TextRun({ text: "%tile" })],
-          }),
+          new Paragraph({ children: [new TextRun({ text: "Score" })] }),
+        ],
+      }),
+      new TableCell({
+        children: [
+          new Paragraph({ children: [new TextRun({ text: "%tile" })] }),
         ],
       }),
     ],
   });
 
-  const dataRows = rowsData.map(
-    (row) =>
-      new TableRow({
-        children: [
-          new TableCell({
-            children: [
-              new Paragraph({
-                indent: { left: row.depth === 1 ? 720 : 0 },
-                children: [new TextRun({ text: row.DomSub })],
-              }),
-            ],
-          }),
-          new TableCell({
-            children: [
-              new Paragraph({
-                children: [new TextRun({ text: row.Scale })],
-              }),
-            ],
-          }),
-          new TableCell({
-            children: [
-              new Paragraph({
-                children: [new TextRun({ text: row.Percentile })],
-              }),
-            ],
-          }),
-        ],
-      })
-  );
+  const dataRowsDocx = dataRows.map((row) => {
+    const percentile = getPercentileFromScore(row.Score, row.Scale);
+    return new TableRow({
+      children: [
+        new TableCell({
+          children: [
+            new Paragraph({
+              indent: { left: row.depth === 1 ? 720 : 0 },
+              children: [new TextRun({ text: row.DomSub })],
+            }),
+          ],
+        }),
+        new TableCell({
+          children: [
+            new Paragraph({ children: [new TextRun({ text: row.Scale })] }),
+          ],
+        }),
+        new TableCell({
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: row.Score.toString() })],
+            }),
+          ],
+        }),
+        new TableCell({
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({ text: percentile ? percentile.toString() : "" }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+  });
 
   return new Table({
-    rows: [titleRow, headerRow, ...dataRows],
-    width: {
-      size: 100,
-      type: "pct",
-    },
+    rows: [titleRow, headerRow, ...dataRowsDocx],
+    width: { size: 100, type: "pct" },
   });
 };
 

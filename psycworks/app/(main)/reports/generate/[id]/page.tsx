@@ -15,6 +15,7 @@ import { InputData } from "@/types/table-input-data";
 import { Textarea } from "@/components/ui/textarea";
 import ExportToDocxButton from "@/components/reports/report-gen/report-export-button";
 import ReportDynamicTable from "@/components/reports/report-gen/report-dynamic-table";
+import { DataRow } from "@/types/data-row";
 
 interface ReportAssessment {
   Assessment: {
@@ -50,36 +51,51 @@ interface Report {
 
 const processAssessmentData = (assessment: any): InputData => {
   const fields: any[] = [];
-
   assessment.Domains.forEach((domain: any) => {
     fields.push({
-      fieldData: {
-        name: domain.name,
-        score_type: domain.score_type,
-      },
+      fieldData: { name: domain.name, score_type: domain.score_type },
       subtests: domain.SubTests.map((subtest: any) => ({
         name: subtest.name,
         score_type: subtest.score_type,
       })),
     });
   });
-
   assessment.SubTests.forEach((subtest: any) => {
     if (!subtest.domain_id) {
       fields.push({
-        fieldData: {
-          name: subtest.name,
-          score_type: subtest.score_type,
-        },
+        fieldData: { name: subtest.name, score_type: subtest.score_type },
         subtests: [],
       });
     }
   });
+  return { fields, associatedText: "" };
+};
 
-  return {
-    fields,
-    associatedText: "",
-  };
+const generateInitialDataRows = (inputData: InputData): DataRow[] => {
+  let id = 0;
+  const mappedData: DataRow[] = [];
+  inputData.fields.forEach((field) => {
+    const isDomain = field.subtests && field.subtests.length > 0;
+    mappedData.push({
+      id: id++,
+      DomSub: field.fieldData.name,
+      Scale: field.fieldData.score_type,
+      Score: 0,
+      depth: isDomain ? 0 : 0,
+    });
+    if (field.subtests) {
+      field.subtests.forEach((subtest) => {
+        mappedData.push({
+          id: id++,
+          DomSub: subtest.name,
+          Scale: subtest.score_type,
+          Score: 0,
+          depth: 1,
+        });
+      });
+    }
+  });
+  return mappedData;
 };
 
 export default function GenerateReportPage() {
@@ -88,6 +104,9 @@ export default function GenerateReportPage() {
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [assessmentsData, setAssessmentsData] = useState<
+    Record<string, DataRow[]>
+  >({});
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -96,6 +115,17 @@ export default function GenerateReportPage() {
         if (!response.ok) throw new Error("Failed to fetch report");
         const data = await response.json();
         setReport(data);
+
+        // Initialize assessmentsData with default data rows
+        const initialData = data.ReportAssessment.reduce(
+          (acc, { Assessment }) => {
+            const inputData = processAssessmentData(Assessment);
+            acc[Assessment.id] = generateInitialDataRows(inputData);
+            return acc;
+          },
+          {} as Record<string, DataRow[]>
+        );
+        setAssessmentsData(initialData);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load report");
       } finally {
@@ -107,8 +137,7 @@ export default function GenerateReportPage() {
 
   const handleExpandAll = () => {
     if (!report) return;
-    const allIds = report.ReportAssessment.map((ra) => ra.Assessment.id);
-    setExpandedIds(allIds);
+    setExpandedIds(report.ReportAssessment.map((ra) => ra.Assessment.id));
   };
 
   const handleCollapseAll = () => {
@@ -130,14 +159,14 @@ export default function GenerateReportPage() {
   if (!report)
     return <div className="container mx-auto py-8">Report not found</div>;
 
-  const dynamicTables = report.ReportAssessment.map(({ Assessment }) =>
-    ReportDynamicTable({
+  const dynamicTables = report.ReportAssessment.map(({ Assessment }) => {
+    const dataRows = assessmentsData[Assessment.id] || [];
+    return ReportDynamicTable({
       assessmentName: Assessment.name,
       measure: Assessment.measure,
-      tableTypeId: Assessment.table_type_id.toString(),
-      inputData: processAssessmentData(Assessment),
-    })
-  );
+      dataRows,
+    });
+  });
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -152,7 +181,6 @@ export default function GenerateReportPage() {
           </Button>
         </div>
       </div>
-
       <div className="space-y-4">
         {report.ReportAssessment.map(({ Assessment }) => (
           <Collapsible
@@ -187,6 +215,13 @@ export default function GenerateReportPage() {
                         assessmentName={Assessment.name}
                         measure={Assessment.measure}
                         tableTypeId={Assessment.table_type_id.toString()}
+                        initialData={assessmentsData[Assessment.id] || []}
+                        onDataChange={(newData) =>
+                          setAssessmentsData((prev) => ({
+                            ...prev,
+                            [Assessment.id]: newData,
+                          }))
+                        }
                       />
                     </TableFormContextProvider>
                     <div className="mt-4">
