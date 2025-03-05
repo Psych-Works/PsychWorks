@@ -182,7 +182,6 @@ function DynamicTable({
         </TableRow>
       );
     }
-    // Default case
     return (
       <TableRow>
         <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
