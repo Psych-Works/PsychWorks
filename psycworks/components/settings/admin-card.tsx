@@ -1,8 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
-import { redirect } from "next/navigation";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -29,19 +26,50 @@ import {
     AlertDialogTitle, 
     AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+
+interface User {
+    email: string;
+    last_sign_in_at: string | null;
+}
 
 export default function AdminCard() {
-    // need to fetch all users from DB
-    const users = [ // dummies
-        {
-            email: 'doe@email.com',
-            last_sign_in_at: '02-03-2025',
-        },
-        {
-            email: 'smith@email.com',
-            last_sgn_in_at: '',
-        }
-    ]
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const supabase = createClient();
+                
+                // Get current user's ID for admin check
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error("No authenticated user");
+
+                // Fetch users
+                const response = await fetch(`/api/settings/fetch-users?userId=${user.id}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch users");
+                }
+
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                setUsers(data.users);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to fetch users");
+                console.error("Error fetching users:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUsers();
+    }, []);
 
     // need to fetch changes from DB
     const logs = [ // dummies
@@ -73,16 +101,33 @@ export default function AdminCard() {
                         </TableRow>
                     </TableHeader>
 
-                    {users.length > 0 ? (
-                        <TableBody>
-                            {users.map((user, index) => (
-                                <TableRow 
-                                key={index}
-                                className="border-b border-primary/10 hover:bg-primary/5"
-                                >
+                    <TableBody>
+                        {loading ? (
+                            <TableRow>
+                                <TableCell colSpan={3} className="text-center py-8">
+                                    Loading users...
+                                </TableCell>
+                            </TableRow>
+                        ) : error ? (
+                            <TableRow>
+                                <TableCell colSpan={3} className="text-center py-8 text-red-500">
+                                    {error}
+                                </TableCell>
+                            </TableRow>
+                        ) : users.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={3} className="text-center py-8">
+                                    No users found
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            users.map((user, index) => (
+                                <TableRow key={index} className="border-b border-primary/10 hover:bg-primary/5">
                                     <TableCell className="font-medium text-center">{user.email}</TableCell>
-                                    <TableCell className="font-medium text-center">{user.last_sign_in_at ? format((new Date(user.last_sign_in_at)), "PPP") : '-'}</TableCell>
-                                    <TableCell>
+                                    <TableCell className="font-medium text-center">
+                                        {user.last_sign_in_at ? format(new Date(user.last_sign_in_at), "PPP") : '-'}
+                                    </TableCell>
+                                    <TableCell className="text-center">
                                         <div className="flex justify-center gap-2">
                                             <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -122,13 +167,9 @@ export default function AdminCard() {
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            ))
+                        )}
                     </TableBody>
-                    ) : (
-                        <TableCell colSpan={3} className="text-center py-8">
-                            No users found
-                        </TableCell>
-                    )}
                     </Table> 
                 </CardContent>
             </Card>

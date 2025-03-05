@@ -20,6 +20,8 @@ export async function GET(req: Request) {
   try {
     console.log("Checking admin status for userId:", userId);
     
+
+    // Specific RPC Query can be found in Shared Queries on Supabase Panel
     const { data, error } = await supabase.rpc('is_admin', {
       userid: userId
     });
