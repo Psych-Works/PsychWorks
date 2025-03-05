@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Document, Packer } from "docx";
+import { Document, Packer, Paragraph } from "docx";
 import { saveAs } from "file-saver";
 import {
   ReportTitle,
@@ -12,8 +12,34 @@ import {
   ReportAssessmentResults,
 } from "@/components/reports/report-gen/report-static-text";
 
-const ExportToDocxButton = () => {
+interface ExportToDocxButtonProps {
+  dynamicTables?: any[];
+}
+
+const ExportToDocxButton = ({ dynamicTables }: ExportToDocxButtonProps) => {
   const handleExport = async () => {
+    const childrenElements = [
+      ReportTitle,
+      ClientInfo,
+      ...FirstHalfHeaders,
+      ...ReportEvaluationMethods,
+      ...ReportAssessmentResults,
+    ];
+
+    if (dynamicTables && dynamicTables.length > 0) {
+      dynamicTables.forEach((table, index) => {
+        childrenElements.push(table);
+        if (index !== dynamicTables.length - 1) {
+          childrenElements.push(
+            new Paragraph({
+              text: "",
+              spacing: { after: 240 },
+            })
+          );
+        }
+      });
+    }
+
     const doc = new Document({
       sections: [
         {
@@ -26,23 +52,14 @@ const ExportToDocxButton = () => {
           footers: {
             default: ReportFooter,
           },
-          children: [
-            ReportTitle,
-            ClientInfo,
-            ...FirstHalfHeaders,
-            ...ReportEvaluationMethods,
-            ...ReportAssessmentResults,
-          ],
+          children: childrenElements,
         },
       ],
       numbering: {
-        config: [
-
-        ],
+        config: [],
       },
     });
 
-    // Generate the document and save it
     const buffer = await Packer.toBuffer(doc);
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
