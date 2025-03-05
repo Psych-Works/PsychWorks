@@ -34,7 +34,8 @@ export async function GET(request: Request) {
     // Transform the data to match the expected format
     const formattedUsers = users.users.map((user) => ({
       email: user.email,
-      last_sign_in_at: user.last_sign_in_at
+      last_sign_in_at: user.last_sign_in_at,
+      id: user.id
     }));
 
     return NextResponse.json({ users: formattedUsers });
