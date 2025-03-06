@@ -26,8 +26,10 @@ export function getPercentileFromScore(
     default:
       return null;
   }
-  const standardScore = ((score - mean) / sd) * 15 + 100;
-  const roundedStandardScore = Math.round(standardScore);
+  const standardScore = (((score - mean) / sd) * 15 + 100).toFixed(2);
+  let roundedStandardScore = Number(standardScore);
+  roundedStandardScore = Math.ceil(roundedStandardScore);
+
   if (roundedStandardScore <= 40) return 1;
   if (roundedStandardScore >= 133) return 99;
   const percentile = lookupTable.find(
