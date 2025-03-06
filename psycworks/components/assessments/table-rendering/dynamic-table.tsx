@@ -11,6 +11,7 @@ import {
 import { getPercentileFromScore } from "@/utils/percentile";
 import { Progress } from "@/components/ui/progress";
 import { DataRow } from "@/types/data-row";
+import { convertToVisualPercentage } from "@/types/visual-percentage-shift";
 
 interface DynamicTableProps {
   assessmentName: string;
@@ -84,7 +85,9 @@ function DynamicTable({
           ? {
               ...row,
               [columnKey]:
-                columnKey === "Score" ? Number(tempValue) : tempValue,
+                columnKey === "Score"
+                  ? Number(Number(tempValue).toFixed(2))
+                  : tempValue,
             }
           : row
       );
@@ -214,16 +217,18 @@ function DynamicTable({
 
   const renderPercentileProgress = (row: DataRow): ReactNode | null => {
     const percentile = getPercentileFromScore(row.Score, row.Scale);
+    const visualPercentage = convertToVisualPercentage(percentile || 0);
+
     if (tableTypeId === "3") {
       return (
         <TableCell className="percentile-column" colSpan={4}>
-          <Progress value={percentile} />
+          <Progress value={visualPercentage} />
         </TableCell>
       );
     } else if (tableTypeId === "2") {
       return (
         <TableCell className="percentile-column" colSpan={3}>
-          <Progress value={percentile} />
+          <Progress value={visualPercentage} />
         </TableCell>
       );
     }
