@@ -1,6 +1,6 @@
 "use client"
 
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
     Card, 
@@ -86,8 +86,8 @@ export default function AdminCard() {
                 throw new Error("Failed to delete user");
             }
 
-            // Refresh the users list
-            await fetchUsers();
+            // Update local state instead of refetching
+            setUsers(users.filter(u => u.id !== userId));
         } catch (err) {
             console.error("Error deleting user:", err);
             setError(err instanceof Error ? err.message : "Failed to delete user");
@@ -96,42 +96,17 @@ export default function AdminCard() {
 
     useEffect(() => {
         fetchUsers();
-
-        // Set up real-time subscription
-        const supabase = createClient();
-        const subscription = supabase.auth.onAuthStateChange((event) => {
-            if (event === 'SIGNED_OUT' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-                fetchUsers();
-            }
-        });
-
-        return () => {
-            subscription.data.subscription.unsubscribe();
-        };
     }, []);
 
-    // need to fetch changes from DB
-    const logs = [ // dummies
-        {
-            history: 'description 1',
-            date: null,
-        },
-        {
-            history: 'description 2',
-            date: '01-31-2025',
-        }
-    ]
-
     return(
-        <div className="space-y-4">
-            <Card>
-                <CardHeader>
-                    <CardTitle>User Management</CardTitle>
-                    <CardDescription>Add, delete, or modify users in your system</CardDescription>
-                </CardHeader>
+        <Card>
+            <CardHeader>
+                <CardTitle>User Management</CardTitle>
+                <CardDescription>Add, delete, or modify users in your system</CardDescription>
+            </CardHeader>
 
-                <CardContent>
-                    <Table className="border-[1px]">
+            <CardContent>
+                <Table className="border-[1px]">
                     <TableHeader>
                         <TableRow className="border-b border-primary/20 hover:bg-primary/5">
                             <TableHead className="bg-primary/5 text-center">Email</TableHead>
@@ -169,33 +144,33 @@ export default function AdminCard() {
                                     <TableCell className="text-center">
                                         <div className="flex justify-center gap-2">
                                             <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 hover:bg-primary/10"
-                                                >
-                                                <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 hover:bg-primary/10"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
 
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                <AlertDialogTitle>Delete User</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    Are you sure you want to delete this user? This action cannot be undone.
-                                                </AlertDialogDescription>
-                                                </AlertDialogHeader>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Are you sure you want to delete this user? This action cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
 
-                                                <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction
-                                                    onClick={() => handleDeleteUser(user.id)}
-                                                >
-                                                    Delete
-                                                </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={() => handleDeleteUser(user.id)}
+                                                        >
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
                                             </AlertDialog>
                                         </div>
                                     </TableCell>
@@ -203,48 +178,8 @@ export default function AdminCard() {
                             ))
                         )}
                     </TableBody>
-                    </Table> 
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Audit Logs</CardTitle>
-                    <CardDescription>Changes in the system</CardDescription>
-                </CardHeader>
-
-                <CardContent>
-                    <Table className="border-[1px]">
-                        <TableHeader>
-                            <TableRow className="border-b border-primary/20 hover:bg-primary/5">
-                                <TableHead className="bg-primary/5 text-center">History</TableHead>
-                                <TableHead className="bg-primary/5 text-center">Date</TableHead>
-                            </TableRow>
-                        </TableHeader>
-
-                        <TableBody>
-                            {logs.length > 0 ? (
-                                logs.map((log, index) => (
-                                    <TableRow 
-                                    key={index}
-                                    className="border-b border-primary/10 hover:bg-primary/5"
-                                    >
-                                        <TableCell className="font-medium text-center">{log.history}</TableCell>
-                                        <TableCell className="font-medium text-center">{log.date ? format((new Date(log.date)), "PPP") : '-'}</TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={2} className="text-center py-8">
-                                        No logs found
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-        </div>
+                </Table>
+            </CardContent>
+        </Card>
     )
 }

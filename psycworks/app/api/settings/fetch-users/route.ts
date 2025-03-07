@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 export async function GET(request: Request) {
-  // Initialize Supabase with the service role key for auth.users access
+  // Disable caching for this API route
+  const headers = new Headers({
+    "Cache-Control": "no-store, must-revalidate", // Prevent stale data
+  });
+
+  // Initialize Supabase
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -14,36 +19,31 @@ export async function GET(request: Request) {
     const userId = searchParams.get("userId");
 
     if (!userId) {
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+      return new NextResponse(JSON.stringify({ error: "Missing userId" }), { status: 400, headers });
     }
 
     // Check if user is admin
-    const { data: isAdmin, error: adminError } = await supabase.rpc('is_admin', {
-      userid: userId
-    });
+    const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin", { userid: userId });
 
     if (adminError || !isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 403, headers });
     }
 
-    // Use the administrative functions to fetch users
+    // Fetch users from Supabase auth
     const { data: users, error } = await supabase.auth.admin.listUsers();
 
     if (error) throw error;
 
-    // Transform the data to match the expected format
+    // Transform the data
     const formattedUsers = users.users.map((user) => ({
       email: user.email,
       last_sign_in_at: user.last_sign_in_at,
-      id: user.id
+      id: user.id,
     }));
 
-    return NextResponse.json({ users: formattedUsers });
+    return new NextResponse(JSON.stringify({ users: formattedUsers }), { status: 200, headers });
   } catch (error) {
     console.error("Error fetching users:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch users" },
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: "Failed to fetch users" }), { status: 500, headers });
   }
 }
