@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
 import AdminCard from "@/components/settings/admin-card";
@@ -19,25 +18,21 @@ export default async function SettingsPage() {
   const supabase = await createClient();
   const {
     data: { user },
-    error,
+    error: authError,
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (!user || authError) {
     redirect("/sign-in");
   }
+  const { data: isAdmin, error: rpcError } = await supabase.rpc("is_admin", {
+    userid: user.id,
+  });
 
-  // Check admin status using the API route
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/check-admin?userId=${user.id}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  if (rpcError) {
+    console.error("Failed to check admin status:", rpcError);
+  }
 
-  const { isAdmin } = await response.json();
+  const isAdminUser = isAdmin || false;
 
   return (
     <div className="container mx-auto py-10">
@@ -51,11 +46,10 @@ export default async function SettingsPage() {
       <Tabs defaultValue="user" className="space-y-4">
         <TabsList>
           <TabsTrigger value="user">User</TabsTrigger>
-          {isAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
+          {isAdminUser && <TabsTrigger value="admin">Admin</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="user" className="space-y-4">
-          {/* Profile Settings */}
           <Card>
             <CardHeader>
               <CardTitle>Profile</CardTitle>
@@ -106,7 +100,7 @@ export default async function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {isAdmin && (
+        {isAdminUser && (
           <TabsContent value="admin">
             <AdminCard />
           </TabsContent>
