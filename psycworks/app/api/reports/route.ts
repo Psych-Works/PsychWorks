@@ -18,6 +18,7 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const sortBy = searchParams.get("sortBy") || "created_at";
     const order = searchParams.get("order") || "desc";
+    const search = searchParams.get("search") || "";
 
     if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1) {
       return NextResponse.json(
@@ -29,17 +30,24 @@ export async function GET(request: Request) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    const {
-      data: reports,
-      error,
-      count,
-    } = await supabase
+    // Build the query
+    let query = supabase
       .from("Report")
       .select(
-        "*, ReportAssessment:ReportAssessment(*, Assessment(name, measure))"
-      )
-      .order(sortBy, { ascending: order === "asc" })
-      .range(from, to);
+        "*, ReportAssessment:ReportAssessment(*, Assessment(name, measure))",
+        { count: "exact" }
+      );
+
+    // Add search filter if search term is provided
+    if (search) {
+      query = query.or(`name.ilike.%${search}%`);
+    }
+
+    // Add sorting
+    query = query.order(sortBy, { ascending: order === "asc" });
+
+    // Add pagination
+    const { data: reports, error, count } = await query.range(from, to);
 
     if (error) {
       return NextResponse.json(

@@ -126,7 +126,7 @@ function NewAssessmentContent() {
       <div className="flex-col items-center justify-items-center">
         <CreateAssessmentHeader onTableTypeChange={handleTableTypeIdChange} />
         <CreateAssessmentField
-          name="Name"
+          name="Measured Area"
           value={name}
           onChange={handleNameChange}
         />

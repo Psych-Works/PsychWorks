@@ -9,14 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Eye, Pencil, Trash2 } from "lucide-react";
@@ -51,26 +43,25 @@ interface ApiResponse {
   totalPages: number;
 }
 
-export function AssessmentsTable() {
+interface AssessmentsTableProps {
+  searchQuery?: string;
+}
+
+export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({
     sortBy: "created_at",
     order: "desc",
   });
 
-  const limit = 10;
-
   const fetchAssessments = async () => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: limit.toString(),
         sortBy: sortConfig.sortBy,
         order: sortConfig.order,
+        search: searchQuery,
       });
 
       const response = await fetch(`/api/assessments?${queryParams}`, {
@@ -79,12 +70,8 @@ export function AssessmentsTable() {
 
       if (!response.ok) throw new Error("Failed to fetch assessments");
 
-      const { data, totalCount, page, totalPages }: ApiResponse =
-        await response.json();
-
+      const { data }: ApiResponse = await response.json();
       setAssessments(data);
-      setCurrentPage(page);
-      setTotalPages(totalPages);
     } catch (error) {
       console.error("Failed to fetch assessments:", error);
     } finally {
@@ -94,7 +81,7 @@ export function AssessmentsTable() {
 
   useEffect(() => {
     fetchAssessments();
-  }, [currentPage, sortConfig.sortBy, sortConfig.order]);
+  }, [sortConfig.sortBy, sortConfig.order, searchQuery]);
 
   const handleDeleteAssessment = async (assessmentId: bigint) => {
     try {
@@ -122,7 +109,6 @@ export function AssessmentsTable() {
       sortBy: column,
       order: prev.sortBy === column && prev.order === "asc" ? "desc" : "asc",
     }));
-    setCurrentPage(1); // Reset to first page when sorting changes
   };
 
   const SortButton = ({
@@ -260,48 +246,6 @@ export function AssessmentsTable() {
           )}
         </TableBody>
       </Table>
-
-      {totalPages > 1 && (
-        <Pagination className="border-t border-primary/10 py-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.max(prev - 1, 1));
-                }}
-                className={`${
-                  currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
-                }`}
-              />
-            </PaginationItem>
-
-            <PaginationItem>
-              <PaginationLink className="bg-primary/5">
-                Page {currentPage} of {totalPages}
-              </PaginationLink>
-            </PaginationItem>
-
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-                }}
-                className={`${
-                  currentPage >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10"
-                }`}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
     </div>
   );
 }
