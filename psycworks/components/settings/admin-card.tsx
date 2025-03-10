@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -39,9 +39,10 @@ interface User {
 }
 
 export default function AdminCard() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [userRoles, setUserRoles] = useState<Record<string, string[]>>({});
 
   const fetchUsers = async () => {
     try {
@@ -95,26 +96,62 @@ export default function AdminCard() {
         throw new Error("Failed to delete user");
       }
 
-      // Update local state instead of refetching
-      setUsers(users.filter((u) => u.id !== userId));
-    } catch (err) {
-      console.error("Error deleting user:", err);
-      setError(err instanceof Error ? err.message : "Failed to delete user");
-    }
-  };
+            // Update local state instead of refetching
+            setUsers(users.filter(u => u.id !== userId));
+        } catch (err) {
+            console.error("Error deleting user:", err);
+            setError(err instanceof Error ? err.message : "Failed to delete user");
+        }
+    };
+
+    const handleToggleDeleteAccess = async (userId: string, isPromoting: boolean) => {
+        try {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("No authenticated user");
+
+            const response = await fetch(`/api/settings/update-user`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    adminId: user.id,
+                    targetUserId: userId,
+                    isPromoting: isPromoting
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update user role");
+            }
+
+            const data = await response.json();
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            // Update user roles based on promotion or demotion
+            setUserRoles({
+                ...userRoles,
+                [userId]: isPromoting ? ['Elevated_delete'] : []
+            });
+        } catch (err) {
+            console.error("Error updating user role:", err);
+            setError(err instanceof Error ? err.message : "Failed to update user role");
+        }
+    };
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>User Management</CardTitle>
-        <CardDescription>
-          Add, delete, or modify users in your system
-        </CardDescription>
-      </CardHeader>
+    return(
+        <Card>
+            <CardHeader>
+                <CardTitle>User Management</CardTitle>
+                <CardDescription>Delete, or promote users in your system</CardDescription>
+            </CardHeader>
 
       <CardContent>
         <Table className="border-[1px]">
@@ -125,7 +162,10 @@ export default function AdminCard() {
                 Last sign in
               </TableHead>
               <TableHead className="bg-primary/5 text-center">
-                Actions
+                Manage Permissions
+              </TableHead>
+              <TableHead className="bg-primary/5 text-center">
+                Delete User
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -133,14 +173,14 @@ export default function AdminCard() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-8">
+                <TableCell colSpan={4} className="text-center py-8">
                   Loading users...
                 </TableCell>
               </TableRow>
             ) : error ? (
               <TableRow>
                 <TableCell
-                  colSpan={3}
+                  colSpan={4}
                   className="text-center py-8 text-red-500"
                 >
                   {error}
@@ -148,7 +188,7 @@ export default function AdminCard() {
               </TableRow>
             ) : users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-8">
+                <TableCell colSpan={4} className="text-center py-8">
                   No users found
                 </TableCell>
               </TableRow>
@@ -165,6 +205,26 @@ export default function AdminCard() {
                     {user.last_sign_in_at
                       ? format(new Date(user.last_sign_in_at), "PPP")
                       : "-"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex justify-center gap-2">
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleToggleDeleteAccess(user.id, true)}
+                        className="text-sm"
+                        title="Grant Delete Access"
+                      >
+                        <ArrowUpCircle className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleToggleDeleteAccess(user.id, false)}
+                        className="text-sm"
+                        title="Remove Delete Access"
+                      >
+                        <ArrowDownCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                   <TableCell className="text-center">
                     <div className="flex justify-center gap-2">
@@ -188,24 +248,24 @@ export default function AdminCard() {
                             </AlertDialogDescription>
                           </AlertDialogHeader>
 
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteUser(user.id)}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={() => handleDeleteUser(user.id)}
+                                                        >
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    )
 }
