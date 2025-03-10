@@ -27,8 +27,10 @@ const ExportToDocxButton = ({ dynamicTables }: ExportToDocxButtonProps) => {
     ];
 
     if (dynamicTables && dynamicTables.length > 0) {
-      dynamicTables.forEach((table, index) => {
-        childrenElements.push(table);
+      dynamicTables.forEach((tableEntry, index) => {
+        const elements = Array.isArray(tableEntry) ? tableEntry : [tableEntry];
+        childrenElements.push(...elements);
+
         if (index !== dynamicTables.length - 1) {
           childrenElements.push(
             new Paragraph({

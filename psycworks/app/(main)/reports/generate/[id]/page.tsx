@@ -166,6 +166,7 @@ export default function GenerateReportPage() {
     return ReportDynamicTable({
       assessmentName: Assessment.name,
       measure: Assessment.measure,
+      description: Assessment.description,
       dataRows,
     });
   });
