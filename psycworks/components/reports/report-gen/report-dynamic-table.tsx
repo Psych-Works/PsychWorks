@@ -5,12 +5,14 @@ import { getPercentileFromScore } from "@/utils/percentile";
 interface ReportDynamicTableProps {
   assessmentName: string;
   measure: string;
+  description?: string;
   dataRows: DataRow[];
 }
 
 export const ReportDynamicTable = ({
   assessmentName,
   measure,
+  description,
   dataRows,
 }: ReportDynamicTableProps) => {
   const titleRow = new TableRow({
@@ -95,10 +97,25 @@ export const ReportDynamicTable = ({
     });
   });
 
-  return new Table({
+  const table = new Table({
     rows: [titleRow, headerRow, ...dataRowsDocx],
     width: { size: 100, type: "pct" },
   });
+
+  const descriptionParagraph = description
+    ? new Paragraph({
+        children: [
+          new TextRun({
+            text: description,
+            size: 24,
+            font: "Times New Roman",
+          }),
+        ],
+        spacing: { before: 240, after: 240 },
+      })
+    : null;
+
+  return descriptionParagraph ? [descriptionParagraph, table] : [table];
 };
 
 export default ReportDynamicTable;
