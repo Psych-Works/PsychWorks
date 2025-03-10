@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   // Ensure environment variables exist
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
     console.error("Supabase environment variables are missing.");
     return NextResponse.json(
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   // Initialize Supabase
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { persistSession: false } }
   );
 
