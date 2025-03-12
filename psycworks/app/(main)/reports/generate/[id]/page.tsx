@@ -116,11 +116,22 @@ export default function GenerateReportPage() {
       try {
         const response = await fetch(`/api/reports/${id}`);
         if (!response.ok) throw new Error("Failed to fetch report");
-        const data: Report = await response.json(); // Explicitly type the API response
-        setReport(data);
+        const data: Report = await response.json();
+        const sortedReport = {
+          ...data,
+          ReportAssessment: [...data.ReportAssessment].sort((a, b) => {
+            const aAssessment = a.Assessment;
+            const bAssessment = b.Assessment;
+            if (aAssessment.table_type_id !== bAssessment.table_type_id) {
+              return bAssessment.table_type_id - aAssessment.table_type_id;
+            }
+            return aAssessment.name.localeCompare(bAssessment.name);
+          }),
+        };
 
-        // Initialize assessmentsData with typed reduce
-        const initialData = data.ReportAssessment.reduce<
+        setReport(sortedReport);
+
+        const initialData = sortedReport.ReportAssessment.reduce<
           Record<string, DataRow[]>
         >((acc, { Assessment }) => {
           const inputData = processAssessmentData(Assessment);
