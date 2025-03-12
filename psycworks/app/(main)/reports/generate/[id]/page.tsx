@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import ExportToDocxButton from "@/components/reports/report-gen/report-export-button";
 import ReportDynamicTable from "@/components/reports/report-gen/report-dynamic-table";
 import { DataRow } from "@/types/data-row";
+import Link from "next/link";
 
 interface Assessment {
   id: string;
@@ -198,9 +199,8 @@ export default function GenerateReportPage() {
                 >
                   <span className="text-lg font-medium">{Assessment.name}</span>
                   <ChevronDown
-                    className={`h-5 w-5 transition-transform ${
-                      expandedIds.includes(Assessment.id) ? "rotate-180" : ""
-                    }`}
+                    className={`h-5 w-5 transition-transform ${expandedIds.includes(Assessment.id) ? "rotate-180" : ""
+                      }`}
                   />
                 </Button>
               </CollapsibleTrigger>
@@ -241,7 +241,10 @@ export default function GenerateReportPage() {
           </Collapsible>
         ))}
       </div>
-      <div className="text-right">
+      <div className="flex justify-between items-center">
+        <Link href="/reports">
+          <Button variant="default" className="w-40 h-12">Back</Button>
+        </Link>
         <ExportToDocxButton dynamicTables={dynamicTables} />
       </div>
     </div>

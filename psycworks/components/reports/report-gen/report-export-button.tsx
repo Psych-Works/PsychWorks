@@ -69,7 +69,7 @@ const ExportToDocxButton = ({ dynamicTables }: ExportToDocxButtonProps) => {
 
   return (
     <Button className="w-40 h-12" onClick={handleExport}>
-      Export to Docx
+      Generate Report
     </Button>
   );
 };

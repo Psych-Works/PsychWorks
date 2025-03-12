@@ -67,10 +67,10 @@ function DynamicTable({
 
   const countDomSub = formData.fields
     ? formData.fields.reduce((count: number, field: any) => {
-        count += 1;
-        if (field.subtests) count += field.subtests.length;
-        return count;
-      }, 0)
+      count += 1;
+      if (field.subtests) count += field.subtests.length;
+      return count;
+    }, 0)
     : 0;
 
   const handleEdit = (rowId: number, columnKey: string, value: string) => {
@@ -83,12 +83,12 @@ function DynamicTable({
       const updatedData = prevData.map((row) =>
         row.id === rowId
           ? {
-              ...row,
-              [columnKey]:
-                columnKey === "Score"
-                  ? Number(Number(tempValue).toFixed(2))
-                  : tempValue,
-            }
+            ...row,
+            [columnKey]:
+              columnKey === "Score"
+                ? Number(Number(tempValue).toFixed(2))
+                : tempValue,
+          }
           : row
       );
       if (onDataChange) onDataChange(updatedData);
@@ -104,52 +104,52 @@ function DynamicTable({
           <TableRow>
             <TableHead
               rowSpan={2}
-              className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
+              className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             >
               Measured Area (Assessment)
             </TableHead>
             <TableHead
               rowSpan={2}
-              className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
+              className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             >
               Domain/Subtest
             </TableHead>
             <TableHead
               rowSpan={2}
-              className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
+              className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             >
               Scale
             </TableHead>
             <TableHead
               rowSpan={2}
-              className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
+              className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             >
               Score
             </TableHead>
             <TableHead
               rowSpan={2}
-              className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
+              className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             >
               %tile
             </TableHead>
             <TableHead
               colSpan={4}
-              className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman"
+              className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             >
               Percentile
             </TableHead>
           </TableRow>
           <TableRow>
-            <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+            <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
               Very Low (0-8)
             </TableHead>
-            <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+            <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
               Low Av. (9-24)
             </TableHead>
-            <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+            <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
               Average (25-74)
             </TableHead>
-            <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+            <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
               High Av. (75-100)
             </TableHead>
           </TableRow>
@@ -158,28 +158,28 @@ function DynamicTable({
     } else if (tableTypeId === "2") {
       return (
         <TableRow>
-          <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+          <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
             Measured Area (Assessment)
           </TableHead>
-          <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+          <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
             Domain/Subtest
           </TableHead>
-          <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+          <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
             Scale
           </TableHead>
-          <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+          <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
             Score
           </TableHead>
-          <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+          <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
             %tile
           </TableHead>
-          <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+          <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
             Average
           </TableHead>
-          <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+          <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
             Elevated
           </TableHead>
-          <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+          <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
             Clinically Sgnif.
           </TableHead>
         </TableRow>
@@ -187,19 +187,19 @@ function DynamicTable({
     }
     return (
       <TableRow>
-        <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+        <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
           Measured Area (Assessment)
         </TableHead>
-        <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+        <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
           Domain/Subtest
         </TableHead>
-        <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+        <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
           Scale
         </TableHead>
-        <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+        <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
           Score
         </TableHead>
-        <TableHead className="bg-gray-400 text-black font-medium text-sm text-center border border-black font-times-new-roman">
+        <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
           %tile
         </TableHead>
       </TableRow>
@@ -209,7 +209,7 @@ function DynamicTable({
   const renderPercentileValue = (row: DataRow): ReactNode => {
     const percentile = getPercentileFromScore(row.Score, row.Scale);
     return (
-      <TableCell className="w-[5%] whitespace-normal break-words">
+      <TableCell className="w-[5%] whitespace-normal break-words border border-black">
         {percentile === 1 ? "<1" : percentile}
       </TableCell>
     );
@@ -221,14 +221,14 @@ function DynamicTable({
 
     if (tableTypeId === "3") {
       return (
-        <TableCell className="percentile-column" colSpan={4}>
-          <Progress value={visualPercentage} />
+        <TableCell className="percentile-column border border-black" colSpan={4}>
+          <Progress value={visualPercentage} className="tall-progress-bar" />
         </TableCell>
       );
     } else if (tableTypeId === "2") {
       return (
-        <TableCell className="percentile-column" colSpan={3}>
-          <Progress value={visualPercentage} />
+        <TableCell className="percentile-column border border-black" colSpan={3}>
+          <Progress value={visualPercentage} className="tall-progress-bar" />
         </TableCell>
       );
     }
@@ -239,15 +239,14 @@ function DynamicTable({
     return data.map((row) => (
       <TableRow key={`row-${row.id}`}>
         <TableCell
-          className={`${row.depth === 1 ? "pl-8" : ""} ${
-            row.depth === 0 ? "font-bold" : "font-italic"
-          }`}
+          className={`${row.depth === 1 ? "pl-8" : ""} ${row.depth === 0 ? "font-bold" : "font-italic"
+            } border border-black`}
         >
           {row.DomSub}
         </TableCell>
-        <TableCell>{row.Scale}</TableCell>
+        <TableCell className="border border-black">{row.Scale}</TableCell>
         <TableCell
-          className="cursor-pointer"
+          className="cursor-pointer border border-black"
           onClick={() => handleEdit(row.id, "Score", row.Score.toString())}
         >
           {editing.rowId === row.id && editing.columnKey === "Score" ? (
