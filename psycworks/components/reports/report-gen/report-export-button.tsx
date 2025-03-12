@@ -11,7 +11,6 @@ import {
   ReportEvaluationMethods,
   ReportAssessmentResults,
   EndOfReport,
-  FinalFooter,
 } from "@/components/reports/report-gen/report-static-text";
 
 interface ExportToDocxButtonProps {
@@ -57,9 +56,6 @@ const ExportToDocxButton = ({ dynamicTables }: ExportToDocxButtonProps) => {
           children: childrenElements, 
         },
         {
-          footers: {
-            default: FinalFooter,
-          },
           children: [...EndOfReport],
         },
       ],
