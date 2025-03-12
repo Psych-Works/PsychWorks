@@ -8,22 +8,28 @@ import {
   ReportHeader,
   ReportFooter,
   FirstHalfHeaders,
-  ReportEvaluationMethods,
+  getReportEvaluationMethods,
   ReportAssessmentResults,
   EndOfReport,
 } from "@/components/reports/report-gen/report-static-text";
 
 interface ExportToDocxButtonProps {
   dynamicTables?: any[];
+  assessmentNames: string[];
 }
 
-const ExportToDocxButton = ({ dynamicTables }: ExportToDocxButtonProps) => {
+const ExportToDocxButton = ({
+  dynamicTables,
+  assessmentNames,
+}: ExportToDocxButtonProps) => {
   const handleExport = async () => {
+    const reportEvaluationMethods = getReportEvaluationMethods(assessmentNames);
+
     const childrenElements = [
       ReportTitle,
       ClientInfo,
       ...FirstHalfHeaders,
-      ...ReportEvaluationMethods,
+      ...reportEvaluationMethods,
       ...ReportAssessmentResults,
     ];
 
@@ -55,7 +61,7 @@ const ExportToDocxButton = ({ dynamicTables }: ExportToDocxButtonProps) => {
           footers: {
             default: ReportFooter,
           },
-          children: childrenElements, 
+          children: childrenElements,
         },
         {
           children: [...EndOfReport],
@@ -93,7 +99,7 @@ const ExportToDocxButton = ({ dynamicTables }: ExportToDocxButtonProps) => {
                 },
               },
             ],
-          }
+          },
         ],
       },
     });
