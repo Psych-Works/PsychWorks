@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Document, Packer, Paragraph } from "docx";
+import { AlignmentType, Document, LevelFormat, Packer, Paragraph } from "docx";
 import { saveAs } from "file-saver";
 import {
   ReportTitle,
@@ -10,6 +10,7 @@ import {
   FirstHalfHeaders,
   ReportEvaluationMethods,
   ReportAssessmentResults,
+  EndOfReport,
 } from "@/components/reports/report-gen/report-static-text";
 
 interface ExportToDocxButtonProps {
@@ -54,11 +55,46 @@ const ExportToDocxButton = ({ dynamicTables }: ExportToDocxButtonProps) => {
           footers: {
             default: ReportFooter,
           },
-          children: childrenElements,
+          children: childrenElements, 
+        },
+        {
+          children: [...EndOfReport],
         },
       ],
       numbering: {
-        config: [],
+        config: [
+          {
+            reference: "1",
+            levels: [
+              {
+                level: 0,
+                format: LevelFormat.DECIMAL,
+                text: "%1.",
+                alignment: AlignmentType.LEFT,
+                style: {
+                  paragraph: {
+                    indent: {
+                      left: 500,
+                    },
+                  },
+                },
+              },
+              {
+                level: 1,
+                format: LevelFormat.LOWER_LETTER,
+                text: "%2.",
+                alignment: AlignmentType.LEFT,
+                style: {
+                  paragraph: {
+                    indent: {
+                      left: 750,
+                    },
+                  },
+                },
+              },
+            ],
+          }
+        ],
       },
     });
 
