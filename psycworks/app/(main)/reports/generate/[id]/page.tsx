@@ -182,6 +182,10 @@ export default function GenerateReportPage() {
     });
   });
 
+  const assessmentNames = report.ReportAssessment.map(
+    (ra) => ra.Assessment.name
+  );
+
   return (
     <div className="container mx-auto py-8 space-y-8">
       <div className="flex justify-between items-center">
@@ -254,7 +258,10 @@ export default function GenerateReportPage() {
         ))}
       </div>
       <div className="text-right">
-        <ExportToDocxButton dynamicTables={dynamicTables} />
+        <ExportToDocxButton
+          dynamicTables={dynamicTables}
+          assessmentNames={assessmentNames}
+        />
       </div>
     </div>
   );
