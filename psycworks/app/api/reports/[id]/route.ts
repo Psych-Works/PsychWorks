@@ -11,6 +11,18 @@ export async function DELETE(request: Request) {
     if (authError || !user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    const { data: hasDeleteAccess, error: accessError } = await supabase.rpc(
+      'has_delete_access',
+      { userid: user.id }
+    );
+
+    if (accessError || !hasDeleteAccess) {
+      return NextResponse.json(
+        { error: "Unauthorized - Insufficient permissions to delete" },
+        { status: 403 }
+      );
+    }
+
     const { id } = await request.json();
     if (!id || isNaN(Number(id))) {
       return NextResponse.json({ error: "Invalid report ID" }, { status: 400 });
