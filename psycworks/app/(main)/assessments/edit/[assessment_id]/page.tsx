@@ -28,6 +28,7 @@ const EditAssessmentPage: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch assessment");
 
         const data = await response.json();
+        console.log(data);
         setAssessmentData(data);
         setName(data.name);
         setMeasure(data.measure);
@@ -109,26 +110,73 @@ const EditAssessmentPage: React.FC = () => {
           })),
       };
 
-      const response = await fetch(`/api/assessments/${assessmentId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formattedData),
-      });
+      // Fetch current data from the database to compare
+    const existingResponse = await fetch(`/api/assessments/${assessmentId}`);
+    const existingData = await existingResponse.json();
 
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.error || "Update failed");
-      }
-
-      router.push("/assessments");
-    } catch (error) {
-      console.error("Update error:", error);
-      setError(error instanceof Error ? error.message : "Update failed");
-    } finally {
-      setIsSubmitting(false);
+    if (!existingResponse.ok) {
+      throw new Error(existingData.error || "Failed to fetch current data");
     }
-  };
+
+
+      // Identify deleted domains and subtests
+    const existingDomains = new Set(existingData.domains.map((d: any) => d.id));
+    const newDomains = new Set(formattedData.domains.map((d: any) => d.id));
+    const domainsToDelete = Array.from(existingDomains).filter((id) => !newDomains.has(id));
+
+    console.log(domainsToDelete);
+
+    const existingSubtests = new Set(
+      existingData.standaloneSubtests.map((s: any) => s.id)
+    );
+    const newSubtests = new Set(
+      formattedData.standalone_subtests.map((s: any) => s.id)
+    );
+    const subtestsToDelete = Array.from(existingSubtests).filter((id) => !newSubtests.has(id));
+
+    console.log(subtestsToDelete);
+
+    // Delete subtests first (to avoid foreign key constraints)
+    if (subtestsToDelete.length > 0) {
+      await fetch(`/api/subtests`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ subtest_ids: subtestsToDelete }),
+      });
+    }
+
+    // Delete domains after their subtests are gone
+    if (domainsToDelete.length > 0) {
+      await fetch(`/api/domains`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain_ids: domainsToDelete }),
+      });
+    }
+
+    // Update the remaining data
+    const response = await fetch(`/api/assessments/${assessmentId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formattedData),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseData.error || "Update failed");
+    }
+
+    router.push("/assessments");
+  } catch (error) {
+    console.error("Update error:", error);
+    setError(error instanceof Error ? error.message : "Update failed");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <div className="space-y-20">
