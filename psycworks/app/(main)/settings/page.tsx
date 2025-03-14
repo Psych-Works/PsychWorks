@@ -82,22 +82,6 @@ export default async function SettingsPage() {
               <ChangePasswordForm />
             </CardContent>
           </Card>
-
-          {/* Notification Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Notifications</CardTitle>
-              <CardDescription>
-                Configure how you receive notifications.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="email-notifications">Email Notifications</Label>
-                <Switch id="email-notifications" />
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {isAdminUser && (
