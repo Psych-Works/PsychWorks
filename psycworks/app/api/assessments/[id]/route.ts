@@ -88,6 +88,63 @@ export async function PUT(
   const body = await request.json();
 
   try {
+    // First, fetch the current assessment data to identify items to delete
+    const { data: currentAssessment, error: fetchError } = await supabase
+      .from("Assessment")
+      .select(
+        `
+        *,
+        Domain:Domain(*),
+        SubTest:SubTest(*)
+      `
+      )
+      .eq("id", assessmentId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    // Identify domains and subtests to delete
+    const currentDomainIds = new Set((currentAssessment.Domain as Domain[]).map(d => d.id));
+    const newDomainIds = new Set(body.domains.map((d: any) => Number(d.id)).filter(Boolean));
+
+    // Domains to delete: present in current data but not in new data
+    const domainsToDelete = Array.from(currentDomainIds).filter(id => !newDomainIds.has(id));
+
+    // Collect all current subtests (both from domains and standalone)
+    const currentSubtestIds = new Set((currentAssessment.SubTest as SubTest[]).map(s => s.id));
+
+    // Collect all new subtests (both from domains and standalone)
+    const newSubtestIds = new Set([
+      ...body.domains.flatMap((d: any) => (d.subtests || []).map((s: any) => Number(s.id)).filter(Boolean)),
+      ...body.standalone_subtests.map((s: any) => Number(s.id)).filter(Boolean)
+    ]);
+
+    // Subtests to delete: present in current data but not in new data
+    const subtestsToDelete = Array.from(currentSubtestIds).filter(id => !newSubtestIds.has(id));
+
+    console.log("Domains to delete:", domainsToDelete);
+    console.log("Subtests to delete:", subtestsToDelete);
+
+    // Delete subtests first (to avoid foreign key constraints)
+    if (subtestsToDelete.length > 0) {
+      const { error: deleteSubtestsError } = await supabase
+        .from("SubTest")
+        .delete()
+        .in("id", subtestsToDelete);
+
+      if (deleteSubtestsError) throw deleteSubtestsError;
+    }
+
+    // Delete domains after subtests
+    if (domainsToDelete.length > 0) {
+      const { error: deleteDomainsError } = await supabase
+        .from("Domain")
+        .delete()
+        .in("id", domainsToDelete);
+
+      if (deleteDomainsError) throw deleteDomainsError;
+    }
+
     // Update the Assessment record
     const { data: assessment, error: assessmentError } = await supabase
       .from("Assessment")
@@ -139,7 +196,7 @@ export async function PUT(
 
         // Process the subtests for this domain: update or insert
         await Promise.all(
-          domain.subtests.map(async (subtest: any) => {
+          (domain.subtests || []).map(async (subtest: any) => {
             if (subtest.id && !isNaN(Number(subtest.id))) {
               // Update an existing subtest for this domain
               const { error: subtestError } = await supabase
@@ -172,7 +229,7 @@ export async function PUT(
 
     // Process standalone subtests: update existing or insert new ones
     await Promise.all(
-      body.standalone_subtests.map(async (subtest: any) => {
+      (body.standalone_subtests || []).map(async (subtest: any) => {
         if (subtest.id && !isNaN(Number(subtest.id))) {
           // Update an existing standalone subtest
           const { error: subtestError } = await supabase
