@@ -86,11 +86,8 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
 
       if (!response.ok) throw new Error("Failed to fetch reports");
 
-      const { data, totalCount, page, totalPages }: ApiResponse =
-        await response.json();
-
+      const { data, totalPages }: ApiResponse = await response.json();
       setReports(data);
-      setCurrentPage(page);
       setTotalPages(totalPages);
     } catch (error) {
       console.error("Failed to fetch reports:", error);
@@ -101,6 +98,9 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
 
   useEffect(() => {
     setCurrentPage(1);
+  }, [searchQuery]);
+
+  useEffect(() => {
     fetchReports();
   }, [currentPage, sortConfig.sortBy, sortConfig.order, searchQuery]);
 
@@ -151,6 +151,33 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
       )}
     </Button>
   );
+
+  const getPageNumbers = (): (number | string)[] => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const pages: (number | string)[] = [1];
+
+    if (currentPage > 3) {
+      pages.push("...");
+    }
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (currentPage < totalPages - 2) {
+      pages.push("...");
+    }
+
+    pages.push(totalPages);
+
+    return pages;
+  };
 
   if (loading) {
     return <div className="flex justify-center p-8">Loading reports...</div>;
@@ -266,7 +293,7 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
 
       {totalPages > 1 && (
         <Pagination className="border-t border-primary/10 py-4">
-          <PaginationContent>
+          <PaginationContent className="gap-1">
             <PaginationItem>
               <PaginationPrevious
                 href="#"
@@ -274,19 +301,37 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.max(prev - 1, 1));
                 }}
-                className={`${currentPage === 1
-                  ? "pointer-events-none opacity-50"
-                  : "hover:bg-primary/10"
-                  }`}
+                className={`${
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "hover:bg-primary/10 transition-colors"
+                }`}
               />
             </PaginationItem>
-
-            <PaginationItem>
-              <PaginationLink className="bg-primary/5">
-                Page {currentPage} of {totalPages}
-              </PaginationLink>
-            </PaginationItem>
-
+            {getPageNumbers().map((page, index) =>
+              typeof page === "number" ? (
+                <PaginationItem key={index}>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage(page);
+                    }}
+                    className={`${
+                      currentPage === page
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-primary/10"
+                    } transition-colors`}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={index}>
+                  <span className="px-3 py-1">...</span>
+                </PaginationItem>
+              )
+            )}
             <PaginationItem>
               <PaginationNext
                 href="#"
@@ -294,10 +339,11 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
                   e.preventDefault();
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages));
                 }}
-                className={`${currentPage >= totalPages
-                  ? "pointer-events-none opacity-50"
-                  : "hover:bg-primary/10"
-                  }`}
+                className={`${
+                  currentPage >= totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "hover:bg-primary/10 transition-colors"
+                }`}
               />
             </PaginationItem>
           </PaginationContent>
