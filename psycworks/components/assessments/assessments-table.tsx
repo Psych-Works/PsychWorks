@@ -24,6 +24,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface Assessment {
   id: bigint;
@@ -54,11 +62,16 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
     sortBy: "created_at",
     order: "desc",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
 
   const fetchAssessments = async () => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: limit.toString(),
         sortBy: sortConfig.sortBy,
         order: sortConfig.order,
         search: searchQuery,
@@ -70,8 +83,9 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
 
       if (!response.ok) throw new Error("Failed to fetch assessments");
 
-      const { data }: ApiResponse = await response.json();
+      const { data, totalPages }: ApiResponse = await response.json();
       setAssessments(data);
+      setTotalPages(totalPages);
     } catch (error) {
       console.error("Failed to fetch assessments:", error);
     } finally {
@@ -80,8 +94,12 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  useEffect(() => {
     fetchAssessments();
-  }, [sortConfig.sortBy, sortConfig.order, searchQuery]);
+  }, [currentPage, sortConfig.sortBy, sortConfig.order, searchQuery]);
 
   const handleDeleteAssessment = async (assessmentId: bigint) => {
     try {
@@ -109,6 +127,7 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
       sortBy: column,
       order: prev.sortBy === column && prev.order === "asc" ? "desc" : "asc",
     }));
+    setCurrentPage(1);
   };
 
   const SortButton = ({
@@ -129,6 +148,33 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
       )}
     </Button>
   );
+
+  const getPageNumbers = (): (number | string)[] => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const pages: (number | string)[] = [1];
+
+    if (currentPage > 3) {
+      pages.push("...");
+    }
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (currentPage < totalPages - 2) {
+      pages.push("...");
+    }
+
+    pages.push(totalPages);
+
+    return pages;
+  };
 
   if (loading) {
     return (
@@ -188,7 +234,6 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
-
                     <Link href={`/assessments/edit/${assessment.id}`} passHref>
                       <Button
                         variant="ghost"
@@ -208,7 +253,6 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
-
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
@@ -220,13 +264,12 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
                             will be permanently removed!
                           </AlertDialogDescription>
                         </AlertDialogHeader>
-
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => {
-                              handleDeleteAssessment(assessment.id);
-                            }}
+                            onClick={() =>
+                              handleDeleteAssessment(assessment.id)
+                            }
                           >
                             Continue
                           </AlertDialogAction>
@@ -246,6 +289,65 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
           )}
         </TableBody>
       </Table>
+
+      {totalPages > 1 && (
+        <Pagination className="border-t border-primary/10 py-4">
+          <PaginationContent className="gap-1">
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((prev) => Math.max(prev - 1, 1));
+                }}
+                className={`${
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "hover:bg-primary/10 transition-colors"
+                }`}
+              />
+            </PaginationItem>
+            {getPageNumbers().map((page, index) =>
+              typeof page === "number" ? (
+                <PaginationItem key={index}>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage(page);
+                    }}
+                    className={`${
+                      currentPage === page
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-primary/10"
+                    } transition-colors`}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={index}>
+                  <span className="px-3 py-1">...</span>
+                </PaginationItem>
+              )
+            )}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                }}
+                className={`${
+                  currentPage >= totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "hover:bg-primary/10 transition-colors"
+                }`}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }
