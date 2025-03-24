@@ -291,64 +291,62 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
         </TableBody>
       </Table>
 
-      {totalPages > 1 && (
-        <Pagination className="border-t border-primary/10 py-4">
-          <PaginationContent className="gap-1">
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.max(prev - 1, 1));
-                }}
-                className={`${
-                  currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10 transition-colors"
-                }`}
-              />
-            </PaginationItem>
-            {getPageNumbers().map((page, index) =>
-              typeof page === "number" ? (
-                <PaginationItem key={index}>
-                  <PaginationLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setCurrentPage(page);
-                    }}
-                    className={`${
-                      currentPage === page
-                        ? "bg-primary text-primary-foreground"
-                        : "hover:bg-primary/10"
-                    } transition-colors`}
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              ) : (
-                <PaginationItem key={index}>
-                  <span className="px-3 py-1">...</span>
-                </PaginationItem>
-              )
-            )}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-                }}
-                className={`${
-                  currentPage >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "hover:bg-primary/10 transition-colors"
-                }`}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+      <Pagination className="border-t border-primary/10 py-4">
+        <PaginationContent className="gap-1">
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentPage((prev) => Math.max(prev - 1, 1));
+              }}
+              className={`${
+                currentPage === 1
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10 transition-colors"
+              }`}
+            />
+          </PaginationItem>
+          {getPageNumbers().map((page, index) =>
+            typeof page === "number" ? (
+              <PaginationItem key={index}>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(page);
+                  }}
+                  className={`${
+                    currentPage === page
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-primary/10"
+                  } transition-colors`}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ) : (
+              <PaginationItem key={index}>
+                <span className="px-3 py-1">...</span>
+              </PaginationItem>
+            )
+          )}
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+              }}
+              className={`${
+                currentPage >= totalPages
+                  ? "pointer-events-none opacity-50"
+                  : "hover:bg-primary/10 transition-colors"
+              }`}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }
