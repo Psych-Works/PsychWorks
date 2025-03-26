@@ -26,6 +26,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Check if the user has delete access
+    const { data: hasDeleteAccess, error: accessError } = await supabase.rpc('has_delete_access', {
+      userid: user.id
+    });
+
+    if (accessError) {
+      return NextResponse.json({ error: "Failed to check delete access" }, { status: 500 });
+    }
+
     // Parse and validate query parameters
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
@@ -72,6 +81,7 @@ export async function GET(request: Request) {
       totalCount: count,
       page,
       totalPages: Math.ceil((count || 0) / limit),
+      canDelete: hasDeleteAccess
     });
   } catch (error) {
     return NextResponse.json(
