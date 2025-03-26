@@ -209,8 +209,8 @@ function DynamicTable({
   const renderPercentileValue = (row: DataRow): ReactNode => {
     const percentile = getPercentileFromScore(row.Score, row.Scale);
     return (
-      <TableCell className="w-[5%] whitespace-normal break-words border border-black">
-        {percentile === 1 ? "<1" : percentile}
+      <TableCell className="w-[5%] whitespace-normal break-words border border-black text-center">
+        {percentile === 1 ? "<1" : percentile}%
       </TableCell>
     );
   };
@@ -244,9 +244,11 @@ function DynamicTable({
         >
           {row.DomSub}
         </TableCell>
-        <TableCell className="border border-black">{row.Scale}</TableCell>
+        <TableCell className="border border-black text-center">
+          {row.Scale}:
+        </TableCell>
         <TableCell
-          className="cursor-pointer border border-black"
+          className="cursor-pointer border border-black text-center"
           onClick={() => handleEdit(row.id, "Score", row.Score.toString())}
         >
           {editing.rowId === row.id && editing.columnKey === "Score" ? (

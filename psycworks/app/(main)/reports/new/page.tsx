@@ -88,7 +88,6 @@ export default function NewReportPage() {
                 </TableCell>
                 <TableCell>
                   <Button
-                    variant="ghost"
                     size="icon"
                     onClick={() =>
                       setSelectedAssessments((prev) =>
