@@ -113,7 +113,6 @@ export const ModifyTableDialog = ({
       <DialogTrigger asChild>
         <Button
           onClick={() => handleSetIsOpen(true)}
-          variant="outline"
           className="ml-4"
         >
           Edit Domain/Subtest

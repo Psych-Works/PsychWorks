@@ -63,8 +63,8 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({
-    sortBy: "created_at",
-    order: "desc",
+    sortBy: "name",
+    order: "asc",
   });
 
   const limit = 10;

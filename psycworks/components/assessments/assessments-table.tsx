@@ -59,8 +59,8 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({
-    sortBy: "created_at",
-    order: "desc",
+    sortBy: "name",
+    order: "asc",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
