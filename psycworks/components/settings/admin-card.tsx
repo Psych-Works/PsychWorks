@@ -31,6 +31,7 @@ import {
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 
 interface User {
   email: string;
@@ -43,6 +44,8 @@ export default function AdminCard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [userRoles, setUserRoles] = useState<Record<string, string[]>>({});
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogMessage, setDialogMessage] = useState("");
 
   const fetchUsers = async () => {
     try {
@@ -136,6 +139,10 @@ export default function AdminCard() {
                 ...userRoles,
                 [userId]: isPromoting ? ['Elevated_delete'] : []
             });
+
+            // Set dialog message and open dialog
+            setDialogMessage(isPromoting ? "User has been granted delete access." : "User's delete access has been revoked.");
+            setDialogOpen(true);
         } catch (err) {
             console.error("Error updating user role:", err);
             setError(err instanceof Error ? err.message : "Failed to update user role");
@@ -266,6 +273,17 @@ export default function AdminCard() {
                     </TableBody>
                 </Table>
             </CardContent>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent>
+                    <DialogTitle>Success</DialogTitle>
+                    <DialogDescription>{dialogMessage}</DialogDescription>
+                    <DialogFooter>
+                        <DialogTrigger asChild>
+                            <Button onClick={() => setDialogOpen(false)}>Close</Button>
+                        </DialogTrigger>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </Card>
     )
 }
