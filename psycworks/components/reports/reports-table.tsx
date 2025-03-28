@@ -51,6 +51,7 @@ interface ApiResponse {
   totalCount: number;
   page: number;
   totalPages: number;
+  canDelete: boolean;
 }
 
 interface ReportsTableProps {
@@ -66,6 +67,7 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
     sortBy: "name",
     order: "asc",
   });
+  const [canDelete, setCanDelete] = useState(false);
 
   const limit = 10;
 
@@ -86,9 +88,10 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
 
       if (!response.ok) throw new Error("Failed to fetch reports");
 
-      const { data, totalPages }: ApiResponse = await response.json();
+      const { data, totalPages, canDelete }: ApiResponse = await response.json();
       setReports(data);
       setTotalPages(totalPages);
+      setCanDelete(canDelete);
     } catch (error) {
       console.error("Failed to fetch reports:", error);
     } finally {
@@ -249,34 +252,36 @@ export function ReportsTable({ searchQuery = "" }: ReportsTableProps) {
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:bg-primary/10"
-                          aria-label="Delete report"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Report</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this report?
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteReport(report.id)}
+                    {canDelete && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-primary/10"
+                            aria-label="Delete report"
                           >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Report</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this report?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteReport(report.id)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

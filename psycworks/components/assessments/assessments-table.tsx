@@ -49,6 +49,7 @@ interface ApiResponse {
   totalCount: number;
   page: number;
   totalPages: number;
+  canDelete: boolean;
 }
 
 interface AssessmentsTableProps {
@@ -58,6 +59,7 @@ interface AssessmentsTableProps {
 export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [canDelete, setCanDelete] = useState(false);
   const [sortConfig, setSortConfig] = useState({
     sortBy: "name",
     order: "asc",
@@ -83,9 +85,10 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
 
       if (!response.ok) throw new Error("Failed to fetch assessments");
 
-      const { data, totalPages }: ApiResponse = await response.json();
+      const { data, totalPages, canDelete }: ApiResponse = await response.json();
       setAssessments(data);
       setTotalPages(totalPages);
+      setCanDelete(canDelete);
     } catch (error) {
       console.error("Failed to fetch assessments:", error);
     } finally {
@@ -243,39 +246,41 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:bg-primary/10"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Do you really want to delete this?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Data of{" "}
-                            <span className="font-bold">{assessment.name}</span>{" "}
-                            will be permanently removed!
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() =>
-                              handleDeleteAssessment(assessment.id)
-                            }
+                    {canDelete && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-primary/10"
                           >
-                            Continue
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Do you really want to delete this?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Data of{" "}
+                              <span className="font-bold">{assessment.name}</span>{" "}
+                              will be permanently removed!
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() =>
+                                handleDeleteAssessment(assessment.id)
+                              }
+                            >
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
