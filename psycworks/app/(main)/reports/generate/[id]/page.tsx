@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import ExportToDocxButton from "@/components/reports/report-gen/report-export-bu
 import ReportDynamicTable from "@/components/reports/report-gen/report-dynamic-table";
 import { DataRow } from "@/types/data-row";
 import Link from "next/link";
+import html2canvas from "html2canvas-pro"; // Import html2canvas-pro
 
 interface Assessment {
   id: string;
@@ -112,6 +113,9 @@ export default function GenerateReportPage() {
     Record<string, DataRow[]>
   >({});
 
+  // Object to hold refs for each table container (keyed by Assessment.id)
+  const tableRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
   useEffect(() => {
     const fetchReport = async () => {
       try {
@@ -166,6 +170,29 @@ export default function GenerateReportPage() {
     );
   };
 
+  // Handler to capture an individual table using its ref.
+  const handleTableScreenshot = async (assessmentId: string) => {
+    const element = tableRefs.current[assessmentId];
+    if (element) {
+      try {
+        const canvas = await html2canvas(element, {
+          backgroundColor: null,
+          scale: window.devicePixelRatio, // Increase resolution for clarity
+          useCORS: true,
+        });
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = image;
+        link.download = `table-${assessmentId}-screenshot.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Table screenshot failed: ", error);
+      }
+    }
+  };
+
   if (loading)
     return <div className="container mx-auto py-8">Loading report...</div>;
   if (error)
@@ -215,17 +242,22 @@ export default function GenerateReportPage() {
                 >
                   <span className="text-lg font-medium">{Assessment.name}</span>
                   <ChevronDown
-                    className={`h-5 w-5 transition-transform ${expandedIds.includes(Assessment.id) ? "rotate-180" : ""
-                      }`}
+                    className={`h-5 w-5 transition-transform ${
+                      expandedIds.includes(Assessment.id) ? "rotate-180" : ""
+                    }`}
                   />
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <div className="p-6 bg-gray-50 border-t">
-                  <div className="space-y-4">
-                    <p className="text-muted-foreground">
-                      {Assessment.measure}
-                    </p>
+                <div className="p-6 bg-gray-50 border-t space-y-4">
+                  <p className="text-muted-foreground">{Assessment.measure}</p>
+                  {/* Wrap the table in a div with its own ref */}
+                  <div
+                    ref={(el) => {
+                      tableRefs.current[Assessment.id] = el;
+                    }}
+                    className="border p-4"
+                  >
                     <TableFormContextProvider
                       initialData={processAssessmentData(Assessment)}
                     >
@@ -242,14 +274,21 @@ export default function GenerateReportPage() {
                         }
                       />
                     </TableFormContextProvider>
-                    <div className="mt-4">
-                      <Textarea
-                        value={Assessment.description || ""}
-                        readOnly
-                        className="resize-none bg-white cursor-default"
-                        placeholder="No description available"
-                      />
-                    </div>
+                  </div>
+                  {/* Button to capture just this table */}
+                  <Button
+                    variant="outline"
+                    onClick={() => handleTableScreenshot(Assessment.id)}
+                  >
+                    Screenshot This Table
+                  </Button>
+                  <div className="mt-4">
+                    <Textarea
+                      value={Assessment.description || ""}
+                      readOnly
+                      className="resize-none bg-white cursor-default"
+                      placeholder="No description available"
+                    />
                   </div>
                 </div>
               </CollapsibleContent>
@@ -259,9 +298,14 @@ export default function GenerateReportPage() {
       </div>
       <div className="flex justify-between items-center">
         <Link href="/reports">
-          <Button variant="default" className="w-40 h-12">Back</Button>
+          <Button variant="default" className="w-40 h-12">
+            Back
+          </Button>
         </Link>
-        <ExportToDocxButton dynamicTables={dynamicTables} assessmentNames={assessmentNames} />
+        <ExportToDocxButton
+          dynamicTables={dynamicTables}
+          assessmentNames={assessmentNames}
+        />
       </div>
     </div>
   );

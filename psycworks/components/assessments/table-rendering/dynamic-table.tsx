@@ -67,10 +67,10 @@ function DynamicTable({
 
   const countDomSub = formData.fields
     ? formData.fields.reduce((count: number, field: any) => {
-      count += 1;
-      if (field.subtests) count += field.subtests.length;
-      return count;
-    }, 0)
+        count += 1;
+        if (field.subtests) count += field.subtests.length;
+        return count;
+      }, 0)
     : 0;
 
   const handleEdit = (rowId: number, columnKey: string, value: string) => {
@@ -83,12 +83,12 @@ function DynamicTable({
       const updatedData = prevData.map((row) =>
         row.id === rowId
           ? {
-            ...row,
-            [columnKey]:
-              columnKey === "Score"
-                ? Number(Number(tempValue).toFixed(2))
-                : tempValue,
-          }
+              ...row,
+              [columnKey]:
+                columnKey === "Score"
+                  ? Number(Number(tempValue).toFixed(2))
+                  : tempValue,
+            }
           : row
       );
       if (onDataChange) onDataChange(updatedData);
@@ -221,13 +221,19 @@ function DynamicTable({
 
     if (tableTypeId === "3") {
       return (
-        <TableCell className="percentile-column border border-black" colSpan={4}>
+        <TableCell
+          className="percentile-column border border-black"
+          colSpan={4}
+        >
           <Progress value={visualPercentage} className="tall-progress-bar" />
         </TableCell>
       );
     } else if (tableTypeId === "2") {
       return (
-        <TableCell className="percentile-column border border-black" colSpan={3}>
+        <TableCell
+          className="percentile-column border border-black"
+          colSpan={3}
+        >
           <Progress value={visualPercentage} className="tall-progress-bar" />
         </TableCell>
       );
@@ -239,8 +245,10 @@ function DynamicTable({
     return data.map((row) => (
       <TableRow key={`row-${row.id}`}>
         <TableCell
-          className={`${row.depth === 1 ? "pl-8" : ""} ${row.depth === 0 ? "font-bold" : "font-italic"
-            } border border-black`}
+          style={{ paddingLeft: row.depth === 1 ? "2rem" : "0" }}
+          className={`${
+            row.depth === 0 ? "font-bold" : "font-italic"
+          } border border-black`}
         >
           {row.DomSub}
         </TableCell>
