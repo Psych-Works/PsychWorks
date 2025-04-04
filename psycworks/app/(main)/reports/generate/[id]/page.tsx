@@ -124,14 +124,9 @@ export default function GenerateReportPage() {
         const data: Report = await response.json();
         const sortedReport = {
           ...data,
-          ReportAssessment: [...data.ReportAssessment].sort((a, b) => {
-            const aAssessment = a.Assessment;
-            const bAssessment = b.Assessment;
-            if (aAssessment.table_type_id !== bAssessment.table_type_id) {
-              return bAssessment.table_type_id - aAssessment.table_type_id;
-            }
-            return aAssessment.name.localeCompare(bAssessment.name);
-          }),
+          ReportAssessment: [...data.ReportAssessment].sort((a, b) =>
+            a.Assessment.name.localeCompare(b.Assessment.name)
+          ),
         };
 
         setReport(sortedReport);
