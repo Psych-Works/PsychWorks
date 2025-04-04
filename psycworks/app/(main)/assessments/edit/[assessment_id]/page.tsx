@@ -28,6 +28,7 @@ const EditAssessmentPage: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch assessment");
 
         const data = await response.json();
+        console.log(data);
         setAssessmentData(data);
         setName(data.name);
         setMeasure(data.measure);
@@ -109,18 +110,104 @@ const EditAssessmentPage: React.FC = () => {
           })),
       };
 
+      // Fetch current data from the database to compare
+      const existingResponse = await fetch(`/api/assessments/${assessmentId}`);
+      const existingData = await existingResponse.json();
+
+      if (!existingResponse.ok) {
+        throw new Error(existingData.error || "Failed to fetch current data");
+      }
+
+      // Identify deleted domains and subtests
+      const existingDomains = new Set(existingData.domains.map((d: any) => d.id));
+      const newDomains = new Set(formattedData.domains.map((d: any) => d.id));
+      const domainsToDelete = Array.from(existingDomains).filter((id) => !newDomains.has(id));
+
+      console.log("Domains to delete:", domainsToDelete);
+
+      // Collect all existing subtests (both from domains and standalone)
+      const existingSubtests = new Set([
+        ...existingData.domains.flatMap((d: any) => d.subtests.map((s: any) => s.id)),
+        ...existingData.standaloneSubtests.map((s: any) => s.id)
+      ]);
+
+      // Collect all new subtests (both from domains and standalone)
+      const newSubtests = new Set([
+        ...formattedData.domains.flatMap((d: any) => d.subtests.map((s: any) => s.id).filter(Boolean)),
+        ...formattedData.standalone_subtests.map((s: any) => s.id).filter(Boolean)
+      ]);
+
+      const subtestsToDelete = Array.from(existingSubtests).filter((id) => !newSubtests.has(id));
+
+      console.log("Subtests to delete:", subtestsToDelete);
+
+      // For now, let's try a workaround: create a special update payload
+      // that explicitly lists only the items we want to keep
+      const cleanedFormattedData = {
+        id: Number(assessmentId),
+        name,
+        measure,
+        description: formData.associatedText,
+        table_type_id: Number(tableTypeId),
+        // Only include domains that should NOT be deleted
+        domains: formData.fields
+          .filter((field) => field.type === "domain")
+          .filter(field => !domainsToDelete.includes(Number(field.fieldData.id)))
+          .map((domain) => ({
+            id: Number(domain.fieldData.id),
+            name: domain.fieldData.name,
+            score_type: domain.fieldData.score_type,
+            // Only include subtests that should NOT be deleted
+            subtests: (domain.subtests || [])
+              .filter(subtest => !subtestsToDelete.includes(Number(subtest.id)))
+              .map((subtest) => ({
+                id: subtest.id ? Number(subtest.id) : null,
+                name: subtest.name,
+                score_type: subtest.score_type,
+              })),
+          })),
+        // Only include standalone subtests that should NOT be deleted
+        standalone_subtests: formData.fields
+          .filter((field) => field.type === "subtest")
+          .filter(field => !subtestsToDelete.includes(Number(field.fieldData.id)))
+          .map((subtest) => ({
+            id: subtest.fieldData.id ? Number(subtest.fieldData.id) : null,
+            name: subtest.fieldData.name,
+            score_type: subtest.fieldData.score_type,
+          })),
+      };
+
+      console.log("Sending cleaned data without deleted items:", cleanedFormattedData);
+
+      // Update the assessment with the cleaned data
       const response = await fetch(`/api/assessments/${assessmentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formattedData),
+        credentials: "include",
+        body: JSON.stringify(cleanedFormattedData),
       });
 
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.error || "Update failed");
+      // Try to parse the response as JSON, but handle non-JSON responses gracefully
+      let responseData;
+      try {
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          responseData = await response.json();
+        } else {
+          const text = await response.text();
+          responseData = { error: text };
+        }
+      } catch (e) {
+        const text = await response.text();
+        responseData = { error: `Failed to parse response: ${text}` };
       }
 
+      if (!response.ok) {
+        console.error("Update failed:", responseData);
+        throw new Error(responseData.error || `Update failed with status ${response.status}`);
+      }
+
+      // Successfully updated, return to assessments list
       router.push("/assessments");
     } catch (error) {
       console.error("Update error:", error);
@@ -129,6 +216,7 @@ const EditAssessmentPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <div className="space-y-20">
@@ -150,7 +238,7 @@ const EditAssessmentPage: React.FC = () => {
             assessmentName={name}
             measure={measure}
             tableTypeId={tableTypeId}
-            onClose={() => {}}
+            onClose={() => { }}
             existingData={assessmentData}
           />
         )}
