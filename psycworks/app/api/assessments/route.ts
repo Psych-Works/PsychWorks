@@ -27,19 +27,25 @@ export async function GET(request: Request) {
     }
 
     // Check if the user has delete access
-    const { data: hasDeleteAccess, error: accessError } = await supabase.rpc('has_delete_access', {
-      userid: user.id
-    });
+    const { data: hasDeleteAccess, error: accessError } = await supabase.rpc(
+      "has_delete_access",
+      {
+        userid: user.id,
+      }
+    );
 
     if (accessError) {
-      return NextResponse.json({ error: "Failed to check delete access" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to check delete access" },
+        { status: 500 }
+      );
     }
 
     // Parse and validate query parameters
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const sortBy = searchParams.get("sortBy") || "created_at";
-    const order = searchParams.get("order") || "desc";
+    const limit = parseInt(searchParams.get("limit") || "100000");
+    const sortBy = searchParams.get("sortBy") || "name"; // Default to "name"
+    const order = searchParams.get("order") || "asc"; // Default to ascending
     const search = searchParams.get("search") || "";
 
     if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1) {
@@ -54,16 +60,14 @@ export async function GET(request: Request) {
     const to = from + limit - 1;
 
     // Build the query
-    let query = supabase
-      .from("Assessment")
-      .select("*", { count: "exact" });
+    let query = supabase.from("Assessment").select("*", { count: "exact" });
 
     // Add search filter if search term is provided
     if (search) {
       query = query.or(`name.ilike.%${search}%,measure.ilike.%${search}%`);
     }
 
-    // Add sorting
+    // Add sorting directly on the specified field
     query = query.order(sortBy, { ascending: order === "asc" });
 
     // Add pagination
@@ -81,7 +85,7 @@ export async function GET(request: Request) {
       totalCount: count,
       page,
       totalPages: Math.ceil((count || 0) / limit),
-      canDelete: hasDeleteAccess
+      canDelete: hasDeleteAccess,
     });
   } catch (error) {
     return NextResponse.json(
@@ -209,7 +213,7 @@ export async function DELETE(request: Request) {
     }
 
     const { data: hasDeleteAccess, error: accessError } = await supabase.rpc(
-      'has_delete_access',
+      "has_delete_access",
       { userid: user.id }
     );
 
