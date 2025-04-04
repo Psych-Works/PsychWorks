@@ -184,11 +184,7 @@ const EditAssessmentPage: React.FC = () => {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          ...cleanedFormattedData,
-          // Add a special flag to indicate this is a complete replacement
-          _complete_replacement: true
-        }),
+        body: JSON.stringify(cleanedFormattedData),
       });
 
       // Try to parse the response as JSON, but handle non-JSON responses gracefully
@@ -211,41 +207,8 @@ const EditAssessmentPage: React.FC = () => {
         throw new Error(responseData.error || `Update failed with status ${response.status}`);
       }
 
-      // If the update was successful but we need to verify deletions worked
-      const verifyResponse = await fetch(`/api/assessments/${assessmentId}`);
-      const updatedData = await verifyResponse.json();
-
-      // Check if deletions were successful
-      let deletionsFailed = false;
-
-      // Check if deleted subtests are still present
-      for (const subtestId of subtestsToDelete) {
-        const stillExists = updatedData.domains.some((d: any) =>
-          d.subtests.some((s: any) => s.id === subtestId)
-        ) || updatedData.standaloneSubtests.some((s: any) => s.id === subtestId);
-
-        if (stillExists) {
-          console.error(`Subtest ${subtestId} was not deleted successfully`);
-          deletionsFailed = true;
-        }
-      }
-
-      // Check if deleted domains are still present
-      for (const domainId of domainsToDelete) {
-        const stillExists = updatedData.domains.some((d: any) => d.id === domainId);
-
-        if (stillExists) {
-          console.error(`Domain ${domainId} was not deleted successfully`);
-          deletionsFailed = true;
-        }
-      }
-
-      if (deletionsFailed) {
-        setError("Some items were not deleted successfully. You need to modify the backend API to handle deletions properly.");
-        console.error("Deletion verification failed. Backend API needs to be updated to handle deletions properly.");
-      } else {
-        router.push("/assessments");
-      }
+      // Successfully updated, return to assessments list
+      router.push("/assessments");
     } catch (error) {
       console.error("Update error:", error);
       setError(error instanceof Error ? error.message : "Update failed");
