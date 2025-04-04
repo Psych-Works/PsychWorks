@@ -244,6 +244,7 @@ export default function GenerateReportPage() {
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent>
+
                 <div className="p-6 bg-gray-50 border-t space-y-4">
                   <p className="text-muted-foreground">{Assessment.measure}</p>
                   {/* Wrap the table in a div with its own ref */}
@@ -251,11 +252,12 @@ export default function GenerateReportPage() {
                     ref={(el) => {
                       tableRefs.current[Assessment.id] = el;
                     }}
-                    className="border p-4"
+                    className={`${Assessment.table_type_id === 2 ? "border p-4" : ""}`}
                   >
                     <TableFormContextProvider
                       initialData={processAssessmentData(Assessment)}
                     >
+                      {Assessment.table_type_id === 3 && (
                       <DynamicTable
                         assessmentName={Assessment.name}
                         measure={Assessment.measure}
@@ -268,15 +270,18 @@ export default function GenerateReportPage() {
                           }))
                         }
                       />
+                      )}
                     </TableFormContextProvider>
                   </div>
                   {/* Button to capture just this table */}
+                  {Assessment.table_type_id === 3 && (
                   <Button
                     variant="outline"
                     onClick={() => handleTableScreenshot(Assessment.id)}
                   >
                     Screenshot This Table
                   </Button>
+                  )}
                   <div className="mt-4">
                     <Textarea
                       value={Assessment.description || ""}
