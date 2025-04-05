@@ -48,7 +48,7 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
     <div className="flex flex-col h-full max-h-screen"> {/* Add max-h-screen to limit height */}
       <div className="flex-1 overflow-y-auto min-h-0"> {/* Add min-h-0 to allow proper scrolling */}
         <div className='p-4'>
-          <h1 style={{ color: 'lightgrey', fontStyle: 'italic' }}>
+          <h1 style={{ color: 'black', fontStyle: 'italic' }}>
             Use double square brackets like this, [[]], to denote a portion of the text that you want to be auto populated from the
             table.
           </h1>
@@ -61,28 +61,32 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
           </form>
         </div>
         
-        <div className='p-4'>
-          <DynamicTable assessmentName={assessmentName} measure={measure} tableTypeId={tableTypeId}/>
+        <div className={`p-4 ${tableTypeId !== "3" ? "border-t" : ""}`}>
+          {tableTypeId === "3" && (
+            <DynamicTable assessmentName={assessmentName} measure={measure} tableTypeId={tableTypeId}/>
+          )}
         </div>
       </div>
 
-      <div className="w-full p-4 border-t bg-background">
-        <div className="flex justify-between gap-4">
-          <Button
-            className="flex-1 h-9"
-            onClick={handleBack}
-          >
-            Back
-          </Button>
-          <Button
-            className="flex-1 h-9"
-            type="submit"
-            onClick={handleFinalize}
-          >
-            Finalize
-          </Button>
+      {tableTypeId !== "3" && (
+        <div className="w-full p-4 border-t bg-background">
+          <div className="flex justify-between gap-4">
+            <Button
+              className="flex-1 h-9"
+              onClick={handleBack}
+            >
+              Back
+            </Button>
+            <Button
+              className="flex-1 h-9"
+              type="submit"
+              onClick={handleFinalize}
+            >
+              Finalize
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
