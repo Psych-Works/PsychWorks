@@ -18,7 +18,7 @@ interface FinalizeFormProps {
 
 export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: FinalizeFormProps) => {
 
-  const { setCurrentStep ,formData, updateFormData} = useTableFormContext();
+  const { setCurrentStep ,formData, updateFormData, isDirty, setIsDirty} = useTableFormContext();
   const form = useForm<z.infer<typeof tableDataSchema>>({
     resolver: zodResolver(tableDataSchema.pick({associatedText: true})),
     defaultValues: { associatedText : formData.associatedText },
@@ -32,7 +32,19 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
     updateFormData({ associatedText });
   }, [associatedText]);
 
-  const { register, handleSubmit } = form;
+  const hasRendered = React.useRef(false);
+
+  // Run renderDomSub when component mounts
+  React.useEffect(() => {
+    if (!hasRendered.current && isDirty) {
+      renderDomSub();
+      hasRendered.current = true;
+      setIsDirty(false);
+    }
+  }, [isDirty]); // Empty dependency array means this runs once when component mounts
+
+
+  const { register, handleSubmit, setValue } = form;
 
   const handleBack = handleSubmit((data) => {
     updateFormData({ ...formData, associatedText: data.associatedText });
@@ -43,6 +55,22 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
     updateFormData({ ...formData, associatedText: form.getValues('associatedText') });
     onClose();
   };
+
+  const renderDomSub = () => {
+    const allNames = formData.fields.flatMap((field) => {
+      const names = ['{{'+ field.fieldData.name + '}}'];
+      
+      // Add child subtests if this is a domain with subtests
+      if (field.type === "domain" && field.subtests && field.subtests.length > 0) {
+        const subtestNames = field.subtests.map(subtest => '{{'+ subtest.name + '}}');
+        names.push(...subtestNames);
+      }
+      
+      return names;
+    }).join(' ');
+    
+    setValue('associatedText', allNames + '\n' + form.getValues('associatedText'));
+  }
 
   return (
     <div className="flex flex-col h-full max-h-screen"> {/* Add max-h-screen to limit height */}
@@ -68,7 +96,6 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
         </div>
       </div>
 
-      {tableTypeId !== "3" && (
         <div className="w-full p-4 border-t bg-background">
           <div className="flex justify-between gap-4">
             <Button
@@ -86,7 +113,6 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
             </Button>
           </div>
         </div>
-      )}
     </div>
   )
 }

@@ -23,7 +23,7 @@ import { InputData, tableDataSchema } from "@/types/table-input-data";
 import { useTableFormContext } from "./assessments-form-context";
 
 export const CreationForm = () => {
-  const { setCurrentStep, formData, updateFormData } = useTableFormContext();
+  const { setCurrentStep, formData, updateFormData, setIsDirty } = useTableFormContext();
 
   const form = useForm<z.infer<typeof tableDataSchema>>({
     resolver: zodResolver(tableDataSchema.pick({ fields: true })),
@@ -49,6 +49,7 @@ export const CreationForm = () => {
       subtests: [],
     });
     updateFormData(transformToInputData());
+    setIsDirty(true);
   };
 
   const handleAddSubtest = () => {
@@ -61,6 +62,7 @@ export const CreationForm = () => {
       },
     });
     updateFormData(transformToInputData());
+    setIsDirty(true);
   };
   // Add child subtest to a domain
   const handleAddChildSubtest = (index: number) => {
@@ -78,6 +80,7 @@ export const CreationForm = () => {
       ];
       form.setValue("fields", updatedFields);
       updateFormData(transformToInputData());
+      setIsDirty(true);
     }
   };
 
@@ -130,6 +133,7 @@ export const CreationForm = () => {
 
     // Update the form data after all modifications
     updateFormData(transformToInputData());
+    setIsDirty(true);
   };
 
   // This translates the array from the form to the InputData type shared between the forms

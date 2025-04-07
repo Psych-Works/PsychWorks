@@ -4,7 +4,9 @@ import { createContext } from "react";
 
 interface TableFormContextType {
   currentStep: number;
+  isDirty: boolean;
   setCurrentStep: (step: number) => void;
+  setIsDirty: (isDirty: boolean) => void;
   formData: InputData;
   updateFormData: (data: Partial<InputData>) => void;
   clearFormData: () => void;
@@ -30,6 +32,7 @@ export default function TableFormContextProvider({
   };
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [isDirty, setIsDirty] = useState(false);
   const [formData, setFormData] = useState<InputData>(() => {
     // Priority: initialData > localStorage > default
     if (initialData) return initialData;
@@ -63,7 +66,9 @@ export default function TableFormContextProvider({
     <TableFormContext.Provider
       value={{
         currentStep,
+        isDirty,
         setCurrentStep,
+        setIsDirty,
         formData,
         updateFormData,
         clearFormData,
