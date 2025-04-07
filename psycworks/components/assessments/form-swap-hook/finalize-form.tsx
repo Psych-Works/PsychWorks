@@ -68,7 +68,6 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
         </div>
       </div>
 
-      {tableTypeId !== "3" && (
         <div className="w-full p-4 border-t bg-background">
           <div className="flex justify-between gap-4">
             <Button
@@ -86,7 +85,6 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
             </Button>
           </div>
         </div>
-      )}
     </div>
   )
 }
