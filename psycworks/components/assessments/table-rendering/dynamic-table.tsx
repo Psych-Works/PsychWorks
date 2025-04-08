@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from "react";
+import React, { useState, ReactNode, useCallback, useMemo } from "react";
 import { useTableFormContext } from "@/components/assessments/form-swap-hook/assessments-form-context";
 import {
   Table,
@@ -13,6 +13,25 @@ import { Progress } from "@/components/ui/progress";
 import { DataRow } from "@/types/data-row";
 import { convertToVisualPercentage } from "@/types/visual-percentage-shift";
 
+interface FieldData {
+  name: string;
+  score_type: string;
+}
+
+interface Subtest {
+  name: string;
+  score_type: string;
+}
+
+interface Field {
+  fieldData: FieldData;
+  subtests?: Subtest[];
+}
+
+interface FormData {
+  fields: Field[];
+}
+
 interface DynamicTableProps {
   assessmentName: string;
   measure: string;
@@ -21,10 +40,15 @@ interface DynamicTableProps {
   onDataChange?: (data: DataRow[]) => void;
 }
 
-function populateData(formData: any): DataRow[] {
+interface EditingState {
+  rowId: number | null;
+  columnKey: string | null;
+}
+
+function populateData(formData: FormData): DataRow[] {
   let id = 0;
   const mappedData: DataRow[] = [];
-  formData.fields.forEach((field: any) => {
+  formData.fields.forEach((field) => {
     const isDomain = field.subtests && field.subtests.length > 0;
     mappedData.push({
       id: id++,
@@ -34,7 +58,7 @@ function populateData(formData: any): DataRow[] {
       depth: isDomain ? 0 : 0,
     });
     if (field.subtests) {
-      field.subtests.forEach((subtest: any) => {
+      field.subtests.forEach((subtest) => {
         mappedData.push({
           id: id++,
           DomSub: subtest.name,
@@ -59,26 +83,24 @@ function DynamicTable({
   const [data, setData] = useState<DataRow[]>(
     initialData && initialData.length > 0 ? initialData : populateData(formData)
   );
-  const [editing, setEditing] = useState<{
-    rowId: number | null;
-    columnKey: string | null;
-  }>({ rowId: null, columnKey: null });
+  const [editing, setEditing] = useState<EditingState>({ rowId: null, columnKey: null });
   const [tempValue, setTempValue] = useState("");
 
-  const countDomSub = formData.fields
-    ? formData.fields.reduce((count: number, field: any) => {
-        count += 1;
-        if (field.subtests) count += field.subtests.length;
-        return count;
-      }, 0)
-    : 0;
+  const countDomSub = useMemo(() => 
+    formData.fields?.reduce((count: number, field: Field) => {
+      count += 1;
+      if (field.subtests) count += field.subtests.length;
+      return count;
+    }, 0) || 0,
+    [formData.fields]
+  );
 
-  const handleEdit = (rowId: number, columnKey: string, value: string) => {
+  const handleEdit = useCallback((rowId: number, columnKey: string, value: string) => {
     setEditing({ rowId, columnKey });
     setTempValue(value);
-  };
+  }, []);
 
-  const handleSave = (rowId: number, columnKey: string) => {
+  const handleSave = useCallback((rowId: number, columnKey: string) => {
     setData((prevData) => {
       const updatedData = prevData.map((row) =>
         row.id === rowId
@@ -95,7 +117,18 @@ function DynamicTable({
       return updatedData;
     });
     setEditing({ rowId: null, columnKey: null });
-  };
+  }, [tempValue, onDataChange]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent, rowId: number, columnKey: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (editing.rowId === rowId && editing.columnKey === columnKey) {
+        handleSave(rowId, columnKey);
+      } else {
+        handleEdit(rowId, columnKey, data.find(row => row.id === rowId)?.Score?.toString() || '');
+      }
+    }
+  }, [editing, data, handleEdit, handleSave]);
 
   const determineTableType = (tableTypeId: string): ReactNode => {
     if (tableTypeId === "3") {
@@ -215,7 +248,7 @@ function DynamicTable({
     );
   };
 
-  const renderPercentileProgress = (row: DataRow): ReactNode | null => {
+  const renderPercentileProgress = useCallback((row: DataRow): ReactNode | null => {
     const percentile = getPercentileFromScore(row.Score, row.Scale);
     const visualPercentage = convertToVisualPercentage(percentile || 0);
 
@@ -239,10 +272,10 @@ function DynamicTable({
       );
     }
     return null;
-  };
+  }, [tableTypeId]);
 
-  const renderTableRows = (): ReactNode[] => {
-    return data.map((row) => (
+  const renderTableRows = (): ReactNode[] => 
+    data.map((row) => (
       <TableRow key={`row-${row.id}`}>
         <TableCell
           style={{ paddingLeft: row.depth === 1 ? "2rem" : "0" }}
@@ -258,6 +291,9 @@ function DynamicTable({
         <TableCell
           className="cursor-pointer border border-black text-center"
           onClick={() => handleEdit(row.id, "Score", row.Score.toString())}
+          tabIndex={0}
+          onFocus={() => handleEdit(row.id, "Score", row.Score.toString())}
+          onKeyDown={(e) => handleKeyDown(e, row.id, "Score")}
         >
           {editing.rowId === row.id && editing.columnKey === "Score" ? (
             <input
@@ -265,9 +301,12 @@ function DynamicTable({
               value={tempValue}
               onChange={(e) => setTempValue(e.target.value)}
               onBlur={() => handleSave(row.id, "Score")}
-              onKeyDown={(e) =>
-                e.key === "Enter" && handleSave(row.id, "Score")
-              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSave(row.id, "Score");
+                }
+              }}
               onClick={(e) => e.stopPropagation()}
               className="max-w-[60px] text-center font-serif text-inherit border border-gray-300"
               autoFocus
@@ -280,7 +319,6 @@ function DynamicTable({
         {renderPercentileProgress(row)}
       </TableRow>
     ));
-  };
 
   return (
     <Table>
