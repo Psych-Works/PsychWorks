@@ -101,6 +101,10 @@ function DynamicTable({
     if (e.key === 'Tab') {
       e.preventDefault();
       const currentIndex = data.findIndex(row => row.id === currentRowId);
+      if (currentIndex === -1) {
+        console.warn(`Row with id ${currentRowId} not found in data.`);
+        return;
+      }
       const nextIndex = e.shiftKey 
         ? (currentIndex - 1 + data.length) % data.length 
         : (currentIndex + 1) % data.length;
