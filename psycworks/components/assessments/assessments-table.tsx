@@ -190,7 +190,7 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
       <Table>
         <TableHeader>
           <TableRow className="border-b border-primary/20 hover:bg-primary/5">
-            <TableHead className="bg-primary/5 text-center">
+            <TableHead className="bg-primary/5 pl-6">
               <SortButton column="name">Name</SortButton>
             </TableHead>
             <TableHead className="bg-primary/5 text-center">
@@ -212,7 +212,7 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
                 key={assessment.id.toString()}
                 className="border-b border-primary/10 hover:bg-primary/5"
               >
-                <TableCell className="font-medium">
+                <TableCell className="font-medium pl-10">
                   {assessment.name}
                 </TableCell>
                 <TableCell className="text-center">
