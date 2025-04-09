@@ -97,6 +97,19 @@ function DynamicTable({
     setEditing({ rowId: null, columnKey: null });
   };
 
+  const handleTabNavigation = (e: React.KeyboardEvent, currentRowId: number) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const currentIndex = data.findIndex(row => row.id === currentRowId);
+      const nextIndex = e.shiftKey 
+        ? (currentIndex - 1 + data.length) % data.length 
+        : (currentIndex + 1) % data.length;
+      
+      handleSave(currentRowId, "Score");
+      handleEdit(data[nextIndex].id, "Score", data[nextIndex].Score.toString());
+    }
+  };
+
   const determineTableType = (tableTypeId: string): ReactNode => {
     if (tableTypeId === "3") {
       return (
@@ -265,9 +278,13 @@ function DynamicTable({
               value={tempValue}
               onChange={(e) => setTempValue(e.target.value)}
               onBlur={() => handleSave(row.id, "Score")}
-              onKeyDown={(e) =>
-                e.key === "Enter" && handleSave(row.id, "Score")
-              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSave(row.id, "Score");
+                } else if (e.key === "Tab") {
+                  handleTabNavigation(e, row.id);
+                }
+              }}
               onClick={(e) => e.stopPropagation()}
               className="max-w-[60px] text-center font-serif text-inherit border border-gray-300"
               autoFocus
