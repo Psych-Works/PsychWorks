@@ -212,7 +212,7 @@ export function AssessmentsTable({ searchQuery = "" }: AssessmentsTableProps) {
                 key={assessment.id.toString()}
                 className="border-b border-primary/10 hover:bg-primary/5"
               >
-                <TableCell className="font-medium text-center">
+                <TableCell className="font-medium">
                   {assessment.name}
                 </TableCell>
                 <TableCell className="text-center">
