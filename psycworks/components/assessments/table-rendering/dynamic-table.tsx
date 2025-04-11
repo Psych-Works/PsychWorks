@@ -97,18 +97,21 @@ function DynamicTable({
     setEditing({ rowId: null, columnKey: null });
   };
 
-  const handleTabNavigation = (e: React.KeyboardEvent, currentRowId: number) => {
-    if (e.key === 'Tab') {
+  const handleTabNavigation = (
+    e: React.KeyboardEvent,
+    currentRowId: number
+  ) => {
+    if (e.key === "Tab") {
       e.preventDefault();
-      const currentIndex = data.findIndex(row => row.id === currentRowId);
+      const currentIndex = data.findIndex((row) => row.id === currentRowId);
       if (currentIndex === -1) {
         console.warn(`Row with id ${currentRowId} not found in data.`);
         return;
       }
-      const nextIndex = e.shiftKey 
-        ? (currentIndex - 1 + data.length) % data.length 
+      const nextIndex = e.shiftKey
+        ? (currentIndex - 1 + data.length) % data.length
         : (currentIndex + 1) % data.length;
-      
+
       handleSave(currentRowId, "Score");
       handleEdit(data[nextIndex].id, "Score", data[nextIndex].Score.toString());
     }
@@ -269,36 +272,40 @@ function DynamicTable({
         >
           {row.DomSub}
         </TableCell>
-        <TableCell className="border border-black text-center">
-          {row.Scale}:
-        </TableCell>
-        <TableCell
-          className="cursor-pointer border border-black text-center"
-          onClick={() => handleEdit(row.id, "Score", row.Score.toString())}
-        >
-          {editing.rowId === row.id && editing.columnKey === "Score" ? (
-            <input
-              type="number"
-              value={tempValue}
-              onChange={(e) => setTempValue(e.target.value)}
-              onBlur={() => handleSave(row.id, "Score")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSave(row.id, "Score");
-                } else if (e.key === "Tab") {
-                  handleTabNavigation(e, row.id);
-                }
-              }}
-              onClick={(e) => e.stopPropagation()}
-              className="max-w-[60px] text-center font-serif text-inherit border border-gray-300"
-              autoFocus
-            />
-          ) : (
-            row.Score || ""
-          )}
-        </TableCell>
-        {renderPercentileValue(row)}
-        {renderPercentileProgress(row)}
+        {row.Scale !== 'None' && (
+          <TableCell className="border border-black text-center">
+            {row.Scale}:
+          </TableCell>
+        )}
+        {row.Scale !== 'None' && (
+          <TableCell
+            className="cursor-pointer border border-black text-center"
+            onClick={() => handleEdit(row.id, "Score", row.Score.toString())}
+          >
+            {editing.rowId === row.id && editing.columnKey === "Score" ? (
+              <input
+                type="number"
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                onBlur={() => handleSave(row.id, "Score")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSave(row.id, "Score");
+                  } else if (e.key === "Tab") {
+                    handleTabNavigation(e, row.id);
+                  }
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="max-w-[60px] text-center font-serif text-inherit border border-gray-300"
+                autoFocus
+              />
+            ) : (
+              row.Score || ""
+            )}
+          </TableCell>
+        )}
+        {row.Scale !== 'None' && renderPercentileValue(row)}
+        {row.Scale !== 'None' && renderPercentileProgress(row)}
       </TableRow>
     ));
   };
