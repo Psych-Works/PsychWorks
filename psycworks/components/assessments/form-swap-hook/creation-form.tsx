@@ -246,6 +246,7 @@ export const CreationForm = () => {
                                 <SelectItem value="Z">Z</SelectItem>
                                 <SelectItem value="ScS">ScS</SelectItem>
                                 <SelectItem value="StS">StS</SelectItem>
+                                <SelectItem value="None">None</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -334,6 +335,7 @@ export const CreationForm = () => {
                                     <SelectItem value="Z">Z</SelectItem>
                                     <SelectItem value="ScS">ScS</SelectItem>
                                     <SelectItem value="StS">StS</SelectItem>
+                                    <SelectItem value="None">None</SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
