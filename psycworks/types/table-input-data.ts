@@ -4,7 +4,7 @@ import { z } from "zod";
 const fieldSchema = z
   .object({
     name: z.string().min(1, "Subtest name is required"),
-    score_type: z.enum(["T", "Z", "ScS", "StS", ""]), // Add validation for specific score types
+    score_type: z.enum(["T", "Z", "ScS", "StS", "", "None"]), // Add validation for specific score types
     id: z.string().optional(),
     domain_id: z.string().optional(),
   })
