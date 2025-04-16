@@ -166,7 +166,7 @@ export default function GenerateReportPage() {
   };
 
   // Handler to capture an individual table using its ref.
-  const handleTableScreenshot = async (assessmentId: string) => {
+  const handleTableScreenshot = async (assessmentId: string, assessmentName: string) => {
     const element = tableRefs.current[assessmentId];
     if (element) {
       try {
@@ -178,7 +178,7 @@ export default function GenerateReportPage() {
         const image = canvas.toDataURL("image/png");
         const link = document.createElement("a");
         link.href = image;
-        link.download = `table-${assessmentId}-screenshot.png`;
+        link.download = `${assessmentName}-table-screenshot.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -277,7 +277,7 @@ export default function GenerateReportPage() {
                   {Assessment.table_type_id === 3 && (
                   <Button
                     variant="outline"
-                    onClick={() => handleTableScreenshot(Assessment.id)}
+                    onClick={() => handleTableScreenshot(Assessment.id, Assessment.name)}
                   >
                     Screenshot This Table
                   </Button>

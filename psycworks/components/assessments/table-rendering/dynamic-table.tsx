@@ -228,9 +228,16 @@ function DynamicTable({
 
   const renderPercentileValue = (row: DataRow): ReactNode => {
     const percentile = getPercentileFromScore(row.Score, row.Scale);
+    if (row.Scale !== 'None') {
+      return (
+        <TableCell className="w-[5%] whitespace-normal break-words border border-black text-center">
+          {percentile === 1 ? "<1" : percentile}%
+        </TableCell>
+      );
+    }
     return (
-      <TableCell className="w-[5%] whitespace-normal break-words border border-black text-center">
-        {percentile === 1 ? "<1" : percentile}%
+      <TableCell className="w-[5%] whitespace-normal break-words border border-black text-center ">
+        
       </TableCell>
     );
   };
@@ -239,7 +246,7 @@ function DynamicTable({
     const percentile = getPercentileFromScore(row.Score, row.Scale);
     const visualPercentage = convertToVisualPercentage(percentile || 0);
 
-    if (tableTypeId === "3") {
+    if (tableTypeId === "3" && row.Scale !== 'None') {
       return (
         <TableCell
           className="percentile-column border border-black"
@@ -248,13 +255,21 @@ function DynamicTable({
           <Progress value={visualPercentage} className="tall-progress-bar" />
         </TableCell>
       );
-    } else if (tableTypeId === "2") {
+    } else if (tableTypeId === "2" && row.Scale !== 'None') {
       return (
         <TableCell
           className="percentile-column border border-black"
           colSpan={3}
         >
           <Progress value={visualPercentage} className="tall-progress-bar" />
+        </TableCell>
+      );
+    } else if (tableTypeId === "3" && row.Scale === 'None') {
+      return (
+        <TableCell
+          className="percentile-column border border-black"
+          colSpan={4}
+        >
         </TableCell>
       );
     }
@@ -272,22 +287,24 @@ function DynamicTable({
         >
           {row.DomSub}
         </TableCell>
-        {row.Scale !== 'None' && (
+        {(
           <TableCell className="border border-black text-center">
-            {row.Scale}:
+            {row.Scale === 'None' ? '' : 
+              row.Scale}
           </TableCell>
         )}
-        {row.Scale !== 'None' && (
+        {(
           <TableCell
             className="cursor-pointer border border-black text-center"
             onClick={() => handleEdit(row.id, "Score", row.Score.toString())}
           >
-            {editing.rowId === row.id && editing.columnKey === "Score" ? (
-              <input
-                type="number"
-                value={tempValue}
-                onChange={(e) => setTempValue(e.target.value)}
-                onBlur={() => handleSave(row.id, "Score")}
+            {row.Scale === 'None' ? '' : 
+              editing.rowId === row.id && editing.columnKey === "Score" ? (
+                <input
+                  type="number"
+                  value={tempValue}
+                  onChange={(e) => setTempValue(e.target.value)}
+                  onBlur={() => handleSave(row.id, "Score")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleSave(row.id, "Score");
@@ -304,8 +321,8 @@ function DynamicTable({
             )}
           </TableCell>
         )}
-        {row.Scale !== 'None' && renderPercentileValue(row)}
-        {row.Scale !== 'None' && renderPercentileProgress(row)}
+        {renderPercentileValue(row)}
+        {renderPercentileProgress(row)}
       </TableRow>
     ));
   };
