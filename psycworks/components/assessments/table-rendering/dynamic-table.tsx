@@ -67,10 +67,10 @@ function DynamicTable({
 
   const countDomSub = formData.fields
     ? formData.fields.reduce((count: number, field: any) => {
-        count += 1;
-        if (field.subtests) count += field.subtests.length;
-        return count;
-      }, 0)
+      count += 1;
+      if (field.subtests) count += field.subtests.length;
+      return count;
+    }, 0)
     : 0;
 
   const handleEdit = (rowId: number, columnKey: string, value: string) => {
@@ -83,12 +83,12 @@ function DynamicTable({
       const updatedData = prevData.map((row) =>
         row.id === rowId
           ? {
-              ...row,
-              [columnKey]:
-                columnKey === "Score"
-                  ? Number(Number(tempValue).toFixed(2))
-                  : tempValue,
-            }
+            ...row,
+            [columnKey]:
+              columnKey === "Score"
+                ? Number(Number(tempValue).toFixed(2))
+                : tempValue,
+          }
           : row
       );
       if (onDataChange) onDataChange(updatedData);
@@ -150,7 +150,7 @@ function DynamicTable({
               rowSpan={2}
               className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman"
             >
-              %tile
+              %ile
             </TableHead>
             <TableHead
               colSpan={4}
@@ -191,7 +191,7 @@ function DynamicTable({
             Score
           </TableHead>
           <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
-            %tile
+            %ile
           </TableHead>
           <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
             Average
@@ -220,7 +220,7 @@ function DynamicTable({
           Score
         </TableHead>
         <TableHead className="bg-gray-300 text-black font-medium text-sm text-center border border-black font-times-new-roman">
-          %tile
+          %ile
         </TableHead>
       </TableRow>
     );
@@ -266,9 +266,8 @@ function DynamicTable({
       <TableRow key={`row-${row.id}`}>
         <TableCell
           style={{ paddingLeft: row.depth === 1 ? "2rem" : "0" }}
-          className={`${
-            row.depth === 0 ? "font-bold" : "font-italic"
-          } border border-black`}
+          className={`${row.depth === 0 ? "font-bold" : "font-italic"
+            } border border-black`}
         >
           {row.DomSub}
         </TableCell>

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Psycworks",
-  description: "Psycworks | Psychology Assessment Platform",
+  title: "PsychWorks",
+  description: "PsychWorks | Psychology Assessment Platform",
 };
 
 export default function RootLayout({
