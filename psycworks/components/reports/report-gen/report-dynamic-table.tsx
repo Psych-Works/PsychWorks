@@ -28,15 +28,15 @@ export const ReportDynamicTable = ({
 
   const descriptionParagraph = description
     ? new Paragraph({
-        children: [
-          new TextRun({
-            text: description,
-            size: 24,
-            font: "Times New Roman",
-          }),
-        ],
-        spacing: { before: 240, after: 240 },
-      })
+      children: [
+        new TextRun({
+          text: description,
+          size: 24,
+          font: "Times New Roman",
+        }),
+      ],
+      spacing: { before: 240, after: 240 },
+    })
     : null;
 
   return [tablePlaceholder, descriptionParagraph];

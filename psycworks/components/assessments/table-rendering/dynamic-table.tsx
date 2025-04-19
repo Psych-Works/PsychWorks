@@ -237,7 +237,7 @@ function DynamicTable({
     }
     return (
       <TableCell className="w-[5%] whitespace-normal break-words border border-black text-center ">
-        
+
       </TableCell>
     );
   };
@@ -288,7 +288,7 @@ function DynamicTable({
         </TableCell>
         {(
           <TableCell className="border border-black text-center">
-            {row.Scale === 'None' ? '' : 
+            {row.Scale === 'None' ? '' :
               row.Scale}
           </TableCell>
         )}
@@ -297,27 +297,27 @@ function DynamicTable({
             className="cursor-pointer border border-black text-center"
             onClick={() => handleEdit(row.id, "Score", row.Score.toString())}
           >
-            {row.Scale === 'None' ? '' : 
+            {row.Scale === 'None' ? '' :
               editing.rowId === row.id && editing.columnKey === "Score" ? (
                 <input
                   type="number"
                   value={tempValue}
                   onChange={(e) => setTempValue(e.target.value)}
                   onBlur={() => handleSave(row.id, "Score")}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSave(row.id, "Score");
-                  } else if (e.key === "Tab") {
-                    handleTabNavigation(e, row.id);
-                  }
-                }}
-                onClick={(e) => e.stopPropagation()}
-                className="max-w-[60px] text-center font-serif text-inherit border border-gray-300"
-                autoFocus
-              />
-            ) : (
-              row.Score || ""
-            )}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSave(row.id, "Score");
+                    } else if (e.key === "Tab") {
+                      handleTabNavigation(e, row.id);
+                    }
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="max-w-[60px] text-center font-serif text-inherit border border-gray-300"
+                  autoFocus
+                />
+              ) : (
+                row.Score || ""
+              )}
           </TableCell>
         )}
         {renderPercentileValue(row)}
