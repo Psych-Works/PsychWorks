@@ -53,6 +53,7 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
           </h1>
           <form onSubmit={handleSubmit(handleFinalize)}>
             <Textarea 
+              placeholder="Example: Client scored [[processing_speed]] (StS), which is at the [[processing_speed:%]] and considered [[processing_speed:avg]]."
               className="min-h-[200px]"
               {...register('associatedText')}
             />
