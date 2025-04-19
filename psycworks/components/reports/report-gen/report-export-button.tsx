@@ -112,13 +112,16 @@ const ExportToDocxButton = ({
     });
 
     // Format filename with the report name, preserving spaces
-    const sanitizedName = reportName.replace(/[^\w\s-]/g, '').trim();
+    const sanitizedName = reportName.replace(/[^\w\s-]/g, "").trim();
     const fileName = sanitizedName ? `${sanitizedName}.docx` : "report.docx";
     saveAs(blob, fileName);
   };
 
   return (
-    <Button className="w-40 h-12" onClick={handleExport}>
+    <Button
+      className="w-40 h-12 text-white text-base font-semibold"
+      onClick={handleExport}
+    >
       Generate Report
     </Button>
   );
