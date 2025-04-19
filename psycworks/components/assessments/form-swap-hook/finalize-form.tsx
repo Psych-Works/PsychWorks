@@ -49,12 +49,10 @@ export const FinalizeForm = ({ onClose, assessmentName, measure, tableTypeId }: 
       <div className="flex-1 overflow-y-auto min-h-0"> {/* Add min-h-0 to allow proper scrolling */}
         <div className='p-4'>
           <h1 style={{ color: 'black', fontStyle: 'italic' }}>
-            Use double square brackets like this, [[]], to denote a portion of the text that you want to be auto populated from the
-            table.
+          Use templates with placeholders: [[field name]] for score, [[field name:%]] for percentile, [[field name:avg]] for description
           </h1>
           <form onSubmit={handleSubmit(handleFinalize)}>
             <Textarea 
-              placeholder='Assessment Description' 
               className="min-h-[200px]"
               {...register('associatedText')}
             />
