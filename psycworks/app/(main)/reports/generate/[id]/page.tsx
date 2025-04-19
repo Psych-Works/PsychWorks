@@ -18,6 +18,8 @@ import ReportDynamicTable from "@/components/reports/report-gen/report-dynamic-t
 import { DataRow } from "@/types/data-row";
 import Link from "next/link";
 import html2canvas from "html2canvas-pro"; // Import html2canvas-pro
+import { parseAdvancedText } from "@/utils/text-parser";
+import { getPercentileFromScore } from "@/utils/percentile";
 
 interface Assessment {
   id: string;
@@ -200,10 +202,27 @@ export default function GenerateReportPage() {
 
   const dynamicTables = report.ReportAssessment.map(({ Assessment }) => {
     const dataRows = assessmentsData[Assessment.id] || [];
+    
+    // Process the description text with the dynamic values
+    const scoresObj = dataRows.reduce<Record<string, { score: number; percentile: number }>>((acc, row) => {
+      // Calculate percentile from score and scale
+      const percentile = getPercentileFromScore(row.Score, row.Scale) || 0;
+      
+      // Add multiple versions of the field name for robust matching
+      acc[row.DomSub] = { score: row.Score, percentile };
+      acc[row.DomSub.toLowerCase()] = { score: row.Score, percentile };
+      acc[row.DomSub.toLowerCase().replace(/\s+/g, '_')] = { score: row.Score, percentile };
+      
+      return acc;
+    }, {});
+    
+    // Parse the description with the scores
+    const parsedDescription = parseAdvancedText(Assessment.description || "", scoresObj);
+    
     return ReportDynamicTable({
       assessmentName: Assessment.name,
       measure: Assessment.measure,
-      description: Assessment.description,
+      description: parsedDescription, // Use the parsed description instead of the original
       dataRows,
     });
   });
@@ -290,7 +309,38 @@ export default function GenerateReportPage() {
                   )}
                   <div className="mt-4">
                     <Textarea
-                      value={Assessment.description || ""}
+                      value={(() => {
+                        // Create a scores object from all rows, not just depth=1
+                        const scoresObj = assessmentsData[Assessment.id].reduce<Record<string, { score: number; percentile: number }>>((acc, row) => {
+                          // Calculate percentile from score and scale
+                          const percentile = getPercentileFromScore(row.Score, row.Scale) || 0;
+                          
+                          // Add the field with its original name (preserving case and spaces)
+                          acc[row.DomSub] = {
+                            score: row.Score, 
+                            percentile: percentile
+                          };
+                          
+                          // Add lowercase version
+                          acc[row.DomSub.toLowerCase()] = {
+                            score: row.Score, 
+                            percentile: percentile
+                          };
+                          
+                          // Add normalized version (lowercase with underscores)
+                          const fieldName = row.DomSub.toLowerCase().replace(/\s+/g, '_');
+                          
+                          acc[fieldName] = {
+                            score: row.Score, 
+                            percentile: percentile
+                          };
+                          
+                          return acc;
+                        }, {});
+                        
+                        const result = parseAdvancedText(Assessment.description || "", scoresObj);
+                        return result;
+                      })()}
                       readOnly
                       className="resize-none bg-white cursor-default"
                       placeholder="No description available"
