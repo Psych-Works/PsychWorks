@@ -16,11 +16,13 @@ import {
 interface ExportToDocxButtonProps {
   dynamicTables?: any[];
   assessmentNames: string[];
+  reportName?: string;
 }
 
 const ExportToDocxButton = ({
   dynamicTables,
   assessmentNames,
+  reportName = "report",
 }: ExportToDocxButtonProps) => {
   const handleExport = async () => {
     const reportEvaluationMethods = getReportEvaluationMethods(assessmentNames);
@@ -108,7 +110,11 @@ const ExportToDocxButton = ({
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     });
-    saveAs(blob, "report.docx");
+
+    // Format filename with the report name, preserving spaces
+    const sanitizedName = reportName.replace(/[^\w\s-]/g, '').trim();
+    const fileName = sanitizedName ? `${sanitizedName}.docx` : "report.docx";
+    saveAs(blob, fileName);
   };
 
   return (

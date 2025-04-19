@@ -237,9 +237,8 @@ export default function GenerateReportPage() {
                 >
                   <span className="text-lg font-medium">{Assessment.name}</span>
                   <ChevronDown
-                    className={`h-5 w-5 transition-transform ${
-                      expandedIds.includes(Assessment.id) ? "rotate-180" : ""
-                    }`}
+                    className={`h-5 w-5 transition-transform ${expandedIds.includes(Assessment.id) ? "rotate-180" : ""
+                      }`}
                   />
                 </Button>
               </CollapsibleTrigger>
@@ -258,29 +257,29 @@ export default function GenerateReportPage() {
                       initialData={processAssessmentData(Assessment)}
                     >
                       {Assessment.table_type_id === 3 && (
-                      <DynamicTable
-                        assessmentName={Assessment.name}
-                        measure={Assessment.measure}
-                        tableTypeId={Assessment.table_type_id.toString()}
-                        initialData={assessmentsData[Assessment.id] || []}
-                        onDataChange={(newData) =>
-                          setAssessmentsData((prev) => ({
-                            ...prev,
-                            [Assessment.id]: newData,
-                          }))
-                        }
-                      />
+                        <DynamicTable
+                          assessmentName={Assessment.name}
+                          measure={Assessment.measure}
+                          tableTypeId={Assessment.table_type_id.toString()}
+                          initialData={assessmentsData[Assessment.id] || []}
+                          onDataChange={(newData) =>
+                            setAssessmentsData((prev) => ({
+                              ...prev,
+                              [Assessment.id]: newData,
+                            }))
+                          }
+                        />
                       )}
                     </TableFormContextProvider>
                   </div>
                   {/* Button to capture just this table */}
                   {Assessment.table_type_id === 3 && (
-                  <Button
-                    variant="outline"
-                    onClick={() => handleTableScreenshot(Assessment.id, Assessment.name)}
-                  >
-                    Screenshot This Table
-                  </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleTableScreenshot(Assessment.id, Assessment.name)}
+                    >
+                      Screenshot This Table
+                    </Button>
                   )}
                   <div className="mt-4">
                     <Textarea
@@ -305,6 +304,7 @@ export default function GenerateReportPage() {
         <ExportToDocxButton
           dynamicTables={dynamicTables}
           assessmentNames={assessmentNames}
+          reportName={report.name}
         />
       </div>
     </div>
