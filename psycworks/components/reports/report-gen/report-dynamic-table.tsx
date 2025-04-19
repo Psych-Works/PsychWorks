@@ -7,6 +7,7 @@ interface ReportDynamicTableProps {
   measure: string;
   description?: string;
   dataRows: DataRow[];
+  bodyText?: string;
 }
 
 export const ReportDynamicTable = ({
@@ -14,6 +15,7 @@ export const ReportDynamicTable = ({
   measure,
   description,
   dataRows,
+  bodyText = "",
 }: ReportDynamicTableProps) => {
   const tablePlaceholder = new Paragraph({
     children: [
@@ -39,7 +41,34 @@ export const ReportDynamicTable = ({
       })
     : null;
 
-  return [tablePlaceholder, descriptionParagraph];
+  // Process body text to replace domain references with actual scores
+  const processBodyText = (text: string) => {
+    let processedText = text;
+    dataRows.forEach((row) => {
+      if (row.depth === 0) { // Only process domain rows
+        const domainName = row.DomSub;
+        const score = row.Score;
+        const regex = new RegExp(`\\[${domainName}\\]`, 'g');
+        processedText = processedText.replace(regex, score.toString());
+      }
+    });
+    return processedText;
+  };
+
+  const bodyTextParagraph = bodyText
+    ? new Paragraph({
+        children: [
+          new TextRun({
+            text: processBodyText(bodyText),
+            size: 24,
+            font: "Times New Roman",
+          }),
+        ],
+        spacing: { before: 240, after: 240 },
+      })
+    : null;
+
+  return [tablePlaceholder, descriptionParagraph, bodyTextParagraph].filter(Boolean);
 };
 
 export default ReportDynamicTable;

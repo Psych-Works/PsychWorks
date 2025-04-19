@@ -112,6 +112,7 @@ export default function GenerateReportPage() {
   const [assessmentsData, setAssessmentsData] = useState<
     Record<string, DataRow[]>
   >({});
+  const [bodyTexts, setBodyTexts] = useState<Record<string, string>>({});
 
   // Object to hold refs for each table container (keyed by Assessment.id)
   const tableRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -202,6 +203,7 @@ export default function GenerateReportPage() {
       measure: Assessment.measure,
       description: Assessment.description,
       dataRows,
+      bodyText: bodyTexts[Assessment.id] || "",
     });
   });
 
@@ -244,7 +246,6 @@ export default function GenerateReportPage() {
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent>
-
                 <div className="p-6 bg-gray-50 border-t space-y-4">
                   <p className="text-muted-foreground">{Assessment.measure}</p>
                   {/* Wrap the table in a div with its own ref */}
@@ -288,6 +289,19 @@ export default function GenerateReportPage() {
                       readOnly
                       className="resize-none bg-white cursor-default"
                       placeholder="No description available"
+                    />
+                  </div>
+                  <div className="mt-4">
+                    <Textarea
+                      value={bodyTexts[Assessment.id] || ""}
+                      onChange={(e) => 
+                        setBodyTexts(prev => ({
+                          ...prev,
+                          [Assessment.id]: e.target.value
+                        }))
+                      }
+                      className="resize-none bg-white"
+                      placeholder="Enter body text for this assessment. Use [domain_name] to reference domain scores."
                     />
                   </div>
                 </div>
