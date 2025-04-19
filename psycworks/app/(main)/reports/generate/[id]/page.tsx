@@ -165,28 +165,28 @@ export default function GenerateReportPage() {
     );
   };
 
-  // Handler to capture an individual table using its ref.
-  const handleTableScreenshot = async (assessmentId: string, assessmentName: string) => {
-    const element = tableRefs.current[assessmentId];
-    if (element) {
-      try {
-        const canvas = await html2canvas(element, {
-          backgroundColor: null,
-          scale: window.devicePixelRatio, // Increase resolution for clarity
-          useCORS: true,
-        });
-        const image = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.href = image;
-        link.download = `${assessmentName}-table-screenshot.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (error) {
-        console.error("Table screenshot failed: ", error);
-      }
+ // Handler to capture an individual table using its ref.
+ const handleTableScreenshot = async (assessmentId: string, assessmentName: string) => {
+  const element = tableRefs.current[assessmentId];
+  if (element) {
+    try {
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff', // Set white background
+        scale: window.devicePixelRatio, // Increase resolution for clarity
+        useCORS: true,
+      });
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = `${assessmentName}-table-screenshot.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Table screenshot failed: ", error);
     }
-  };
+  }
+};
 
   if (loading)
     return <div className="container mx-auto py-8">Loading report...</div>;
