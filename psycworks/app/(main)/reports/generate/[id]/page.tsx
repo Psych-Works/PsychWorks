@@ -165,28 +165,31 @@ export default function GenerateReportPage() {
     );
   };
 
- // Handler to capture an individual table using its ref.
- const handleTableScreenshot = async (assessmentId: string, assessmentName: string) => {
-  const element = tableRefs.current[assessmentId];
-  if (element) {
-    try {
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#ffffff', // Set white background
-        scale: window.devicePixelRatio, // Increase resolution for clarity
-        useCORS: true,
-      });
-      const image = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = image;
-      link.download = `${assessmentName}-table-screenshot.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Table screenshot failed: ", error);
+  // Handler to capture an individual table using its ref.
+  const handleTableScreenshot = async (
+    assessmentId: string,
+    assessmentName: string
+  ) => {
+    const element = tableRefs.current[assessmentId];
+    if (element) {
+      try {
+        const canvas = await html2canvas(element, {
+          backgroundColor: "#ffffff", // Set white background
+          scale: window.devicePixelRatio, // Increase resolution for clarity
+          useCORS: true,
+        });
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = image;
+        link.download = `${assessmentName}-table-screenshot.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Table screenshot failed: ", error);
+      }
     }
-  }
-};
+  };
 
   if (loading)
     return <div className="container mx-auto py-8">Loading report...</div>;
@@ -237,13 +240,13 @@ export default function GenerateReportPage() {
                 >
                   <span className="text-lg font-medium">{Assessment.name}</span>
                   <ChevronDown
-                    className={`h-5 w-5 transition-transform ${expandedIds.includes(Assessment.id) ? "rotate-180" : ""
-                      }`}
+                    className={`h-5 w-5 transition-transform ${
+                      expandedIds.includes(Assessment.id) ? "rotate-180" : ""
+                    }`}
                   />
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent>
-
                 <div className="p-6 bg-gray-50 border-t space-y-4">
                   <p className="text-muted-foreground">{Assessment.measure}</p>
                   {/* Wrap the table in a div with its own ref */}
@@ -251,7 +254,9 @@ export default function GenerateReportPage() {
                     ref={(el) => {
                       tableRefs.current[Assessment.id] = el;
                     }}
-                    className={`${Assessment.table_type_id === 2 ? "border p-4" : ""}`}
+                    className={`${
+                      Assessment.table_type_id === 2 ? "border p-4" : ""
+                    }`}
                   >
                     <TableFormContextProvider
                       initialData={processAssessmentData(Assessment)}
@@ -276,7 +281,9 @@ export default function GenerateReportPage() {
                   {Assessment.table_type_id === 3 && (
                     <Button
                       variant="outline"
-                      onClick={() => handleTableScreenshot(Assessment.id, Assessment.name)}
+                      onClick={() =>
+                        handleTableScreenshot(Assessment.id, Assessment.name)
+                      }
                     >
                       Screenshot This Table
                     </Button>
@@ -297,7 +304,10 @@ export default function GenerateReportPage() {
       </div>
       <div className="flex justify-between items-center">
         <Link href="/reports">
-          <Button variant="default" className="w-40 h-12">
+          <Button
+            variant="default"
+            className="w-40 h-12 text-white text-base font-semibold"
+          >
             Back
           </Button>
         </Link>
