@@ -25,7 +25,7 @@ export function TemplateEditor({ initialText = "", scores, onSave }: TemplateEdi
       <Textarea 
         value={template} 
         onChange={(e) => setTemplate(e.target.value)}
-        placeholder="Enter template with placeholders like [[field_name]] or [[field_name:property]]"
+        placeholder="Use templates with placeholders like [[field_name]] or [[field_name:property]]."
         className="min-h-[150px]"
       />
       <div className="flex justify-end gap-2">

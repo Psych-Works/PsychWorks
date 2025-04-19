@@ -51,16 +51,9 @@ export function parseAdvancedText(text: string, scores: AssessmentScores): strin
     
     // Handle different property types
     switch (property.trim().toLowerCase()) {
-      case "interpretation":
-      case "interpret":
-      case "average":
       case "avg":
         return getAverageDescription(scoreValue.percentile);
-      
-      case "percentile":
-      case "percent":
       case "%":
-      case "%tile":
         // Format with the percentage sign
         return `${scoreValue.percentile}%`;
       
