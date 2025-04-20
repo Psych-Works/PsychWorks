@@ -17,7 +17,7 @@ import ExportToDocxButton from "@/components/reports/report-gen/report-export-bu
 import ReportDynamicTable from "@/components/reports/report-gen/report-dynamic-table";
 import { DataRow } from "@/types/data-row";
 import Link from "next/link";
-import html2canvas from "html2canvas-pro"; // Import html2canvas-pro
+import { toPng } from 'html-to-image';
 import { parseAdvancedText } from "@/utils/text-parser";
 import { getPercentileFromScore } from "@/utils/percentile";
 
@@ -173,23 +173,41 @@ export default function GenerateReportPage() {
     assessmentName: string
   ) => {
     const element = tableRefs.current[assessmentId];
-    if (element) {
-      try {
-        const canvas = await html2canvas(element, {
-          backgroundColor: "#ffffff", // Set white background
-          scale: window.devicePixelRatio, // Increase resolution for clarity
-          useCORS: true,
-        });
-        const image = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.href = image;
-        link.download = `${assessmentName}-table-screenshot.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (error) {
-        console.error("Table screenshot failed: ", error);
-      }
+    if (!element) {
+      console.error("Screenshot target element not found for ID:", assessmentId);
+      return;
+    }
+
+    const originalStyle = element.style.cssText; // store original inline styles
+
+    try {
+      // temporarily remove padding and margin to prevent whitespace/cutoff issues
+      element.style.padding = '0px'; 
+      element.style.margin = '0px'; 
+
+      const rect = element.getBoundingClientRect();
+
+      const dataUrl = await toPng(element, { 
+          backgroundColor: '#ffffff', 
+          pixelRatio: window.devicePixelRatio * 2,
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+          cacheBust: true, // avoid potential caching issues (is this needed?)
+      });
+
+      // trigger download
+      const link = document.createElement('a');
+      link.download = `${assessmentName}-table-screenshot.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      console.error("Table screenshot failed using html-to-image: ", error);
+    } finally {
+      // restore original styles
+      element.style.cssText = originalStyle;
     }
   };
 
