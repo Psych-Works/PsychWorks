@@ -342,7 +342,7 @@ export default function GenerateReportPage() {
                         return result;
                       })()}
                       readOnly
-                      className="resize-none bg-white cursor-default"
+                      className="resize-none bg-white cursor-default min-h-[150px] h-auto text-base"
                       placeholder="No description available"
                     />
                   </div>

@@ -71,9 +71,9 @@ export function parseAdvancedText(text: string, scores: AssessmentScores): strin
  * Returns a description based on percentile score
  */
 function getAverageDescription(percentile: number): string {
-  if (percentile >= 84) return "significantly above average";
-  if (percentile >= 66) return "above average";
-  if (percentile >= 35) return "average";
-  if (percentile >= 17) return "below average";
-  return "significantly below average";
+  if (percentile >= 91) return "Very High Average";
+  if (percentile >= 75) return "High Average";
+  if (percentile >= 25) return "Average";
+  if (percentile >= 9) return "Low Average";
+  return "Very Low Average";
 }
