@@ -182,17 +182,17 @@ export default function GenerateReportPage() {
 
     try {
       // temporarily remove padding and margin to prevent whitespace/cutoff issues
-      element.style.padding = '0px'; 
-      element.style.margin = '0px'; 
+      element.style.padding = '0px';
+      element.style.margin = '0px';
 
       const rect = element.getBoundingClientRect();
 
-      const dataUrl = await toPng(element, { 
-          backgroundColor: '#ffffff', 
-          pixelRatio: window.devicePixelRatio * 2,
-          width: Math.round(rect.width),
-          height: Math.round(rect.height),
-          cacheBust: true, // avoid potential caching issues (is this needed?)
+      const dataUrl = await toPng(element, {
+        backgroundColor: '#ffffff',
+        pixelRatio: window.devicePixelRatio * 2,
+        width: Math.round(rect.width),
+        height: Math.round(rect.height),
+        cacheBust: true, // avoid potential caching issues (is this needed?)
       });
 
       // trigger download
@@ -220,23 +220,23 @@ export default function GenerateReportPage() {
 
   const dynamicTables = report.ReportAssessment.map(({ Assessment }) => {
     const dataRows = assessmentsData[Assessment.id] || [];
-    
+
     // Process the description text with the dynamic values
-    const scoresObj = dataRows.reduce<Record<string, { score: number; percentile: number }>>((acc, row) => {
+    const scoresObj = dataRows.reduce<Record<string, { score: number; percentile: number; scale: string }>>((acc, row) => {
       // Calculate percentile from score and scale
       const percentile = getPercentileFromScore(row.Score, row.Scale) || 0;
-      
+
       // Add multiple versions of the field name for robust matching
-      acc[row.DomSub] = { score: row.Score, percentile };
-      acc[row.DomSub.toLowerCase()] = { score: row.Score, percentile };
-      acc[row.DomSub.toLowerCase().replace(/\s+/g, '_')] = { score: row.Score, percentile };
-      
+      acc[row.DomSub] = { score: row.Score, percentile, scale: row.Scale };
+      acc[row.DomSub.toLowerCase()] = { score: row.Score, percentile, scale: row.Scale };
+      acc[row.DomSub.toLowerCase().replace(/\s+/g, '_')] = { score: row.Score, percentile, scale: row.Scale };
+
       return acc;
     }, {});
-    
+
     // Parse the description with the scores
     const parsedDescription = parseAdvancedText(Assessment.description || "", scoresObj);
-    
+
     return ReportDynamicTable({
       assessmentName: Assessment.name,
       measure: Assessment.measure,
@@ -277,9 +277,8 @@ export default function GenerateReportPage() {
                 >
                   <span className="text-lg font-medium">{Assessment.name}</span>
                   <ChevronDown
-                    className={`h-5 w-5 transition-transform ${
-                      expandedIds.includes(Assessment.id) ? "rotate-180" : ""
-                    }`}
+                    className={`h-5 w-5 transition-transform ${expandedIds.includes(Assessment.id) ? "rotate-180" : ""
+                      }`}
                   />
                 </Button>
               </CollapsibleTrigger>
@@ -291,9 +290,8 @@ export default function GenerateReportPage() {
                     ref={(el) => {
                       tableRefs.current[Assessment.id] = el;
                     }}
-                    className={`${
-                      Assessment.table_type_id === 2 ? "border p-4" : ""
-                    }`}
+                    className={`${Assessment.table_type_id === 2 ? "border p-4" : ""
+                      }`}
                   >
                     <TableFormContextProvider
                       initialData={processAssessmentData(Assessment)}
@@ -329,33 +327,36 @@ export default function GenerateReportPage() {
                     <Textarea
                       value={(() => {
                         // Create a scores object from all rows, not just depth=1
-                        const scoresObj = assessmentsData[Assessment.id].reduce<Record<string, { score: number; percentile: number }>>((acc, row) => {
+                        const scoresObj = assessmentsData[Assessment.id].reduce<Record<string, { score: number; percentile: number; scale: string }>>((acc, row) => {
                           // Calculate percentile from score and scale
                           const percentile = getPercentileFromScore(row.Score, row.Scale) || 0;
-                          
+
                           // Add the field with its original name (preserving case and spaces)
                           acc[row.DomSub] = {
-                            score: row.Score, 
-                            percentile: percentile
+                            score: row.Score,
+                            percentile: percentile,
+                            scale: row.Scale
                           };
-                          
+
                           // Add lowercase version
                           acc[row.DomSub.toLowerCase()] = {
-                            score: row.Score, 
-                            percentile: percentile
+                            score: row.Score,
+                            percentile: percentile,
+                            scale: row.Scale
                           };
-                          
+
                           // Add normalized version (lowercase with underscores)
                           const fieldName = row.DomSub.toLowerCase().replace(/\s+/g, '_');
-                          
+
                           acc[fieldName] = {
-                            score: row.Score, 
-                            percentile: percentile
+                            score: row.Score,
+                            percentile: percentile,
+                            scale: row.Scale
                           };
-                          
+
                           return acc;
                         }, {});
-                        
+
                         const result = parseAdvancedText(Assessment.description || "", scoresObj);
                         return result;
                       })()}
