@@ -1,9 +1,237 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Fort Worth PsychWorks</title>
+    <style>
+      :root {
+        --psych-purple: #757195;
+        --psych-purple-dark: #4a4766;
+        --psych-white: #ffffff;
+        --psych-light-bg: #f8f9fa;
+        --psych-dark-text: #212529;
+      }
+
+      /* Hero image */
+      .hero {background:url('./assets/bg.jpg') center/cover no-repeat; position:relative; overflow: hidden; /* Add overflow hidden */}
+      .hero::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:rgba(0,0,0,.55);
+        filter: blur(3px);
+        transform: scale(1.05);
+      }
+
+      /* Navbar */
+      .bg-psych-dark {
+        background-color: var(--psych-purple-dark) !important; /* !important to override Bootstrap */
+      }
+
+      /* Navbar text */
+      .navbar-dark .navbar-nav .nav-link {
+        color: rgba(255, 255, 255, 0.75);
+      }
+      .navbar-dark .navbar-nav .nav-link:hover,
+      .navbar-dark .navbar-nav .nav-link:focus {
+        color: var(--psych-white);
+      }
+      .navbar-dark .navbar-brand {
+        color: var(--psych-white);
+      }
+      .navbar-dark .navbar-brand:hover,
+      .navbar-dark .navbar-brand:focus {
+        color: var(--psych-white);
+      }
+      .navbar-dark .navbar-toggler {
+          color: rgba(255,255,255,.55);
+          border-color: rgba(255,255,255,.1);
+      }
+      .navbar-dark .navbar-toggler-icon {
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+      }
+
+      /* Buttons */
+      .btn-psych-primary {
+        color: var(--psych-white);
+        background-color: var(--psych-purple);
+        border-color: var(--psych-purple);
+      }
+      .btn-psych-primary:hover {
+        color: var(--psych-white);
+        background-color: #615d82;
+        border-color: #5a5679;
+      }
+
+      /* Light Background Section */
+      .bg-psych-light {
+        background-color: var(--psych-light-bg) !important; /* !important to override Bootstrap */
+      }
+
+      /* Footer */
+      .footer-psych-dark {
+        background-color: var(--psych-purple-dark);
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* Docs */
+      #docs h3 {
+        font-size: 1.25rem;
+      }
+
+      /* Dimm lines between docs */
+      #docs .list-group-item {
+        border-color: #e9ecef;
+      }
+    </style>
   </head>
-  <body></body>
+
+  <body data-bs-spy="scroll" data-bs-target="#nav" data-bs-offset="60" tabindex="0">
+    <!-- Navbar -->
+    <nav id="nav" class="navbar navbar-expand-lg navbar-dark bg-psych-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">Fort Worth PsychWorks</a>
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="menu" class="collapse navbar-collapse">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="#overview">Overview</a></li>
+            <li class="nav-item"><a class="nav-link" href="#solution">Solution</a></li>
+            <li class="nav-item"><a class="nav-link" href="#docs">Docs</a></li>
+            <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero d-flex align-items-center vh-100 text-white">
+      <div class="container text-center position-relative">
+        <h1 class="display-4 fw-bold">Fort Worth PsychWorks</h1>
+        <p class="lead">A web application for the Fort Worth PsychWorks clinic.</p>
+      </div>
+    </header>
+
+    <!-- Overview -->
+    <section id="overview" class="py-5">
+      <div class="container">
+        <h2>Overview</h2>
+        <p>[...]</p>
+      </div>
+    </section>
+
+    <!-- Solution -->
+    <section id="solution" class="py-5 bg-psych-light">
+      <div class="container">
+        <h2 class="mb-4">Our Solution</h2>
+        <div class="row g-4">
+          <div class="col-md-4"><div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h3 class="card-title h5">Increase Patient Capacity</h3>
+              <p class="card-text">Less paperwork → more face-time with patients</p>
+            </div></div></div>
+          <div class="col-md-4"><div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h3 class="card-title h5">Optimize Template Workflow</h3>
+              <p class="card-text">Create customizable and reusable assessment table templates</p>
+            </div></div></div>
+          <div class="col-md-4"><div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h3 class="card-title h5">Automated Report Generation</h3>
+              <p class="card-text">Scores in, polished PDF out — zero re-typing</p>
+            </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Docs / PDFs -->
+    <section id="docs" class="py-5">
+      <div class="container">
+        <h2>Project Documentation</h2>
+
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><a href="#" target="_blank">Glossary &nbsp;↗︎</a></li>
+          <li class="list-group-item"><a href="#" target="_blank">Vision and Scope &nbsp;↗︎</a></li>
+          <li class="list-group-item"><a href="#" target="_blank">Use Cases &nbsp;↗︎</a></li>
+          <li class="list-group-item"><a href="/assets/srs.pdf" target="_blank">Software Requirements Specification &nbsp;↗︎</a></li>
+          <li class="list-group-item"><a href="/assets/manual.pdf" target="_blank">User and Developer's Manual &nbsp;↗︎</a></li>
+          <li class="list-group-item"><a href="#" target="_blank">Test Cases &nbsp;↗︎</a></li>
+          <li class="list-group-item"><a href="#" target="_blank">Iteration Plan &nbsp;↗︎</a></li>
+          <li class="list-group-item"><a href="#" target="_blank">Release Plan &nbsp;↗︎</a></li>
+        </ul>
+
+        <h3 class="mt-4">Presentations</h3>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><a href="#" target="_blank">December 2024 &nbsp;↗︎</a></li>
+          <li class="list-group-item"><a href="#" target="_blank">May 2025 &nbsp;↗︎</a></li>
+        </ul>
+
+        <h3 class="mt-4">SRS</h3>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><a href="/assets/doc-poster.pdf" target="_blank">SRS Poster &nbsp;↗︎</a></li>
+        </ul>
+
+        <h3 class="mt-4">Meeting Documentation</h3>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><a href="#" target="_blank">Meeting Minutes &nbsp;↗︎</a></li>
+          <li class="list-group-item"><a href="#" target="_blank">Weekly Activity Report &nbsp;↗︎</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Team -->
+    <section id="team" class="py-5 bg-psych-light">
+      <div class="container">
+        <h2 class="mb-4">Meet the team</h2>
+        <div class="row g-4">
+          <div class="col-6 col-md-3 text-center">
+            <img src="./assets/alexandra-teran.jpg" class="rounded-circle mb-2" width="120" height="120" alt="Alexandra Teran, Technical Writer">
+            <h3 class="h6">Alexandra Teran</h3>
+            <p class="small text-muted">Technical Writer</p>
+          </div>
+          <div class="col-6 col-md-3 text-center">
+            <img src="./assets/ben-blake.jpg" class="rounded-circle mb-2" width="120" height="120" alt="Ben Blake, QA/Test Engineer">
+            <h3 class="h6">Ben Blake</h3>
+            <p class="small text-muted">QA/Test Engineer</p>
+          </div>
+          <div class="col-6 col-md-3 text-center">
+            <img src="./assets/hien-dau.jpg" class="rounded-circle mb-2" width="120" height="120" alt="Hien Dau, Full Stack Developer">
+            <h3 class="h6">Hien Dau</h3>
+            <p class="small text-muted">Full Stack Developer</p>
+          </div>
+          <div class="col-6 col-md-3 text-center">
+            <img src="./assets/roland-andrade.jpg" class="rounded-circle mb-2" width="120" height="120" alt="Roland Andrade, Full Stack Developer">
+            <h3 class="h6">Roland Andrade</h3>
+            <p class="small text-muted">Full Stack Developer</p>
+          </div>
+          <div class="col-6 col-md-3 text-center">
+            <img src="./assets/ryan-smith.jpg" class="rounded-circle mb-2" width="120" height="120" alt="Ryan Smith, Full Stack Developer">
+            <h3 class="h6">Ryan Smith</h3>
+            <p class="small text-muted">Full Stack Developer</p>
+          </div>
+          <div class="col-6 col-md-3 text-center">
+            <img src="./assets/sion-kim.jpg" class="rounded-circle mb-2" width="120" height="120" alt="Sion Kim, Full Stack Developer">
+            <h3 class="h6">Sion Kim</h3>
+            <p class="small text-muted">Full Stack Developer</p>
+          </div>
+          <div class="col-6 col-md-3 text-center">
+            <img src="./assets/will-peck.jpg" class="rounded-circle mb-2" width="120" height="120" alt="Will Peck, Authentication Specialist">
+            <h3 class="h6">Will Peck</h3>
+            <p class="small text-muted">Authentication Specialist</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="py-4 text-center footer-psych-dark">
+      <small>&copy; 2025 Fort Worth PsychWorks • TCU CS</small>
+    </footer>
+
+    <!-- JS (only for navbar collapse/scrollspy) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
